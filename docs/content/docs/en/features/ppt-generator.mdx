@@ -1,0 +1,169 @@
+---
+title: PPT Generator
+description: TalkCody's professional slide deck generation feature that transforms content into beautiful presentation images
+icon: Presentation
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## What is PPT Generator?
+
+**PPT Generator** is TalkCody's professional slide deck generation agent that can transform your content into beautiful presentation images. It adopts a **reading-first** design philosophy, generating slides suitable for reading and sharing, rather than live presentations.
+
+## Core Features
+
+- **Reading-Friendly**: Each slide is self-contained and complete, no verbal explanation needed
+- **Multiple Styles**: 16 preset visual styles to choose from
+- **Complete Workflow**: Full workflow from outline to images to PPTX files
+- **Bilingual Support**: Supports automatic recognition and generation of Chinese and English content
+
+## Requirements
+
+<Callout type="warning">
+Using PPT Generator requires meeting the following conditions:
+</Callout>
+
+1. **Configure Image Generation API Key** (e.g., OpenAI) - Used to generate slide images
+
+Refer to [Image Generation](./image-generator)
+
+## Quick Start
+
+<Steps>
+
+<Step>
+### Select Agent
+
+Click the agent selector in the top-left corner of the chat interface and select **PPT Generator**.
+</Step>
+
+<Step>
+### Provide Content
+
+Provide the content you want to transform to the agent:
+- Paste articles, reports, or notes
+- Describe the topic and outline
+- Upload document files
+</Step>
+
+<Step>
+### Confirm Configuration
+
+The agent will guide you to confirm the following options:
+- **Visual Style**: Recommended preset style best suited for the content
+- **Target Audience**: General readers, beginners, professionals, or executives
+- **Slide Count**: Intelligently recommended based on content length
+- **Review Options**: Whether to manually review at outline and prompt stages
+</Step>
+
+<Step>
+### Generate Slides
+
+After confirming the configuration, the agent will:
+1. Generate slide outline
+2. Create image generation prompts
+3. Generate all slide images
+4. Merge into PPTX file
+
+</Step>
+
+</Steps>
+
+## Visual Style Presets
+
+PPT Generator provides 16 carefully designed visual styles:
+
+| Preset Style | Features | Best For |
+|--------------|----------|----------|
+| **blueprint** | Grid + Cool tones + Technical | Architecture design, system analysis |
+| **chalkboard** | Organic texture + Warm tones + Handwritten | Education training, tutorials |
+| **corporate** | Clean + Professional + Geometric | Business proposals, investor presentations |
+| **minimal** | Minimalist + Neutral + Geometric | Executive briefings, concise reports |
+| **sketch-notes** | Organic + Warm + Handwritten | Educational content, note style |
+| **watercolor** | Organic + Warm + Humanist | Lifestyle, wellness |
+| **dark-atmospheric** | Dark + Atmospheric | Entertainment, gaming |
+| **notion** | Clean + Neutral + Information dense | Product demos, SaaS |
+| **bold-editorial** | Bold + Vibrant + Magazine style | Product launches, keynotes |
+| **editorial-infographic** | Clean + Cool + Infographic | Technical explainers, research presentations |
+| **fantasy-animation** | Organic + Vibrant + Handwritten | Educational storytelling, children's content |
+| **intuition-machine** | Clean + Cool + Technical dense | Technical docs, academic papers |
+| **pixel-art** | Pixel + Vibrant + Technical | Gaming, developer topics |
+| **scientific** | Clean + Cool + Technical dense | Biology, chemistry, medicine |
+| **vector-illustration** | Clean + Vibrant + Humanist | Creative, children's content |
+| **vintage** | Paper + Warm + Editorial | History, cultural heritage |
+
+### Intelligent Style Recommendation
+
+The agent will automatically recommend the most suitable style based on content keywords:
+
+| Content Keywords | Recommended Style |
+|------------------|-------------------|
+| tutorial, learn, education, guide | sketch-notes |
+| classroom, teaching, school | chalkboard |
+| architecture, system, data, analysis | blueprint |
+| creative, children, kids | vector-illustration |
+| briefing, academic, research | intuition-machine |
+| executive, minimal, clean | minimal |
+| saas, product, dashboard | notion |
+| investor, quarterly, business | corporate |
+| launch, marketing, keynote | bold-editorial |
+
+## Output File Structure
+
+Generated files are saved in the `slide-deck/{topic-slug}/` folder in the working directory:
+
+```
+slide-deck/{topic-slug}/
+├── source.md              # Original content
+├── outline.md             # Slide outline
+├── prompts/               # Image generation prompts
+│   ├── 01-slide-cover.md
+│   ├── 02-slide-xxx.md
+│   └── ...
+├── 01-slide-cover.png     # Slide images
+├── 02-slide-xxx.png
+├── ...
+├── {topic-slug}.pptx      # PowerPoint file
+└── {topic-slug}.pdf       # PDF file (if generated)
+```
+
+## Advanced Usage
+
+### Partial Workflows
+
+Supports specifying to execute only part of the workflow:
+
+| Option | Description |
+|--------|-------------|
+| `outline-only` | Generate outline only (Steps 1-3) |
+| `prompts-only` | Generate up to prompt stage (Steps 1-5) |
+| `images-only` | Generate images only (requires existing prompts) |
+| `regenerate N` | Regenerate specific slide pages |
+
+## Frequently Asked Questions
+
+### What to do if Skill installation fails?
+
+1. Check if the network connection is normal
+
+### What to do if image generation is slow?
+
+- This is normal, each image takes 10-30 seconds
+- 20-page PPT takes approximately 5-10 minutes
+- You can confirm at the prompt review stage before batch generation
+
+### How to modify generated slides?
+
+1. Directly edit `outline.md` to modify content structure
+2. Edit files in the `prompts/` directory to modify image style
+3. Use `regenerate N` to regenerate specific pages
+
+### Where is the PPTX file?
+
+The generated PPTX file is located at:
+```
+{working-directory}/slide-deck/{topic-slug}/{topic-slug}.pptx
+```
+
+You can click to download in the chat results, or open it directly in the file system.

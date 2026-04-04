@@ -1,0 +1,303 @@
+---
+title: AI Coding 最佳实践
+sidebarTitle: 最佳实践
+description: 提升效率、节省成本并确保质量的 TalkCody AI Coding 工作流
+icon: Sparkles
+---
+
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+本指南聚焦三个目标：**提效、降本、提质**。它总结了 TalkCody 的关键功能与实践方法，帮助你把 AI 变成可交付的工程生产力，而不是仅靠灵感输出的"聊天工具"。
+
+## 2026 年 AI 编程趋势
+
+理解这些趋势，能帮你更好地把握 AI 编程的未来方向：
+
+<Callout type="info">
+### 📈 AI Agent 并发度跃升
+
+**AI coding Agent 的并发度将变成 10-20**：从当前的单任务线性执行，跃升到能同时处理 10-20 个并行任务。AI coding Agent 将从"代码生成者"升级为 **Task 编排者**，负责协调多个子任务、智能体和工具的协同工作。
+</Callout>
+
+<Callout type="info">
+### 🌙 新工作范式：夜间编码 + 日间审查
+
+**晚上 + 周末 AI 全自动 Coding**：利用非工作时间让 AI 批量编码、测试、生成文档。
+
+**白天 Review 代码、思考、讨论和关键性测试**：人类专注于高价值活动——代码审查、架构决策、技术讨论和关键测试验证。这种范式最大化了人类时间价值。
+</Callout>
+
+<Callout type="info">
+### 👤 职业边界重构：Maker 时代到来
+
+**开发者、产品经理和测试的分工将逐步取消**：AI Agent 能完成编码、需求分析、测试用例生成等多角色工作。
+
+**将只有 Maker 这个职业**：未来的工程师不再是单一的"程序员"或"测试"，而是能驾驭 AI Agent、统筹全流程的 **Maker**——懂技术、懂产品、能交付。
+</Callout>
+
+## 一、模型选择：永远用最强的
+
+### 核心原则：时间是你的最宝贵资产
+
+<Callout type="tip">
+**永远只用最强大的模型**。
+
+你最宝贵的资产是你的时间，而非 API 成本。选择更强模型节省的时间，远超节省的 token 费用。
+</Callout>
+
+### 推荐模型配置
+
+在 TalkCody 中推荐使用以下模型：
+
+- **个人主力模型**：GPT-5.2 Codex
+  - 在 TalkCody 中使用 [OpenAI 订阅](../features/openai-plus-plan)
+  - 代码理解与生成能力顶尖
+  - 适合复杂推理和多文件重构
+
+- **高频编码场景**：[Coding Plan](../features/coding-plan) 内置模型
+  - 针对编程优化
+  - 成本可控
+  - 性能稳定可靠
+
+### 模型分级策略
+
+- **Main Model**（主力模型）：复杂任务、架构设计、关键代码修改
+- **Small Model**（轻量模型）：简单格式转换、文档生成、基础问题问答
+
+<Callout type="warning">
+不要为了节省成本牺牲质量。一次成功的任务完成，远胜过十次失败的尝试。
+</Callout>
+
+## 二、效率：让 AI 帮你跑得更快
+
+### 1. 复杂任务优先使用 Plan Mode
+
+- 多文件、关键改动、流程复杂的需求，开启 [Plan Mode](../features/plan-mode) 先让 AI 制定计划再执行。
+- 计划通过后再落地，可显著减少返工和反复沟通成本。
+
+### 2. 角色化协作：Agents + Skills
+
+- 用 [AI 智能体](../features/ai-agents) 把任务拆成"角色"：代码审查员、测试生成器、文档编写者等。
+- 用 [Skills](../features/skills) 叠加特定领域能力，让同一智能体在不同场景下快速切换。
+- 简单任务用 Small Model，复杂推理用 Main Model，避免"重锤敲钉子"。
+
+### 3. 工具驱动定位，减少无效上下文
+
+- 熟练使用 [Tools](../features/tools) 与 [全局搜索](../features/search)，先定位再读取，避免"整库喂给 AI"。
+- 需要最新信息时，启用 [Web Search](../features/web-search) 或 Coding Plan 内置搜索，减少错误与过期信息。
+
+<Callout type="tip">
+工具使用越精准，AI 的上下文越干净，推理质量与速度都会更高。
+</Callout>
+
+### 4. 并行处理：Worktree
+
+- 多任务并行时开启 [Worktree](../features/worktree)，让每个任务在独立目录执行，避免相互覆盖。
+- 纯只读任务不需要 Worktree，避免不必要的开销。
+
+### 5. 即时反馈：LSP + Lint + 终端
+
+- 打开 [LSP](../features/lsp) 与 [代码检查](../features/code-lint)，用"即时诊断"缩短反馈回路。
+- 使用 [终端集成](../features/terminal) 快速运行脚本和验证命令，减少切换成本。
+
+## 三、成本：把钱花在刀刃上
+
+### 1. 复用订阅，优先利用已有额度
+
+- 已有订阅可直接复用：
+  - [Claude Pro/Max](../features/claude-pro-plan)
+  - [OpenAI Plus/Pro](../features/openai-plus-plan)
+  - [GitHub Copilot](../features/github-copilot)
+
+### 2. 高频编码优选 Coding Plan
+
+- [Coding Plan](../features/coding-plan) 是针对编程场景的订阅方案，适合高频使用，成本更可控。
+- 开启后可直接使用内置 MCP 搜索/图像识别工具，减少额外 API 支出。
+
+### 3. 充分利用免费与低成本方案
+
+- 参考 [免费使用指南](../guides/free-use) 选择合适的免费或本地模型方案。
+
+### 4. 控制上下文成本
+
+- 使用 `/compact` 压缩对话上下文，减少 Token 浪费（参见 [Commands](../features/commands)）。
+- 避免反复读取大文件，优先用搜索工具定位，再精确读取。
+- 了解 TalkCody 的上下文压缩机制，可参考 [上下文压缩原理](/zh/blog/talkcody-context-compaction)。
+
+## 四、质量：把 AI 变成可交付的工程流程
+
+### 1. 用 /init 生成 AGENTS.md
+
+- `/init` 会生成项目的协作规范文件 `AGENTS.md`，为 AI 提供稳定的工程规则。
+- 智能体的动态提示也会读取 `AGENTS.md`，能显著提升输出的一致性。
+- 命令说明见 [Commands](../features/commands)。
+
+### 2. 用 Hooks 做质量闸门
+
+Hooks 可以在任务生命周期中执行命令，实现类似 CI 的质量拦截。项目中已提供示例脚本 `scripts/hooks/stop-checks.ts`，会顺序执行 `bun run tsc`、`bun run test`、`bun run lint`，失败时阻止任务结束。
+
+示例配置（项目级 `.talkcody/settings.json`）：
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun scripts/hooks/stop-checks.ts",
+            "timeout": 600,
+            "description": "Run tsc/test/lint before finishing"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+<Callout type="warning">
+Hooks 会在本地执行命令，请只在可信项目中启用，并根据项目规模设置合适的超时。
+</Callout>
+
+### 3. 一键 AI Code Review
+
+TalkCody 支持一键 AI 代码审查，让 AI 充当专业代码审查员：
+
+<Steps>
+<Step>
+### 启动审查
+在文件变更后，TalkCody 可自动触发智能体进行深度审查
+</Step>
+
+<Step>
+### 多维度检查
+- **代码质量**：检测代码异味、复杂度、潜在 Bug
+- **安全性**：识别安全漏洞、敏感信息泄露风险
+- **最佳实践**：评估是否符合项目编码规范和设计模式
+- **可维护性**：检查代码可读性、注释完整性
+</Step>
+
+<Step>
+### 生成报告
+自动生成结构化审查报告，包含问题位置、严重程度和修复建议
+</Step>
+
+<Step>
+### 一键修复
+支持根据审查报告一键生成修复代码
+</Step>
+</Steps>
+
+<Callout type="success">
+AI Code Review 让代码审查从"人工耗时"变成"秒级响应"，显著提升代码质量和团队效率。
+</Callout>
+
+### 4. 用 LSP + Lint + 测试形成闭环
+
+- LSP 先发现问题，Lint 强化规范，测试验证逻辑，三者构成质量闭环。
+- 复杂变更建议配合"代码审查智能体"做二次检查。
+
+## 五、如何高效 Plan
+
+### 开放式提问 vs 封闭式提问
+
+<Callout type="warning">
+### ❌ 错误：封闭式提问
+
+"这个方案好不好？""这样写对不对？"
+
+这类问题只能得到 "好/不好"、"对/不对" 的二元答案，无法激发 AI 的探索能力。
+</Callout>
+
+<Callout type="success">
+### ✅ 正确：开放式提问
+
+"针对这个需求，AI 可能有哪些技术方案？各自的优缺点是什么？"
+
+"有哪些可能的实现路径？帮我分析每种方案的适用场景。"
+
+这类问题会让 AI 主动探索多种可能性，提供全面的分析和比较。
+</Callout>
+
+### Plan Mode 高效提问技巧
+
+使用 [Plan Mode](../features/plan-mode) 时，建议：
+
+1. **描述目标，而非路径**
+   - ✅ "我们需要实现一个文件上传功能，支持断点续传和大文件处理"
+   - ❌ "用 WebSocket 实现文件上传"
+
+2. **要求多方案对比**
+   - "请提供 2-3 种技术方案，分析各自的技术栈、复杂度、性能和维护成本"
+
+3. **明确约束条件**
+   - "考虑到我们的团队熟悉 TypeScript，且需要兼容移动端，有什么推荐方案？"
+
+4. **请求风险评估**
+   - "每种方案可能存在哪些风险？有哪些需要特别注意的坑？"
+
+<Callout type="tip">
+开放式提问能最大化 AI 的探索能力，让你获得更全面、更深刻的方案分析。
+</Callout>
+
+## 推荐工作流（示例）
+
+<Steps>
+<Step>
+### 1) 用 /init 初始化规范
+生成 `AGENTS.md`，明确项目约束与输出要求。
+</Step>
+
+<Step>
+### 2) 复杂任务开启 Plan Mode
+先让 AI 提交计划，再审批执行。
+</Step>
+
+<Step>
+### 3) 搜索 → 精读 → 修改
+先用搜索工具定位，再精确读取文件，避免无效上下文。
+</Step>
+
+<Step>
+### 4) 角色化协作
+切换 Agents/Skills，把评审、测试、文档拆成独立子任务。
+</Step>
+
+<Step>
+### 5) 并行用 Worktree
+多任务改动时隔离目录，避免冲突。
+</Step>
+
+<Step>
+### 6) Hooks/终端执行检查
+在结束前跑 tsc/test/lint，确保可交付质量。
+</Step>
+</Steps>
+
+## 快速清单
+
+- **模型选择**：永远用最强模型 + GPT-5.2 Codex 主力 + Coding Plan 高频
+- **效率**：Plan Mode 规划 + 工具精准定位 + Worktree 并行 + LSP/Lint 即时反馈
+- **成本**：订阅复用 + Coding Plan + 免费方案 + /compact 控制上下文
+- **质量**：/init 规范化 + Hooks 质量闸门 + AI Code Review + 测试闭环
+- **Plan**：开放式提问 + 多方案对比 + 明确约束 + 风险评估
+
+## 相关阅读
+
+- [Plan Mode](../features/plan-mode)
+- [Coding Plan](../features/coding-plan)
+- [AI 智能体](../features/ai-agents)
+- [Skills 技能](../features/skills)
+- [Tools 工具](../features/tools)
+- [全局搜索](../features/search)
+- [Web Search](../features/web-search)
+- [Git Worktree](../features/worktree)
+- [代码检查](../features/code-lint)
+- [LSP 语言服务](../features/lsp)
+- [Commands 内置命令](../features/commands)
+- [免费使用指南](../guides/free-use)
+- [上下文压缩原理](/zh/blog/talkcody-context-compaction)

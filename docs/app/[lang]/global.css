@@ -1,0 +1,96 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+/* Font variables */
+:root {
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-space);
+}
+
+
+/* Typography */
+body {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-space), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Metallic Gradients */
+.metallic-text {
+  background: linear-gradient(to bottom, #ffffff 0%, #a1a1aa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.metallic-card {
+  background: linear-gradient(145deg, #18181b 0%, #09090b 100%);
+  border: 1px solid #27272a;
+}
+
+/* Flowing Border Animation */
+@keyframes border-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Performance-optimized CSS animations (replaces framer-motion) */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-scale {
+  animation: fade-in-scale 0.7s ease-out forwards;
+  opacity: 0;
+}
+
+/* Animation delay utilities */
+.animation-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animation-delay-400 {
+  animation-delay: 400ms;
+}

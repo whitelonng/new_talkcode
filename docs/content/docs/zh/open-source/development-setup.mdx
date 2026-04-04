@@ -1,0 +1,237 @@
+---
+title: 开发环境搭建
+description: TalkCody 开发环境设置和构建指南。
+icon: Wrench
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## 前置要求
+
+### 必需软件
+
+**Node.js 和 Bun**
+```bash
+# 安装 Node.js 20+（推荐使用 nvm）
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+nvm install 20
+nvm use 20
+
+# 安装 Bun
+curl -fsSL https://bun.sh/install | bash
+```
+
+**Rust**
+```bash
+# 通过 rustup 安装 Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# 验证安装
+rustc --version
+cargo --version
+```
+
+**Git**
+```bash
+# macOS（通过 Homebrew）
+brew install git
+
+# Windows（通过 Chocolatey）
+choco install git
+
+# Linux（Ubuntu/Debian）
+sudo apt install git
+```
+
+**平台特定要求**
+
+**macOS**:
+```bash
+# 安装 Xcode 命令行工具
+xcode-select --install
+
+# 安装 Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+**Windows**:
+```powershell
+# 安装 Visual Studio Build Tools
+# 下载地址：https://visualstudio.microsoft.com/downloads/
+# 选择：Desktop development with C++
+
+# 安装 WebView2（Windows 11 通常已预装）
+# 如需要可下载：https://developer.microsoft.com/microsoft-edge/webview2/
+```
+
+**Linux**:
+```bash
+# Ubuntu/Debian
+sudo apt update
+sudo apt install libwebkit2gtk-4.1-dev \
+  build-essential \
+  curl \
+  wget \
+  file \
+  libssl-dev \
+  libgtk-3-dev \
+  libayatana-appindicator3-dev \
+  librsvg2-dev
+
+# Fedora
+sudo dnf install webkit2gtk4.1-devel \
+  openssl-devel \
+  curl \
+  wget \
+  file \
+  gtk3-devel \
+  libappindicator-gtk3-devel \
+  librsvg2-devel
+
+# Arch Linux
+sudo pacman -S webkit2gtk \
+  base-devel \
+  curl \
+  wget \
+  file \
+  openssl \
+  gtk3 \
+  libappindicator-gtk3 \
+  librsvg
+```
+
+## 开始使用
+
+<Steps>
+
+<Step>
+### 克隆仓库
+
+```bash
+# 通过 HTTPS 克隆
+git clone https://github.com/talkcody/talkcody.git
+
+# 进入项目目录
+cd talkcody
+```
+</Step>
+
+<Step>
+### 安装依赖
+
+```bash
+# 安装前端依赖
+bun install
+
+# 安装 Rust 依赖（首次构建时自动完成）
+cd src-tauri
+cargo fetch
+cd ..
+```
+
+<Callout type="info">
+首次设置可能需要 5-10 分钟，因为需要下载和编译依赖项。
+</Callout>
+</Step>
+
+<Step>
+### 运行开发服务器
+
+```bash
+# 启动 Tauri 开发服务器
+bun run tauri dev
+```
+
+这将执行以下操作：
+- 启动 Vite 开发服务器
+- 编译 Rust 代码
+- 启动应用程序窗口
+- 启用前端热重载功能
+</Step>
+
+</Steps>
+
+## 开发工作流
+
+### 项目结构
+
+```
+talkcody/
+├── src/                    # React 前端源代码
+│   ├── components/         # UI 组件
+│   ├── hooks/              # React hooks
+│   ├── lib/                # 工具函数
+│   ├── pages/              # 页面组件
+│   ├── services/           # 业务逻辑
+│   ├── styles/             # CSS 文件
+│   └── types/              # TypeScript 类型定义
+│
+├── src-tauri/              # Rust 后端
+│   ├── src/                # Rust 源文件
+│   │   ├── main.rs         # 入口文件
+│   │   ├── commands/       # Tauri 命令
+│   │   └── lib.rs          # 库代码
+│   ├── Cargo.toml          # Rust 依赖
+│   └── tauri.conf.json     # Tauri 配置
+│
+├── public/                 # 静态资源
+├── docs/                   # 文档站点
+├── package.json            # Node 依赖
+├── tsconfig.json           # TypeScript 配置
+├── vite.config.ts          # Vite 配置
+└── README.md
+```
+
+### 常用命令
+
+**开发命令**:
+```bash
+# 启动带热重载的开发服务器
+bun run tauri dev
+
+# 仅启动前端（用于 UI 开发）
+bun run dev
+
+# 运行 TypeScript 类型检查
+bun run tsc
+
+# 运行代码检查
+bun run lint
+
+# 运行前端测试
+bun run test
+
+# 运行后端测试
+cd src-tauri
+cargo test
+```
+
+**构建命令**:
+```bash
+# 生产环境构建
+bun run tauri build
+
+# 仅构建前端
+bun run build
+```
+
+## 贡献代码
+
+### 开始贡献
+
+1. **Fork 仓库** 在 GitHub 上
+2. **克隆你的 fork** 到本地
+3. **创建分支** 用于你的功能/修复
+4. **进行修改**
+5. **彻底测试**
+6. **提交 pull request**
+
+### 代码规范
+
+请参考我们的 [AGENTS.md](https://github.com/talkcody/talkcody/blob/main/AGENTS.md) 了解代码规范和最佳实践。
+
+## 下一步
+
+- [架构设计](/docs/open-source/architecture) - 理解代码库
+- [GitHub Issues](https://github.com/talkcody/talkcody/issues) - 报告 Bug 或请求功能

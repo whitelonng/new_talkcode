@@ -1,0 +1,282 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for all windows",
+  "windows": [
+    "*"
+  ],
+  "permissions": [
+    "core:default",
+    "core:event:allow-listen",
+    "opener:default",
+    "dialog:default",
+    "fs:default",
+    "fs:allow-fstat",
+    "fs:allow-app-meta-recursive",
+    "fs:allow-write-file",
+    "fs:allow-appdata-write-recursive",
+    "log:default",
+    {
+      "identifier": "fs:scope-appdata-recursive",
+      "allow": [
+        {
+          "path": "$APPDATA/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:scope-home-recursive",
+      "allow": [
+        {
+          "path": "$HOME/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        {
+          "path": "**"
+        }
+      ]
+    },
+    "fs:allow-read",
+    "fs:allow-write",
+    "fs:allow-resource-read-recursive",
+    "shell:default",
+    "shell:allow-spawn",
+    "shell:allow-open",
+    "shell:allow-stdin-write",
+    "shell:allow-execute",
+    "shell:allow-kill",
+    "clipboard:allow-read-image-base64",
+    "clipboard:allow-read-image-binary",
+    "clipboard:allow-read-files",
+    "clipboard:allow-read-files-uris",
+    "clipboard:allow-has-image",
+    "clipboard:allow-has-files",
+    "clipboard:allow-read-text",
+    "deep-link:default",
+    "deep-link:allow-get-current",
+    "deep-link:allow-is-registered",
+    "deep-link:allow-register",
+    "deep-link:allow-unregister",
+    "core:window:allow-show",
+    "core:window:allow-set-focus",
+    "core:window:allow-set-title",
+    "updater:default",
+    "updater:allow-check",
+    "updater:allow-download",
+    "updater:allow-install",
+    "process:default",
+    "process:allow-restart",
+    "notification:default",
+    "os:default",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "exec-sh",
+          "cmd": "sh",
+          "args": [
+            "-c",
+            {
+              "validator": ".+"
+            }
+          ]
+        },
+        {
+          "name": "login-shell-zsh",
+          "cmd": "zsh",
+          "args": [
+            "-l",
+            "-c",
+            {
+              "validator": ".+"
+            }
+          ]
+        },
+        {
+          "name": "login-shell-bash",
+          "cmd": "bash",
+          "args": [
+            "-l",
+            "-c",
+            {
+              "validator": ".+"
+            }
+          ]
+        },
+        {
+          "name": "login-shell-sh",
+          "cmd": "sh",
+          "args": [
+            "-l",
+            "-c",
+            {
+              "validator": ".+"
+            }
+          ]
+        },
+        {
+          "name": "login-shell-cmd",
+          "cmd": "cmd",
+          "args": [
+            "/C",
+            {
+              "validator": ".+"
+            }
+          ]
+        },
+        {
+          "name": "login-shell-powershell",
+          "cmd": "powershell",
+          "args": [
+            "-Command",
+            {
+              "validator": ".+"
+            }
+          ]
+        },
+        {
+          "name": "npx",
+          "cmd": "/opt/homebrew/bin/npx",
+          "args": true
+        },
+        {
+          "name": "npm",
+          "cmd": "npm",
+          "args": true
+        },
+        {
+          "name": "bun",
+          "cmd": "bun",
+          "args": true
+        },
+        {
+          "name": "git",
+          "cmd": "git",
+          "args": true
+        },
+        {
+          "name": "node",
+          "cmd": "node",
+          "args": true
+        },
+        {
+          "name": "python",
+          "cmd": "python",
+          "args": true
+        },
+        {
+          "name": "python3",
+          "cmd": "python3",
+          "args": true
+        }
+      ]
+    },
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "exec-sh",
+          "cmd": "sh",
+          "args": [
+            "-c",
+            {
+              "validator": ".+"
+            }
+          ]
+        },
+        {
+          "name": "login-shell-zsh",
+          "cmd": "zsh",
+          "args": [
+            "-l",
+            "-c",
+            {
+              "validator": ".+"
+            }
+          ]
+        },
+        {
+          "name": "login-shell-bash",
+          "cmd": "bash",
+          "args": [
+            "-l",
+            "-c",
+            {
+              "validator": ".+"
+            }
+          ]
+        },
+        {
+          "name": "login-shell-sh",
+          "cmd": "sh",
+          "args": [
+            "-l",
+            "-c",
+            {
+              "validator": ".+"
+            }
+          ]
+        },
+        {
+          "name": "login-shell-cmd",
+          "cmd": "cmd",
+          "args": [
+            "/C",
+            {
+              "validator": ".+"
+            }
+          ]
+        },
+        {
+          "name": "login-shell-powershell",
+          "cmd": "powershell",
+          "args": [
+            "-Command",
+            {
+              "validator": ".+"
+            }
+          ]
+        },
+        {
+          "name": "npx",
+          "cmd": "/opt/homebrew/bin/npx",
+          "args": true
+        },
+        {
+          "name": "npm",
+          "cmd": "npm",
+          "args": true
+        },
+        {
+          "name": "bun",
+          "cmd": "bun",
+          "args": true
+        },
+        {
+          "name": "git",
+          "cmd": "git",
+          "args": true
+        },
+        {
+          "name": "node",
+          "cmd": "node",
+          "args": true
+        },
+        {
+          "name": "python",
+          "cmd": "python",
+          "args": true
+        },
+        {
+          "name": "python3",
+          "cmd": "python3",
+          "args": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,414 @@
+---
+title: API 密钥管理
+description: 配置 AI 提供商的 API 密钥以启用 TalkCody 的 AI 功能
+icon: Key
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## API 密钥
+
+![API 密钥配置](https://cdn.talkcody.com/images/api-keys.png)
+
+TalkCody 支持多个 AI 提供商,每个都需要自己的 API 密钥:
+
+- **OpenAI** - GPT 模型
+- **Anthropic** - Claude 模型
+- **Google** - Gemini 模型
+- **Groq** - Groq 模型
+- **OpenRouter** - 支持 500+ 模型的网关
+- **Vercel AI Gateway** - 支持 100+ 模型的网关
+- **VolcEngine** - 火山引擎 Doubao 模型
+- **Alibaba Qwen** - 通义千问模型
+- **Zhipu AI** - GLM 模型
+- **Z.AI** - GLM 模型(国际版)
+- **MiniMax** - MiniMax 模型
+- **DeepSeek** - DeepSeek 模型
+- **Moonshot** - Kimi 模型
+- **Ollama** - 本地模型(无需密钥)
+- **LM Studio** - 本地模型(无需密钥)
+
+<Callout type="success">
+TalkCody 支持任意兼容 OpenAI 或 Anthropic API 的第三方提供商。只需输入相应的 API 密钥和可选的自定义 Base URL 即可。
+</Callout>
+
+<Callout type="info">
+您至少需要配置一个 API 密钥才能使用 TalkCody。多个密钥允许您使用不同的模型和提供商。
+</Callout>
+
+<Callout type="tip">
+没有 API 密钥？尝试使用 OpenRouter 或者 Vercel AI Gateway，它通过单个 API 密钥提供对上百个模型的访问，包括一些免费模型。
+</Callout>
+
+<Callout type="tip">
+如果需要使用免费的 Web Search Tool，请先配置 Tavily API 密钥。Tavily 每月提供 1000 次免费搜索请求。
+</Callout>
+
+<Callout type="tip">
+如果需要使用免费的语音输入功能，请先配置 Eleven Labs API 密钥。Eleven Labs 每月提供 10,000 字符的免费语音合成。
+</Callout>
+
+## 添加 API 密钥
+
+<Steps>
+
+<Step>
+### 打开设置
+
+1. 打开设置页面
+2. 导航到 **API 密钥**部分
+</Step>
+
+<Step>
+### 输入提供商的 API 密钥
+
+1. 在输入字段中粘贴您的 API 密钥
+2. 对于 OpenAI 和 Anthropic 兼容的提供商, 输入 base URL(如果需要)
+</Step>
+
+<Step>
+### 测试连接
+
+1. 点击**测试密钥**以验证其有效
+2. 检查连接是否成功
+</Step>
+
+</Steps>
+
+## 获取 API 密钥
+
+### Vercel AI Gateway
+
+多模型 AI 网关，通过单一接口访问多个 AI 提供商的模型。
+
+**获取步骤**：
+1. 访问 [Vercel AI Gateway](https://vercel.com/docs/ai-gateway/getting-started#set-up-your-api-key)
+2. 使用 Vercel 账户登录或注册
+3. 在 Dashboard 中创建新项目
+4. 进入项目设置，找到 AI Gateway 配置
+5. 生成 Gateway API Key
+6. 复制密钥并粘贴到 TalkCody 的 Vercel AI Gateway 字段
+
+### OpenRouter
+
+OpenRouter API 网关，聚合多个 AI 提供商，通过单一 API 访问 100+ 模型。
+
+**获取步骤**：
+1. 访问 [openrouter.ai](https://openrouter.ai/settings/keys)
+2. 点击右上角 "Sign In" 登录或注册
+3. 登录后，点击头像进入账户设置
+4. 在左侧菜单中选择 "Keys"
+5. 点击 "Create Key" 创建新密钥
+6. 为密钥命名（如 "TalkCody"）并点击确认
+7. 复制生成的密钥（格式：`sk-or-v1-...`）
+8. 粘贴到 TalkCody 的 OpenRouter 字段
+
+<Callout type="tip">
+OpenRouter 提供一些免费模型（如 DeepSeek Chat），适合测试和轻度使用。
+</Callout>
+
+### OpenAI
+
+官方 OpenAI API，提供 GPT-4、GPT-4 Turbo 等先进语言模型。
+
+**获取步骤**：
+1. 访问 [platform.openai.com](https://platform.openai.com/api-keys)
+2. 点击 "Sign up" 注册或 "Log in" 登录
+3. 完成账户验证（可能需要手机号）
+4. 登录后，点击右上角头像 → "API keys"
+5. 点击 "Create new secret key"
+6. 为密钥命名并点击 "Create secret key"
+7. **立即复制密钥**（格式：`sk-...`，关闭后无法再次查看）
+8. 粘贴到 TalkCody 的 OpenAI 字段
+
+<Callout type="warn">
+新账户通常有 $5 免费额度。使用前请确保账户有足够余额或已绑定付款方式。
+</Callout>
+
+**自定义 Base URL**：如果使用代理服务器或兼容 OpenAI 的第三方服务（如 MiniMax），请在 "Custom Base URL" 字段填入对应的端点地址。
+
+### Anthropic
+
+官方 Anthropic Claude API，提供 Claude 3.5 Sonnet、Opus、Haiku 等模型。
+
+**获取步骤**：
+1. 访问 [console.anthropic.com](https://console.anthropic.com/settings/keys)
+2. 点击 "Sign up" 注册新账户
+3. 完成邮箱验证和账户设置
+4. 登录后进入 Console Dashboard
+5. 在左侧菜单点击 "API Keys"
+6. 点击 "Create Key" 按钮
+7. 输入密钥名称并确认创建
+8. 复制生成的密钥（格式：`sk-ant-...`）
+9. 粘贴到 TalkCody 的 Anthropic 字段
+
+**自定义 Base URL**：如需使用代理服务器，可在 "Custom Base URL" 字段配置自定义端点。
+
+### Google AI
+
+Google AI Studio 提供的 Gemini 系列模型，支持文本和多模态能力。
+
+**获取步骤**：
+1. 访问 [aistudio.google.com](https://aistudio.google.com/api-keys)
+2. 使用 Google 账户登录
+3. 同意服务条款
+4. 在左侧菜单点击 "Get API key"
+5. 点击 "Create API key in new project" 或选择现有项目
+6. 复制生成的密钥（格式：`AIza...`）
+7. 粘贴到 TalkCody 的 Google AI 字段
+
+<Callout type="info">
+Google AI 提供慷慨的免费额度：每分钟 15 个请求，每天 1500 个请求，无需绑定信用卡。
+</Callout>
+
+### Groq
+
+Groq 提供高性能推理 API，支持多种大语言模型。
+
+**获取步骤**：
+1. 访问 [console.groq.com](https://console.groq.com/keys)
+2. 使用 Groq 账户登录或注册
+3. 在控制台的 API Keys 页面点击 "Create API Key"
+4. 为密钥命名并确认创建
+5. 复制生成的密钥（格式：`gsk_...`）
+6. 粘贴到 TalkCody 的 Groq 字段
+
+<Callout type="tip">
+Groq 的语音转文本（Speech-to-Text）功能目前免费使用。
+</Callout>
+
+### MiniMax
+
+MiniMax 提供的大语言模型服务，支持文本生成和对话能力。
+
+**获取步骤**：
+1. 访问 [platform.minimaxi.com](https://platform.minimaxi.com)
+2. 点击右上角注册或登录
+3. 完成账户注册和验证
+4. 登录后进入用户中心
+5. 在左侧菜单选择 "基本信息" → "接口密钥"
+6. 或直接访问 [接口密钥页面](https://platform.minimaxi.com/user-center/basic-information/interface-key)
+7. 点击 "创建密钥" 或查看已有密钥
+8. 复制 API Key
+9. 粘贴到 TalkCody 的 MiniMax 字段
+
+<Callout type="info">
+MiniMax 提供免费试用额度，新用户注册后可获得一定的免费调用次数。
+</Callout>
+
+### Zhipu AI
+
+智谱 AI 提供的 GLM 系列模型，包括 GLM-4 等中文优化模型。
+
+**获取步骤**：
+1. 访问 [open.bigmodel.cn](https://open.bigmodel.cn)
+2. 点击 "注册" 创建账户（支持手机号注册）
+3. 完成实名认证（可能需要）
+4. 登录后进入控制台
+5. 在 "API Key 管理" 页面
+6. 点击 "创建 API Key"
+7. 复制生成的密钥
+8. 粘贴到 TalkCody 的 Zhipu AI 字段
+
+### Ollama
+
+本地运行的开源模型，完全离线，保护隐私。
+
+**配置步骤**：
+1. 访问 [ollama.com](https://ollama.com) 下载并安装 Ollama
+2. 打开终端，下载模型：
+   ```bash
+   ollama pull llama2
+   # 或其他模型如 codellama, mistral 等
+   ```
+3. 确保 Ollama 服务正在运行
+4. TalkCody 会自动检测本地 Ollama
+5. 无需 API 密钥，直接在模型设置中选择 Ollama 模型
+
+<Callout type="tip">
+Ollama 完全免费且支持离线使用，但需要足够的本地计算资源（建议 8GB+ 内存）。
+</Callout>
+
+### DeepSeek
+
+DeepSeek 提供的高性能大语言模型，以极具竞争力的价格提供强大的代码生成和推理能力。
+
+**获取步骤**：
+1. 访问 [platform.deepseek.com](https://platform.deepseek.com)
+2. 点击右上角 "Sign Up" 或 "登录" 创建账户
+3. 完成邮箱验证和账户设置
+4. 登录后进入控制台
+5. 在左侧菜单选择 "API Keys"
+6. 点击 "Create new API key" 创建新密钥
+7. 为密钥命名并点击确认
+8. 复制生成的密钥（格式：`sk-...`）
+9. 粘贴到 TalkCody 的 DeepSeek 字段
+
+<Callout type="info">
+DeepSeek 提供极具竞争力的定价，DeepSeek-V3 模型性能接近 GPT-4，但价格仅为其 1/10。新用户注册可获得免费额度。
+</Callout>
+
+### Moonshot
+
+月之暗面提供的 Kimi 大语言模型，具有超长上下文窗口，支持处理长文档和复杂对话。
+
+**获取步骤**：
+1. 访问 [platform.moonshot.cn](https://platform.moonshot.cn)
+2. 点击右上角 "登录" 或 "注册"
+3. 使用手机号完成注册和验证
+4. 登录后进入控制台
+5. 在左侧菜单选择 "API Key 管理"
+6. 点击 "新建" 创建新密钥
+7. 为密钥命名并点击确认
+8. 复制生成的密钥（格式：`sk-...`）
+9. 粘贴到 TalkCody 的 Moonshot 字段
+
+<Callout type="info">
+Moonshot 提供最长 128K 上下文窗口，特别适合处理长文档。新用户注册可获得免费额度。
+</Callout>
+
+<Callout type="tip">
+Moonshot 支持 TalkCody 的 Coding Plan 功能，可以在 Agent 配置中选择 Moonshot 模型进行代码规划。
+</Callout>
+
+### VolcEngine
+
+火山引擎（VolcEngine）是字节跳动旗下的云服务平台，提供 Doubao（豆包）系列大语言模型，具有强大的中文理解和生成能力。
+
+**获取步骤**：
+1. 访问 [console.volcengine.com](https://console.volcengine.com)
+2. 点击右上角 "登录" 或 "注册" 创建账户
+3. 完成实名认证（企业或个人认证）
+4. 登录后进入控制台
+5. 在顶部搜索栏搜索 "方舟" 或访问 [方舟平台](https://console.volcengine.com/ark)
+6. 在左侧菜单选择 "API Key 管理"
+7. 点击 "创建 API Key"
+8. 为密钥命名并选择权限范围
+9. 复制生成的密钥
+10. 粘贴到 TalkCody 的 VolcEngine 字段
+
+<Callout type="info">
+火山引擎方舟平台提供 Doubao-pro、Doubao-lite 等多个模型版本，新用户注册可获得免费试用额度。
+</Callout>
+
+<Callout type="tip">
+使用火山引擎前，需要先在方舟平台 "在线推理" 中创建推理接入点（Endpoint），获得接入点 ID 后才能在 TalkCody 中使用。
+</Callout>
+
+### Alibaba Qwen
+
+阿里云提供的通义千问（Qwen）系列大语言模型，针对中文场景优化，具有强大的文本理解和生成能力。
+
+**获取步骤**：
+1. 访问 [dashscope.aliyun.com](https://dashscope.aliyun.com)
+2. 点击右上角 "登录" 使用阿里云账户登录
+3. 完成实名认证（如果尚未完成）
+4. 登录后进入控制台
+5. 在左侧菜单选择 "API-KEY 管理"
+6. 点击 "创建新的 API-KEY"
+7. 为密钥命名并选择业务空间
+8. 复制生成的密钥（格式：`sk-...`）
+9. 粘贴到 TalkCody 的 Alibaba Qwen 字段
+
+<Callout type="info">
+阿里云百炼平台提供丰富的免费额度，新用户可获得数百万 Token 的免费调用额度，足够日常开发和测试使用。
+</Callout>
+
+<Callout type="tip">
+通义千问支持 TalkCody 的 Coding Plan 功能，可以在 Agent 配置中选择 Qwen 模型进行代码规划。
+</Callout>
+
+### LM Studio
+
+LM Studio 是一个桌面应用程序，让您可以在本地运行开源大语言模型，提供图形化界面管理和运行模型。
+
+**配置步骤**：
+1. 访问 [lmstudio.ai](https://lmstudio.ai) 下载并安装 LM Studio
+2. 打开 LM Studio 应用
+3. 在 "Discover" 标签页搜索并下载您想使用的模型
+4. 下载完成后，进入 "Developer" 标签页
+5. 点击 "Start Server" 启动本地服务器
+6. 服务器默认运行在 `http://localhost:1234`
+7. 在 TalkCody 中无需 API 密钥，直接选择 LM Studio 模型即可
+
+<Callout type="tip">
+LM Studio 完全免费且支持离线使用，提供友好的图形界面管理本地模型。支持 Apple Silicon 加速和 NVIDIA GPU 加速。
+</Callout>
+
+<Callout type="info">
+LM Studio 支持 GGUF 格式的模型，可以从 Hugging Face 下载大量开源模型，如 Llama、Mistral、Phi 等。
+</Callout>
+
+### Tavily
+
+专为 AI 代理和大语言模型设计的搜索 API，提供准确、实时的网络搜索结果。
+
+**获取步骤**：
+1. 访问 [tavily.com](https://tavily.com)
+2. 点击 "Get API Key" 或 "Sign Up"
+3. 使用邮箱注册账户
+4. 完成邮箱验证
+5. 登录后进入 Dashboard
+6. 在 "API Keys" 部分查看您的密钥
+7. 复制 API 密钥
+8. 粘贴到 TalkCody 的 Tavily 字段
+
+<Callout type="info">
+Tavily 提供每月 1000 次免费搜索请求，适合个人开发者使用。
+</Callout>
+
+### Eleven Labs
+
+领先的 AI 语音合成平台，提供高质量的文本转语音和语音克隆功能。
+
+**获取步骤**：
+1. 访问 [elevenlabs.io](https://elevenlabs.io)
+2. 点击右上角 "Sign Up" 注册
+3. 可使用 Google 账户或邮箱注册
+4. 完成账户创建和验证
+5. 登录后，点击右上角头像
+6. 选择 "Profile + API key"
+7. 在 API Key 部分点击眼睛图标查看密钥
+8. 复制 API 密钥（格式：以数字和字母组成的长字符串）
+9. 粘贴到 TalkCody 的 Eleven Labs 字段
+
+<Callout type="tip">
+Eleven Labs 免费套餐每月提供 10,000 字符的语音合成额度，可用于 TalkCody 的语音功能。
+</Callout>
+
+### Serper
+
+Google 搜索 API 服务，提供快速准确的网络搜索结果，专为 AI 应用和自动化设计。
+
+**获取步骤**：
+1. 访问 [serper.dev](https://serper.dev)
+2. 点击 "Get API Key" 或 "Sign Up"
+3. 使用邮箱或 Google 账户注册
+4. 完成邮箱验证
+5. 登录后进入 Dashboard
+6. 在仪表板中查看您的 API 密钥
+7. 复制 API 密钥
+8. 粘贴到 TalkCody 的 Serper 字段
+
+### Z.AI
+
+Z.AI 提供先进的语言模型 GLM 系列，包括 GLM-4.7 等高性能模型。
+
+**获取步骤**：
+1. 访问 [z.ai/model-api](https://z.ai/model-api)
+2. 点击 "Sign Up" 注册账户或 "Login" 登录
+3. 完成邮箱验证和账户设置
+4. 登录后进入控制台
+5. 在左侧菜单选择 "API Keys" 或 "API Key 管理"
+6. 点击 "Create API Key" 或 "创建 API Key"
+7. 复制生成的密钥
+8. 粘贴到 TalkCody 的 Z.AI 字段
+
+<Callout type="tip">
+TalkCody 支持 Z.AI 的 Coding Plan 功能。
+</Callout>
+
+<Callout type="success">
+配置好 API 密钥后,您就可以开始使用 TalkCody 的 AI 功能了!
+</Callout>

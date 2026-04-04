@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Your reasons here.</string>
+    <key>NSUserNotificationsUsageDescription</key>
+    <string>TalkCody sends notifications to alert you when tasks are complete or when file edits require your review.</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.talkcody</string>
+    <key>CFBundleURLTypes</key>
+        <array>
+            <dict>
+                <key>CFBundleURLSchemes</key>
+                <array>
+                    <string>talkcody</string>
+                </array>
+                <key>CFBundleURLName</key>
+                <string>com.talkcody</string>
+            </dict>
+        </array>
+  </dict>
+</plist>

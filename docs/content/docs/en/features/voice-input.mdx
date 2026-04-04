@@ -1,0 +1,114 @@
+---
+title: Voice Input
+description: Using speech-to-text for input in TalkCody
+icon: Mic
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## What is Voice Input?
+
+**Voice Input** is TalkCody's speech-to-text feature that allows you to input through voice without manual typing. This is very convenient for quickly entering long text, describing programming problems, or using the app in mobile scenarios.
+
+TalkCody supports multiple transcription providers, and you can choose the appropriate service based on your needs.
+
+## Supported Transcription Providers
+
+| Provider | Model | Features |
+|----------|-------|----------|
+| Eleven Labs | Scribe | High-quality real-time multilingual transcription |
+| OpenAI | Whisper | Industry-leading speech recognition, supports multiple languages |
+| Google | Gemini | Multimodal understanding, supports long audio |
+
+<Callout type="info">
+You need to configure at least one transcription provider's API Key and select a transcription model in settings to use the voice input feature.
+</Callout>
+
+## Configuration
+
+<Steps>
+
+<Step>
+### Get API Key
+
+Obtain the API Key for the transcription service you want to use:
+
+**Eleven Labs (Recommended)**
+1. Visit [elevenlabs.io](https://elevenlabs.io)
+2. Click "Sign Up" to register an account
+3. After logging in, click your avatar in the top right → "Profile + API key"
+4. Click the eye icon in the API Key section to view the key
+5. Copy the API key
+
+**OpenAI**
+1. Visit [platform.openai.com](https://platform.openai.com/api-keys)
+2. Log in or register an account
+3. Click "Create new secret key" to create a key
+4. Copy the key (format: `sk-...`)
+
+**Google AI**
+1. Visit [aistudio.google.com](https://aistudio.google.com/api-keys)
+2. Log in with your Google account
+3. Click "Create API key in new project"
+4. Copy the generated key
+
+</Step>
+
+<Step>
+### Configure API Key
+
+1. Open TalkCody
+2. Click the **Settings** icon
+3. Navigate to the **API Keys** page
+4. Paste your API Key in the corresponding provider's input field
+5. Click **Test Key** to verify it works
+</Step>
+
+<Step>
+### Select Transcription Model
+
+1. In the **Settings** page, navigate to **Model Settings**
+2. Find the **Transcription Model** option
+3. Select the transcription model you want to use from the dropdown:
+   - `eleven_scribe_v1` - Eleven Labs Scribe
+   - `whisper-1` - OpenAI Whisper
+   - `gemini-2.0-flash` - Google Gemini
+</Step>
+
+</Steps>
+
+## How to Use
+
+After configuration, you can use the voice input feature in the chat input box:
+
+1. Click the **microphone** icon next to the input box
+2. Allow browser access to the microphone (first time only)
+3. Start speaking, your voice will be recorded in real-time
+4. Click the **Stop** button when finished
+5. The speech will be automatically transcribed to text and filled into the input box
+6. You can edit the transcribed text, then send
+
+<Callout type="tip">
+Speaking clearly at a moderate pace will give you better transcription results.
+</Callout>
+
+## Provider Features
+
+### Eleven Labs Scribe
+
+- Supports multilingual transcription in 32 languages
+- High accuracy, especially suitable for technical terminology
+- Free tier provides 10,000 characters per month
+
+### OpenAI Whisper
+
+- Industry-leading speech recognition accuracy
+- Supports multiple audio formats
+- Can identify the speaker's language
+
+### Google Gemini
+
+- Multimodal understanding capabilities
+- Supports long audio transcription
+- Google AI provides generous free quotas

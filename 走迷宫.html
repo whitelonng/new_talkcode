@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>走迷宫</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 760px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-panel {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.05em;
+        }
+
+        #gameCanvas {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: #dcdcdc;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .rules {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            font-size: 0.95em;
+            line-height: 1.7;
+            text-align: left;
+        }
+
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 走迷宫</h1>
+        <div class="info-panel">
+            <div class="info-item">地图: 20 × 20</div>
+            <div class="info-item">已走步数: <span id="moves">0</span></div>
+        </div>
+
+        <canvas id="gameCanvas" width="500" height="500"></canvas>
+
+        <div class="controls">
+            <button onclick="game.restart()">🔄 重新开始</button>
+            <button onclick="game.goBack(1)">↩️ 后退1步</button>
+            <button onclick="game.goBack(3)">↩️ 后退3步</button>
+            <button onclick="game.goBack(5)">↩️ 后退5步</button>
+            <button onclick="game.exportSave()">📤 导出进度</button>
+            <button onclick="game.triggerImport()">📥 导入进度</button>
+            <input id="fileInput" type="file" accept="application/json,.json">
+        </div>
+
+        <div class="rules">
+            <strong>游戏规则：</strong><br>
+            地图为 20×20 全开放区域，只能四向移动。没有走过的格子为浅灰色，走过的格子为纯白色。<br>
+            终点是隐藏的，会随机出现在<strong>右上角 / 右下角 / 左下角</strong>附近区域。<br>
+            地图中还会有一些隐藏陷阱格，平时看不出来；踩到后该格会显示为黑色，并且此时只能使用后退按钮撤回。<br>
+            <strong>操作方式：</strong>使用方向键 ↑↓←→ 或 WASD 移动，也可以点击上下左右相邻格子移动。<br>
+            <strong>存档说明：</strong>每次移动、后退、重新开始后都会自动保存，下次打开会自动恢复上次进度，也可手动导入/导出。
+        </div>
+    </div>
+
+    <script>
+        class MazeGame {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.fileInput = document.getElementById('fileInput');
+                this.cols = 20;
+                this.rows = 20;
+                this.cellSize = this.canvas.width / this.cols;
+                this.moves = 0;
+                this.visited = new Set();
+                this.playerPath = [];
+                this.hiddenTraps = new Set();
+                this.revealedTraps = new Set();
+                this.trapLocked = false;
+                this.trapMessageShown = false;
+                this.storageKey = 'maze-game-save-v1';
+
+                this.setupControls();
+                this.loadOrInit();
+            }
+
+            loadOrInit() {
+                if (!this.loadGame()) {
+                    this.init();
+                }
+            }
+
+            init() {
+                this.start = { x: 1, y: 1 };
+                this.end = this.getRandomEndPoint();
+                this.player = { ...this.start };
+                this.moves = 0;
+                this.visited.clear();
+                this.playerPath = [{ ...this.player }];
+                this.hiddenTraps.clear();
+                this.revealedTraps.clear();
+                this.trapLocked = false;
+                this.trapMessageShown = false;
+                this.markVisited(this.player.x, this.player.y);
+                this.generateTraps();
+                this.updateUI();
+                this.draw();
+                this.saveGame();
+            }
+
+            getRandomEndPoint() {
+                const regions = [
+                    { minX: 15, maxX: 18, minY: 1, maxY: 4 },
+                    { minX: 15, maxX: 18, minY: 15, maxY: 18 },
+                    { minX: 1, maxX: 4, minY: 15, maxY: 18 }
+                ];
+
+                const region = regions[Math.floor(Math.random() * regions.length)];
+                return {
+                    x: this.randomInt(region.minX, region.maxX),
+                    y: this.randomInt(region.minY, region.maxY)
+                };
+            }
+
+            generateTraps() {
+                const trapCount = 24;
+
+                while (this.hiddenTraps.size < trapCount) {
+                    const x = this.randomInt(0, this.cols - 1);
+                    const y = this.randomInt(0, this.rows - 1);
+                    const key = this.getKey(x, y);
+                    const distanceFromStart = Math.abs(x - this.start.x) + Math.abs(y - this.start.y);
+
+                    if (distanceFromStart < 4) {
+                        continue;
+                    }
+
+                    if (key === this.getKey(this.start.x, this.start.y) || key === this.getKey(this.end.x, this.end.y)) {
+                        continue;
+                    }
+
+                    this.hiddenTraps.add(key);
+                }
+            }
+
+            randomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            getKey(x, y) {
+                return `${x},${y}`;
+            }
+
+            isInside(x, y) {
+                return x >= 0 && x < this.cols && y >= 0 && y < this.rows;
+            }
+
+            markVisited(x, y) {
+                this.visited.add(this.getKey(x, y));
+            }
+
+            syncTrapState() {
+                const playerKey = this.player ? this.getKey(this.player.x, this.player.y) : null;
+                const isStandingOnTrap = playerKey ? this.hiddenTraps.has(playerKey) : false;
+
+                if (this.trapLocked && isStandingOnTrap) {
+                    this.revealedTraps = new Set([playerKey]);
+                } else {
+                    this.trapLocked = false;
+                    this.revealedTraps = new Set();
+                }
+            }
+
+            createSaveData() {
+                this.syncTrapState();
+                return {
+                    version: 1,
+                    cols: this.cols,
+                    rows: this.rows,
+                    start: this.start,
+                    end: this.end,
+                    player: this.player,
+                    moves: this.moves,
+                    visited: Array.from(this.visited),
+                    playerPath: this.playerPath,
+                    hiddenTraps: Array.from(this.hiddenTraps),
+                    revealedTraps: Array.from(this.revealedTraps),
+                    trapLocked: this.trapLocked
+                };
+            }
+
+            saveGame() {
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(this.createSaveData()));
+                } catch (error) {
+                    console.error('保存进度失败：', error);
+                }
+            }
+
+            loadGame() {
+                try {
+                    const raw = localStorage.getItem(this.storageKey);
+                    if (!raw) {
+                        return false;
+                    }
+
+                    const data = JSON.parse(raw);
+                    return this.applySaveData(data);
+                } catch (error) {
+                    console.error('读取进度失败：', error);
+                    return false;
+                }
+            }
+
+            applySaveData(data) {
+                if (!data || data.version !== 1) {
+                    return false;
+                }
+
+                if (data.cols !== this.cols || data.rows !== this.rows) {
+                    return false;
+                }
+
+                if (!this.isValidPoint(data.start) || !this.isValidPoint(data.end) || !this.isValidPoint(data.player)) {
+                    return false;
+                }
+
+                if (!Array.isArray(data.playerPath) || data.playerPath.length === 0) {
+                    return false;
+                }
+
+                if (!Array.isArray(data.visited) || !Array.isArray(data.hiddenTraps) || !Array.isArray(data.revealedTraps)) {
+                    return false;
+                }
+
+                if (!data.playerPath.every((point) => this.isValidPoint(point))) {
+                    return false;
+                }
+
+                this.start = { ...data.start };
+                this.end = { ...data.end };
+                this.player = { ...data.player };
+                this.moves = Number.isInteger(data.moves) && data.moves >= 0 ? data.moves : data.playerPath.length - 1;
+                this.visited = new Set(data.visited);
+                this.playerPath = data.playerPath.map((point) => ({ ...point }));
+                this.hiddenTraps = new Set(data.hiddenTraps);
+                this.revealedTraps = new Set(data.revealedTraps);
+                this.trapLocked = Boolean(data.trapLocked);
+                this.trapMessageShown = false;
+                this.syncTrapState();
+
+                this.updateUI();
+                this.draw();
+                this.saveGame();
+                return true;
+            }
+
+            isValidPoint(point) {
+                return !!point
+                    && Number.isInteger(point.x)
+                    && Number.isInteger(point.y)
+                    && this.isInside(point.x, point.y);
+            }
+
+            move(dx, dy) {
+                if (this.trapLocked) {
+                    if (!this.trapMessageShown) {
+                        alert('你踩中了陷阱！现在只能后退。');
+                        this.trapMessageShown = true;
+                    }
+                    return;
+                }
+
+                if (Math.abs(dx) + Math.abs(dy) !== 1) {
+                    return;
+                }
+
+                const newX = this.player.x + dx;
+                const newY = this.player.y + dy;
+
+                if (!this.isInside(newX, newY)) {
+                    return;
+                }
+
+                this.player.x = newX;
+                this.player.y = newY;
+                this.moves++;
+                this.playerPath.push({ ...this.player });
+                this.markVisited(newX, newY);
+
+                const currentKey = this.getKey(newX, newY);
+                if (this.hiddenTraps.has(currentKey)) {
+                    this.revealedTraps.add(currentKey);
+                    this.trapLocked = true;
+                    this.trapMessageShown = false;
+                }
+
+                this.updateUI();
+                this.draw();
+                this.saveGame();
+
+                if (newX === this.end.x && newY === this.end.y) {
+                    setTimeout(() => {
+                        alert(`🎉 恭喜通关！共走了 ${this.moves} 步！`);
+                        this.restart();
+                    }, 100);
+                }
+            }
+
+            goBack(steps) {
+                if (this.playerPath.length <= 1) {
+                    alert('无法后退，已在起点！');
+                    return;
+                }
+
+                const backSteps = Math.min(steps, this.playerPath.length - 1);
+                for (let i = 0; i < backSteps; i++) {
+                    this.playerPath.pop();
+                }
+
+                const lastPos = this.playerPath[this.playerPath.length - 1];
+                this.player = { ...lastPos };
+                this.moves = this.playerPath.length - 1;
+                this.trapLocked = false;
+                this.trapMessageShown = false;
+                this.syncTrapState();
+                this.updateUI();
+                this.draw();
+                this.saveGame();
+            }
+
+            exportSave() {
+                try {
+                    const dataStr = JSON.stringify(this.createSaveData(), null, 2);
+                    const blob = new Blob([dataStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'maze-save.json';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.error('导出进度失败：', error);
+                    alert('导出进度失败，请稍后重试。');
+                }
+            }
+
+            triggerImport() {
+                this.fileInput.value = '';
+                this.fileInput.click();
+            }
+
+            handleImport(event) {
+                const file = event.target.files[0];
+                if (!file) {
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = () => {
+                    try {
+                        const data = JSON.parse(reader.result);
+                        if (!this.applySaveData(data)) {
+                            throw new Error('存档格式不正确');
+                        }
+                        alert('导入成功，已恢复进度。');
+                    } catch (error) {
+                        console.error('导入进度失败：', error);
+                        alert('导入失败，文件内容无效。');
+                    }
+                };
+
+                reader.onerror = () => {
+                    alert('读取文件失败，请重试。');
+                };
+
+                reader.readAsText(file, 'utf-8');
+            }
+
+            drawCell(x, y) {
+                const key = this.getKey(x, y);
+                const isVisited = this.visited.has(key);
+                const isTrap = this.revealedTraps.has(key);
+
+                if (isTrap) {
+                    this.ctx.fillStyle = '#000000';
+                } else if (isVisited) {
+                    this.ctx.fillStyle = '#ffffff';
+                } else {
+                    this.ctx.fillStyle = '#dcdcdc';
+                }
+
+                this.ctx.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+                this.ctx.strokeStyle = '#c6c6c6';
+                this.ctx.strokeRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.font = `${this.cellSize * 0.62}px Arial`;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+
+                for (let y = 0; y < this.rows; y++) {
+                    for (let x = 0; x < this.cols; x++) {
+                        this.drawCell(x, y);
+                    }
+                }
+
+                const startCenterX = this.start.x * this.cellSize + this.cellSize / 2;
+                const startCenterY = this.start.y * this.cellSize + this.cellSize / 2;
+                this.ctx.fillText('🚪', startCenterX, startCenterY);
+
+                const playerCenterX = this.player.x * this.cellSize + this.cellSize / 2;
+                const playerCenterY = this.player.y * this.cellSize + this.cellSize / 2;
+                this.ctx.fillText('😊', playerCenterX, playerCenterY);
+            }
+
+            updateUI() {
+                document.getElementById('moves').textContent = this.moves;
+            }
+
+            setupControls() {
+                document.addEventListener('keydown', (e) => {
+                    const key = e.key;
+                    const directionMap = {
+                        ArrowUp: [0, -1],
+                        ArrowDown: [0, 1],
+                        ArrowLeft: [-1, 0],
+                        ArrowRight: [1, 0],
+                        w: [0, -1],
+                        W: [0, -1],
+                        s: [0, 1],
+                        S: [0, 1],
+                        a: [-1, 0],
+                        A: [-1, 0],
+                        d: [1, 0],
+                        D: [1, 0]
+                    };
+
+                    if (directionMap[key]) {
+                        const [dx, dy] = directionMap[key];
+                        this.move(dx, dy);
+                        e.preventDefault();
+                    }
+                });
+
+                this.canvas.addEventListener('click', (e) => {
+                    if (this.trapLocked) {
+                        if (!this.trapMessageShown) {
+                            alert('你踩中了陷阱！现在只能后退。');
+                            this.trapMessageShown = true;
+                        }
+                        return;
+                    }
+
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = Math.floor((e.clientX - rect.left) / this.cellSize);
+                    const y = Math.floor((e.clientY - rect.top) / this.cellSize);
+                    const dx = x - this.player.x;
+                    const dy = y - this.player.y;
+
+                    if (Math.abs(dx) + Math.abs(dy) === 1) {
+                        this.move(dx, dy);
+                    }
+                });
+
+                this.fileInput.addEventListener('change', (e) => {
+                    this.handleImport(e);
+                });
+            }
+
+            restart() {
+                this.init();
+            }
+        }
+
+        const game = new MazeGame();
+    </script>
+</body>
+</html>

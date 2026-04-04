@@ -1,0 +1,92 @@
+---
+title: Roadmap
+description: TalkCody 的愿景，里程碑和未来计划。
+icon: Map
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## TalkCody 愿景
+
+构建一套面向开发者的 全流程 AI Coding Agent 平台：
+从写代码、测试、文档，到发布、上线、运营，实现端到端自动化开发，让编程变得更快、更便宜、更简单。
+
+## TalkCody 里程碑1：Top AI Coding Agent
+
+<Callout type="success">
+目标： 最低成本+最快速度+最高正确率 生成可运行代码
+</Callout>
+
+### 1.1 速度
+
+#### 1.1.1 多 Task 并行
+
+一个 Project内，一个Task开发功能，一个Task 修复 bug，一个Task写文档，多个Task并行工作。
+
+- [x] 支持多个 task 并行执行
+- [x] 和 Git Worktree 集成
+- [x] 支持 task 后台执行
+
+#### 1.1.2 多 Agent 协作并行
+
+实现 Orchestrator-Worker 模式：主 Agent 拆解任务，Coder、Tester、Writer Agent 并行执行。
+
+#### 1.1.3 支持 1到2小时的 long run tasks
+
+### 1.2 成本
+
+- [x] 支持 Claude 订阅
+- [x] 支持 ChatGPT 订阅
+- [x] 支持 Github Copilot 订阅
+- [x] 支持 Qwen Code 认证
+- [x] 实现 3级 Compaction 策略
+- [ ] 支持 LSP tool
+- [ ] 支持 TOON encoding/decoding
+- [x] 优化每个tool的输出 token
+- [ ] web fetch tool 加入 AI 分析和总结
+
+### 1.3 正确性
+
+- [ ] 支持 Hook 机制
+- [ ] 在 SWE-bench Verified 和 Terminal-Bench 上持续提升排名
+- [ ] 权限和安全完善加强
+
+### 1.4 易用性
+
+- [x] Editor 支持 LSP
+- [x] 支持多语言
+- [x] 支持自定义 Model 和自定义 Provider
+- [x] 支持 Lint
+- [x] 支持 一键 AI Code Review
+- [x] 支持 一键 AI Git Commit
+- [x] 支持 Usage Dashboard
+- [x] 支持 Share Link
+- [x] 支持 免费的 web search tool
+- [ ] 和 Terminal 更好的集成
+- [ ] 和 Git 和 Github 更好的集成
+- [ ] 支持 AI 代码自动补全
+- [ ] 支持模型的自动选择和路由
+
+## TalkCody 里程碑2：覆盖开发者主流工作流的 AI Agent
+
+<Callout type="success">
+目标： 不仅能写代码，还能融入团队日常协作工具链
+</Callout>
+
+- [x] 兼容 Agent Skills 生态
+- [ ] 兼容 Claude Code Skills
+- [ ] 内置更多的 command
+- [ ] 支持 Deep Research Agent
+- [x] 支持 Image Generator Agent
+
+## TalkCody 里程碑3：覆盖独立开发者的完整工作流的 AI Agent
+
+<Callout type="success">
+目标：一个人也能像一家公司, 从创意想法 → 产品上线 → 自动运营
+</Callout>
+
+- [ ] 从需求->设计->开发->测试->发布->上架->运营的端到端 Agent 流程
+
+## 欢迎参与共建！
+
+- [GitHub 仓库](https://github.com/talkcody/talkcody)

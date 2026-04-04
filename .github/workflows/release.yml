@@ -1,0 +1,400 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    if: github.repository == 'talkcody/talkcody'
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          # Extract version from tag (e.g., v0.1.8 -> 0.1.8)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+          body: |
+            - [TalkCody Download packages](https://www.talkcody.com/docs/introduction/client-downloads)
+            - [TalkCody Changelog](https://www.talkcody.com/docs/changelog)
+            - [TalkCody Free use guide](https://www.talkcody.com/docs/guides/free-use)
+
+  build-linux:
+    name: Build Linux AppImage
+    needs: create-release
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            jq \
+            ibus-gtk3 \
+            fcitx5-frontend-gtk3 \
+            protobuf-compiler
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build Tauri app
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: |
+            # Verify signing key is set
+            if [ -z "$TAURI_SIGNING_PRIVATE_KEY" ]; then
+              echo "ERROR: TAURI_SIGNING_PRIVATE_KEY is not set!"
+              exit 1
+            fi
+            echo "TAURI_SIGNING_PRIVATE_KEY is set (length: ${#TAURI_SIGNING_PRIVATE_KEY})"
+
+            # Enable createUpdaterArtifacts
+            jq '.bundle.createUpdaterArtifacts = true' src-tauri/tauri.conf.json > /tmp/tauri.conf.json.tmp
+            mv /tmp/tauri.conf.json.tmp src-tauri/tauri.conf.json
+
+            # Verify the change
+            echo "Verifying createUpdaterArtifacts setting:"
+            jq '.bundle.createUpdaterArtifacts' src-tauri/tauri.conf.json
+
+            # Build
+            bun run tauri build
+
+            # List generated files for debugging
+            echo "Generated files in appimage directory:"
+            ls -la src-tauri/target/release/bundle/appimage/ || echo "Directory not found"
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+
+      - name: Setup Node.js for wrangler
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Run release script (Linux)
+        run: |
+          chmod +x .github/scripts/release.sh
+          PLATFORM=linux ARCH=x86_64 ./.github/scripts/release.sh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          VERSION: ${{ needs.create-release.outputs.version }}
+
+
+  build-windows:
+    name: Build Windows MSI
+    needs: create-release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+          target: x86_64-pc-windows-msvc
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build frontend
+        run: bun run build
+
+      - name: Install jq and protoc
+        run: |
+          choco install jq -y
+          choco install protoc -y
+
+      - name: Build Tauri app
+        run: |
+          # Verify signing key is set
+          if [ -z "$TAURI_SIGNING_PRIVATE_KEY" ]; then
+            echo "ERROR: TAURI_SIGNING_PRIVATE_KEY is not set!"
+            exit 1
+          fi
+          echo "TAURI_SIGNING_PRIVATE_KEY is set (length: ${#TAURI_SIGNING_PRIVATE_KEY})"
+
+          # Enable createUpdaterArtifacts
+          jq '.bundle.createUpdaterArtifacts = true' src-tauri/tauri.conf.json > /tmp/tauri.conf.json.tmp
+          mv /tmp/tauri.conf.json.tmp src-tauri/tauri.conf.json
+
+          # Verify the change
+          echo "Verifying createUpdaterArtifacts setting:"
+          jq '.bundle.createUpdaterArtifacts' src-tauri/tauri.conf.json
+
+          # Build
+          bun run tauri build
+
+          # List generated files for debugging
+          echo "Generated files in msi directory:"
+          ls -la src-tauri/target/release/bundle/msi/ || echo "Directory not found"
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+
+      - name: Setup Node.js for wrangler
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Run release script (Windows)
+        run: |
+          $env:PLATFORM = "windows"
+          $env:ARCH = "x86_64"
+          $env:VERSION = "${{ needs.create-release.outputs.version }}"
+          $env:CLOUDFLARE_API_TOKEN = "${{ secrets.CLOUDFLARE_API_TOKEN }}"
+          $env:CLOUDFLARE_ACCOUNT_ID = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
+
+          # Convert Windows path to Unix path for bash
+          bash .github/scripts/release.sh
+        shell: pwsh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+
+  build-macos-intel:
+    name: Build macOS Intel (Signed & Notarized)
+    needs: create-release
+    runs-on: macos-15-intel  # Intel runner
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Import Code Signing Certificate
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          # Create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
+
+          # Decode certificate
+          echo "$APPLE_CERTIFICATE_BASE64" | base64 --decode > $CERTIFICATE_PATH
+
+          # Create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # Import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$APPLE_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # Enable codesigning from the keychain
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # Verify certificate is imported
+          security find-identity -v -p codesigning
+
+      - name: Install protobuf
+        run: brew install protobuf
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build frontend
+        run: bun run build
+
+      - name: Build and Sign Tauri app
+        run: |
+          echo "Building Tauri app for x86_64 with code signing..."
+
+          # Verify signing key is set
+          if [ -z "$TAURI_SIGNING_PRIVATE_KEY" ]; then
+            echo "ERROR: TAURI_SIGNING_PRIVATE_KEY is not set!"
+            exit 1
+          fi
+          echo "TAURI_SIGNING_PRIVATE_KEY is set (length: ${#TAURI_SIGNING_PRIVATE_KEY})"
+
+          # Enable createUpdaterArtifacts for updater bundle
+          jq '.bundle.createUpdaterArtifacts = true' src-tauri/tauri.conf.json > /tmp/tauri.conf.json.tmp
+          mv /tmp/tauri.conf.json.tmp src-tauri/tauri.conf.json
+
+          # Verify the change
+          echo "Verifying createUpdaterArtifacts setting:"
+          jq '.bundle.createUpdaterArtifacts' src-tauri/tauri.conf.json
+
+          # Build with code signing
+          bun run tauri build
+
+          # List generated files
+          echo ""
+          echo "Generated files in macos directory:"
+          ls -la src-tauri/target/release/bundle/macos/ || echo "Directory not found"
+          echo ""
+          echo "Generated files in dmg directory:"
+          ls -la src-tauri/target/release/bundle/dmg/ || echo "Directory not found"
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+
+      - name: Find Intel DMG file
+        id: find-dmg
+        run: |
+          DMG_FILE=$(find src-tauri/target/release/bundle/dmg -name "*.dmg" -type f | head -n 1)
+          echo "Found DMG file: $DMG_FILE"
+          echo "dmg_path=$DMG_FILE" >> $GITHUB_OUTPUT
+          echo "dmg_name=$(basename $DMG_FILE)" >> $GITHUB_OUTPUT
+
+      - name: Notarize DMG
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          DMG_PATH="${{ steps.find-dmg.outputs.dmg_path }}"
+
+          echo "Submitting DMG for notarization..."
+
+          # Submit for notarization
+          xcrun notarytool submit "$DMG_PATH" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait
+
+          echo "Stapling notarization ticket..."
+          xcrun stapler staple "$DMG_PATH"
+
+          echo "Verifying notarization..."
+          spctl -a -vv -t install "$DMG_PATH"
+
+      - name: Setup Node.js for wrangler
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Run release script (macOS Intel)
+        run: |
+          chmod +x .github/scripts/release.sh
+          PLATFORM=macos ARCH=x86_64 ./.github/scripts/release.sh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          VERSION: ${{ needs.create-release.outputs.version }}
+
+      - name: Cleanup Keychain
+        if: always()
+        run: |
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true
+
+
+  finalize-release:
+    name: Finalize Release (Merge Manifests)
+    needs: [create-release, build-linux, build-windows, build-macos-intel]
+    runs-on: ubuntu-latest
+    # Run even if some builds failed (allows partial releases)
+    if: always() && needs.create-release.result == 'success'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Setup Node.js for wrangler
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Run finalize script
+        run: |
+          chmod +x .github/scripts/finalize-release.sh
+          ./.github/scripts/finalize-release.sh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          VERSION: ${{ needs.create-release.outputs.version }}
+
+      - name: Summary
+        run: |
+          echo "### Release Finalization Complete 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** v${{ needs.create-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Manifest URL:** https://cdn.talkcody.com/releases/v${{ needs.create-release.outputs.version }}/manifest.json" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Latest URL:** https://cdn.talkcody.com/latest.json" >> $GITHUB_STEP_SUMMARY

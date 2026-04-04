@@ -1,0 +1,66 @@
+---
+title: 欢迎使用 TalkCody
+description: TalkCody 是一款免费，开源的 AI Coding Agent
+icon: Home
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Mail, Github, Bug, X } from 'lucide-react';
+import { CONFIG } from '@/lib/config';
+
+## 为什么选择 TalkCody？
+
+TalkCody 是一款真正按照开发者工作方式设计的 **AI 编码代理**——**并行、成本、可控、私密**。TalkCody 为你提供：
+- **真正的自由** - 使用任何 AI 模型（OpenAI、Anthropic、Google、本地模型）无供应商锁定
+- **极致速度** - 独特的四级并行机制同时运行多个任务
+- **你的隐私** - 一切都在本地运行，你的代码永不离开你的机器
+- **你的钱包** - 9 种完全免费的使用方式，或充分利用你现有的 Claude Pro/ChatGPT Plus/GitHub Copilot 订阅
+
+**由开发者打造，为重视速度、成本、控制权和隐私的开发者服务。**
+
+<Cards>
+  <Card title="🚀 极速开发体验" href="/zh/blog/four-level-parallelism" description="四级并行机制同时运行项目、任务、代理和工具层面——以极短时间完成复杂项目。像您真正编码的方式那样工作：并行处理。" />
+  <Card title="💰 灵活性最大，成本最低" href="/zh/docs/guides/free-use" description="9 种完全免费的使用方式。充分利用您现有的 Claude Pro/ChatGPT Plus/GitHub Copilot 订阅。或使用任何提供商的任何 AI 模型——OpenAI、Anthropic、Google 或本地模型。零供应商锁定。" />
+  <Card title="🛠️ 专业级功能" description="多模态输入（文本、语音、图像）、MCP 服务器支持、代理和技能市场、内置终端以及完全可定制的工作流。一个原生应用满足您的所有需求。" />
+  <Card title="🔒 值得信赖的隐私保护" description="100% 本地存储——您的代码永不离开您的机器。使用 Ollama 或 LM Studio 完全离线工作。您拥有一切。完全可审计的开源代码。" />
+</Cards>
+
+## 专业级功能
+
+现代开发者的完整工具箱。帮助您更快、更智能、更高效地编写代码所需的一切。
+
+<Cards>
+  <Card title="🤖 任意模型，任意提供商" href="/zh/docs/configuration/api-keys"  description="在 OpenAI、Anthropic、Google 或本地模型之间即时切换。无供应商锁定。为每个任务使用最合适的工具。" />
+  <Card title="🎙️ 多模态输入" href="/zh/docs/features/voice-input"  description="文本、语音、图像和文件无缝协作。用最适合您的输入方式自然编码。" />
+  <Card title="🔌 MCP 服务器支持" href="/zh/docs/features/mcp-servers"  description="通过模型上下文协议无限扩展能力。连接到任何工具或服务。" />
+  <Card title="🛒 代理和技能市场"  href="/zh/docs/features/skills" description="下载和分享社区工作流和专业代理。站在巨人的肩膀上。" />
+  <Card title="📋 Plan Mode" href="/zh/docs/features/plan-mode" description="探索、思考、规划、分解、执行、验证，完整的任务工作流，复杂项目也能有条不紊。" />
+  <Card title="💻 内置终端" href="/zh/docs/features/terminal" description="无需切换上下文即可执行命令。保持心流状态。完成更多工作。" />
+</Cards>
+
+
+## 快速开始
+
+<Cards>
+  <Card title="快速入门" href="/zh/docs/introduction/quick-start" description="安装 TalkCody 并开始您的第一次 AI Coding" />
+  <Card title="客户端下载" href="/zh/docs/introduction/client-downloads" description="下载适用于您平台的最新版本" />
+  <Card title="配置设置" href="/zh/docs/configuration/api-keys" description="设置 API 密钥并配置 AI 模型" />
+</Cards>
+
+## 社区与支持
+
+与全球开发者一起，用 TalkCody 更快构建更好的软件。
+
+<Cards>
+  <Card icon={<Github />} title="GitHub" href="https://github.com/talkcody/talkcody" description="参与 TalkCody 项目贡献" />
+  <Card icon={<X />} title="X" href={CONFIG.x} description="Follow us on X" />
+  <Card icon={<Bug />} title="问题反馈" href="https://github.com/talkcody/talkcody/issues" description="提交 Bug 帮助 TalkCody 改进" />
+  <Card icon={<Mail />} title="邮件联系" href="mailto:kaisenkang@talkcody.com" description="报告 TalkCody 安全漏洞或隐私问题" />
+</Cards>
+
+<Callout type="tip">
+刚接触 AI Coding Agent？从[快速入门指南](/zh/docs/introduction/quick-start)开始，几分钟内即可上手。
+</Callout>
+
+

@@ -1,0 +1,186 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@8f24390df009a496891208e5e36b8a1de1f45135
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run linter
+        run: bun run lint
+
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@8f24390df009a496891208e5e36b8a1de1f45135
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run type check
+        run: bun run tsc
+
+  test:
+    name: Test
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Setup Bun
+        id: setup-bun
+        uses: oven-sh/setup-bun@8f24390df009a496891208e5e36b8a1de1f45135
+        with:
+          bun-version: latest
+
+      - name: Cache Bun
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun
+          key: ${{ runner.os }}-bun-${{ steps.setup-bun.outputs.bun-version }}-${{ hashFiles('bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-${{ steps.setup-bun.outputs.bun-version }}-
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run tests
+        run: bun run test
+
+  test-rust-windows:
+    name: Rust Tests (Windows)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561
+        with:
+          toolchain: stable
+
+      - name: Install protoc
+        run: choco install protoc -y
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: windows-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            windows-cargo-
+
+      - name: Run Rust tests
+        working-directory: src-tauri
+        run: cargo test --workspace --verbose -- --nocapture
+
+  test-rust-linux:
+    name: Rust Tests (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561
+        with:
+          toolchain: stable
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libglib2.0-dev \
+            libwebkit2gtk-4.1-dev \
+            pkg-config \
+            protobuf-compiler
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: linux-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            linux-cargo-
+
+      - name: Run Rust tests
+        working-directory: src-tauri
+        run: cargo test --workspace --verbose -- --nocapture
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, type-check, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@8f24390df009a496891208e5e36b8a1de1f45135
+        with:
+          bun-version: latest
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561
+        with:
+          toolchain: stable
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            jq \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            protobuf-compiler
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build frontend
+        run: bun run build
+
+      - name: Build Tauri app
+        run: |
+          # Disable updater artifacts in CI (signing only needed for releases)
+          sed -i 's/"createUpdaterArtifacts": true/"createUpdaterArtifacts": false/' src-tauri/tauri.conf.json
+          bun run tauri build

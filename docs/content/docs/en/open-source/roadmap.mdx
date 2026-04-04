@@ -1,0 +1,91 @@
+---
+title: Roadmap
+description: TalkCody's vision, milestones and future plans.
+icon: Map
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## TalkCody Vision
+
+Build a comprehensive end-to-end AI Coding Agent platform for developers: from coding, testing, documentation to deployment, launch, and operations, achieving automated development that makes programming faster, cheaper, and simpler.
+
+## TalkCody Milestone 1: Top AI Coding Agent
+
+<Callout type="success">
+Goal: Generate executable code with the lowest cost + fastest speed + highest accuracy
+</Callout>
+
+### 1.1 Speed
+
+#### 1.1.1 Multiple Task Parallelization
+
+Within a Project, one Task develops features, one Task fixes bugs, one Task writes documentation - multiple Tasks working in parallel.
+
+- [x] Support parallel execution of multiple tasks
+- [x] Integration with Git Worktree
+- [x] Support background task execution
+
+#### 1.1.2 Multi-Agent Collaborative Parallelism
+
+Implement Orchestrator-Worker pattern: Main Agent breaks down tasks, Coder, Tester, Writer Agents execute in parallel.
+
+#### 1.1.3 Support for 1-2 hour long run tasks
+
+### 1.2 Cost
+
+- [x] Support Claude subscription
+- [x] Support ChatGPT subscription
+- [x] Support GitHub Copilot subscription
+- [x] Support Qwen Code authentication
+- [x] Implement 3-level Compaction strategy
+- [ ] Support LSP tool
+- [ ] Support TOON encoding/decoding
+- [x] Optimize output tokens for each tool
+- [ ] Add AI analysis and summarization to web fetch tool
+
+### 1.3 Accuracy
+
+- [ ] Support Hook mechanism
+- [ ] Continuously improve rankings on SWE-bench Verified and Terminal-Bench
+- [ ] Enhanced permissions and security
+
+### 1.4 Usability
+
+- [x] Editor with LSP support
+- [x] Multi-language support
+- [x] Support custom Models and custom Providers
+- [x] Support Lint
+- [x] Support one-click AI Code Review
+- [x] Support one-click AI Git Commit
+- [x] Support Usage Dashboard
+- [x] Support Share Link
+- [x] Support free web search tool
+- [ ] Better integration with Terminal
+- [ ] Better integration with Git and GitHub
+- [ ] Support AI code auto-completion
+- [ ] Support automatic model selection and routing
+
+## TalkCody Milestone 2: AI Agent Covering Developers' Main Workflows
+
+<Callout type="success">
+Goal: Not only write code, but also integrate into team daily collaboration toolchain
+</Callout>
+
+- [x] Compatible with Agent Skills ecosystem
+- [ ] Compatible with Claude Code Skills
+- [ ] Built-in more commands
+- [ ] Support Deep Research Agent
+- [x] Support Image Generator Agent
+
+## TalkCody Milestone 3: AI Agent Covering Independent Developers' Complete Workflow
+
+<Callout type="success">
+Goal: One person can work like a company, from idea → product launch → automated operations
+</Callout>
+
+- [ ] End-to-end Agent process from requirements → design → development → testing → release → app store listing → operations
+
+## Welcome to Contribute!
+
+- [GitHub Repository](https://github.com/talkcody/talkcody)

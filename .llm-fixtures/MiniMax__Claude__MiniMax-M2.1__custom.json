@@ -1,0 +1,369 @@
+{
+  "version": 1,
+  "provider_id": "MiniMax",
+  "protocol": "Claude",
+  "model": "MiniMax-M2.1",
+  "endpoint_path": "anthropic/v1/messages",
+  "request": {
+    "method": "POST",
+    "url": "https://api.minimaxi.com/anthropic/v1/messages",
+    "headers": {
+      "anthropic-version": "2023-06-01",
+      "x-api-key": "REDACTED",
+      "content-type": "application/json"
+    },
+    "body": {
+      "max_tokens": 15000,
+      "messages": [
+        {
+          "content": [
+            {
+              "text": "│     Container ID:  containerd://710d4f0549979de25fccfe0799fb2329662e277f98ee58dc3782528741ecba80                                                                                                         │\n│     Image:         starrocks/fe-ubuntu:3.4.4                                                                                                                                                             │\n│     Image ID:      docker.io/starrocks/fe-ubuntu@sha256:832ef5b44f6dd2cb1da456df66bb2b1ff15e7ecfa82d40c9e498d41adcd94eac                                                                                 │\n\nAre all Ubuntu systems X86-based?",
+              "type": "text"
+            }
+          ],
+          "role": "user"
+        }
+      ],
+      "model": "MiniMax-M2.1",
+      "stream": true,
+      "system": "\nYou are a smart AI assistant to give user accurate answers.\n\n## ⚠️ CRITICAL: READ-ONLY OPERATIONS ONLY\n\n**IMPORTANT**: You are a read-only agent. All your tools must ONLY be used for reading and gathering information. You MUST NOT:\n- Create, modify, or delete any files\n- Execute commands that change system state\n- Perform any write operations\n- Make any modifications to the system\n\nYour tools are designed for information gathering only. Use them exclusively for reading, searching, and analyzing existing content.\n\nYour answer must follow the following rules:\n\n1. Write an accurate, detailed, and comprehensive response to the user's QUESTION.\n2. Your answer must be as detailed and organized as possible, Prioritize the use of lists, tables, and quotes to organize output structures.\n3. Your answer must be precise, of high-quality, and written by an expert using an unbiased and journalistic tone.\n4. You MUST ADHERE to the following formatting instructions:\n    - Use markdown to format paragraphs, lists, tables, and quotes whenever possible.\n    - Use headings level 4 to separate sections of your response, like \"#### Header\", but NEVER start an answer with a heading or title of any kind.\n    - Use single new lines for lists and double new lines for paragraphs.\n5. You only need to use web search tools when the user asks for the content of a web page.\n\nToday's date is 2026-02-05T06:58:59.130Z.\n\n\n---\n\nOUTPUT FORMAT INSTRUCTIONS:\nOutput the response in standard Markdown with headings, lists, and code blocks.\n\nIMPORTANT: You MUST respond in English.",
+      "temperature": 1.0,
+      "thinking": {
+        "budgetTokens": 12000,
+        "type": "enabled"
+      },
+      "tools": [
+        {
+          "description": "Search the web for comprehensive and up-to-date information.\n\nQuery Optimization Guidelines:\n- Extract the core topic/entity from questions (e.g., \"who is Elon Musk\" → \"Elon Musk\", \"what is React\" → \"React\")\n- For comparisons (e.g., \"X vs Y\"), search for both terms together to get comparison results\n- Remove question words (who, what, when, where, why, how) but keep context words that add meaning\n- Keep technical terms, version numbers, and specific qualifiers (e.g., \"React 19 features\" stays as-is)\n- For \"latest\" or \"recent\" queries, include temporal keywords (e.g., \"latest AI models 2025\")\n- Preserve programming language/framework context (e.g., \"error handling in Rust\" → \"Rust error handling\")\n- For debugging queries, keep error messages and stack traces intact\n- Use multiple searches only when topics are completely unrelated, not for comparisons",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "query": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "query"
+            ],
+            "type": "object"
+          },
+          "name": "webSearch"
+        },
+        {
+          "description": "Fetch and extract content from a web url",
+          "input_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "url"
+            ],
+            "type": "object"
+          },
+          "name": "webFetch"
+        }
+      ],
+      "top_p": 0.949999988079071
+    }
+  },
+  "response": {
+    "type": "stream",
+    "status": 200,
+    "headers": {
+      "cache-control": "no-cache",
+      "minimax-request-id": "6e708a0d3542d44a3c770a002323000f",
+      "content-type": "text/event-stream; charset=utf-8",
+      "trace-id": "05d37337cf8cad6da8d3107f11c0952a",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-session-id": "aee6f657b56044ee5eac502c6a66905d",
+      "alb_request_id": "d812053f3444a6bc326a2d2182951f4269188955",
+      "connection": "keep-alive",
+      "alb_receive_time": "1770274871.869",
+      "date": "Thu, 05 Feb 2026 07:01:12 GMT"
+    },
+    "sse_events": [
+      {
+        "event": "message_start",
+        "data": "{\"type\":\"message_start\",\"message\":{\"id\":\"05d37337cf8cad6da8d3107f11c0952a\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[],\"model\":\"MiniMax-M2.1\",\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":899,\"output_tokens\":0},\"service_tier\":\"standard\"}}"
+      },
+      {
+        "event": "ping",
+        "data": "{\"type\":\"ping\"}"
+      },
+      {
+        "event": "content_block_start",
+        "data": "{\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"thinking\",\"thinking\":\"\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"thinking_delta\",\"thinking\":\"The user\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"thinking_delta\",\"thinking\":\" is asking whether all Ubuntu systems are x86-based. They provided container information showing an image using \\\"fe\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"thinking_delta\",\"thinking\":\"-ubuntu\\\" which seems to be based on Ubuntu. Let me provide a comprehensive answer about Ubuntu's architecture support.\\n\\nUbuntu supports multiple architectures, not just x86\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"thinking_delta\",\"thinking\":\". I should explain the different architectures Ubuntu supports.\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"signature_delta\",\"signature\":\"9392f22ab5b511c1f505e71e41e6c308165a8927198c47aa2b1ee21880a9812b\"}}"
+      },
+      {
+        "event": "content_block_stop",
+        "data": "{\"type\":\"content_block_stop\",\"index\":0}"
+      },
+      {
+        "event": "content_block_start",
+        "data": "{\"type\":\"content_block_start\",\"index\":1,\"content_block\":{\"type\":\"text\",\"text\":\"\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\"No, not all Ubuntu systems are x86-based. Ubuntu supports multiple hardware architectures.\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\" Here's an overview:\\n\\n## Ubuntu Supported Architectures\\n\\n| Architecture | Description | Common Use Cases |\\n|--------------|-------------|------------------|\\n| **x\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\"86_64 (amd64)** | 64-bit Intel/AMD processors | Desktop, server, cloud |\\n| **x86 (i\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\"386)** | 32-bit Intel/AMD processors | Legacy systems (deprecated in recent versions) |\\n| **ARM64 (arm64)** | \"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\"64-bit ARM processors | ARM servers, Apple Silicon (via Rosetta), embedded systems |\\n| **ARM (armhf)** |\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\" 32-bit ARM processors | Raspberry Pi, embedded devices |\\n| **PowerPC (ppc64el)** | IBM POWER processors | Enterprise\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\" servers |\\n| **IBM Z (s390x)** | IBM System z mainframes | Mainframe environments |\\n\\n## Ubuntu Flav\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\"ors by Architecture\\n\\n- **Ubuntu Desktop/Server**: Primarily x86_64, but also supports ARM64\\n- **Ubuntu for ARM**: Specifically\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\" designed for ARM devices\\n- **Ubuntu Core**: IoT-focused, supports multiple architectures\\n- **Raspberry Pi images**: Optimized for ARM (\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\"arm64 and armhf)\\n\\n## Regarding Your Container\\n\\nThe `starrocks/fe-ubuntu:3.4.4`\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\" image you referenced is likely running on x86_64 architecture, as this is the most common platform for StarRocks deployments. However, Ubuntu\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\" Base Images exist for multiple architectures, and container images can be built for different platforms.\\n\\n**Key Point**: Ubuntu\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\" is a versatile operating system that supports numerous processor architectures beyond just x86, making it suitable for everything from desktop PCs to main\"}}"
+      },
+      {
+        "event": "content_block_delta",
+        "data": "{\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\"frames and IoT devices.\"}}"
+      },
+      {
+        "event": "content_block_stop",
+        "data": "{\"type\":\"content_block_stop\",\"index\":1}"
+      },
+      {
+        "event": "message_delta",
+        "data": "{\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\"},\"usage\":{\"input_tokens\":899,\"output_tokens\":421}}"
+      },
+      {
+        "event": "message_stop",
+        "data": "{\"type\":\"message_stop\"}"
+      }
+    ]
+  },
+  "test_input": {
+    "model": "MiniMax-M2.1",
+    "messages": [
+      {
+        "role": "system",
+        "content": "\nYou are a smart AI assistant to give user accurate answers.\n\n## ⚠️ CRITICAL: READ-ONLY OPERATIONS ONLY\n\n**IMPORTANT**: You are a read-only agent. All your tools must ONLY be used for reading and gathering information. You MUST NOT:\n- Create, modify, or delete any files\n- Execute commands that change system state\n- Perform any write operations\n- Make any modifications to the system\n\nYour tools are designed for information gathering only. Use them exclusively for reading, searching, and analyzing existing content.\n\nYour answer must follow the following rules:\n\n1. Write an accurate, detailed, and comprehensive response to the user's QUESTION.\n2. Your answer must be as detailed and organized as possible, Prioritize the use of lists, tables, and quotes to organize output structures.\n3. Your answer must be precise, of high-quality, and written by an expert using an unbiased and journalistic tone.\n4. You MUST ADHERE to the following formatting instructions:\n    - Use markdown to format paragraphs, lists, tables, and quotes whenever possible.\n    - Use headings level 4 to separate sections of your response, like \"#### Header\", but NEVER start an answer with a heading or title of any kind.\n    - Use single new lines for lists and double new lines for paragraphs.\n5. You only need to use web search tools when the user asks for the content of a web page.\n\nToday's date is 2026-02-05T06:58:59.130Z.\n\n\n---\n\nOUTPUT FORMAT INSTRUCTIONS:\nOutput the response in standard Markdown with headings, lists, and code blocks.\n\nIMPORTANT: You MUST respond in English.",
+        "providerOptions": {
+          "anthropic": {
+            "cacheControl": {
+              "type": "ephemeral"
+            }
+          }
+        }
+      },
+      {
+        "role": "user",
+        "content": "│     Container ID:  containerd://710d4f0549979de25fccfe0799fb2329662e277f98ee58dc3782528741ecba80                                                                                                         │\n│     Image:         starrocks/fe-ubuntu:3.4.4                                                                                                                                                             │\n│     Image ID:      docker.io/starrocks/fe-ubuntu@sha256:832ef5b44f6dd2cb1da456df66bb2b1ff15e7ecfa82d40c9e498d41adcd94eac                                                                                 │\n\nAre all Ubuntu systems X86-based?",
+        "providerOptions": null
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "name": "webSearch",
+        "description": "Search the web for comprehensive and up-to-date information.\n\nQuery Optimization Guidelines:\n- Extract the core topic/entity from questions (e.g., \"who is Elon Musk\" → \"Elon Musk\", \"what is React\" → \"React\")\n- For comparisons (e.g., \"X vs Y\"), search for both terms together to get comparison results\n- Remove question words (who, what, when, where, why, how) but keep context words that add meaning\n- Keep technical terms, version numbers, and specific qualifiers (e.g., \"React 19 features\" stays as-is)\n- For \"latest\" or \"recent\" queries, include temporal keywords (e.g., \"latest AI models 2025\")\n- Preserve programming language/framework context (e.g., \"error handling in Rust\" → \"Rust error handling\")\n- For debugging queries, keep error messages and stack traces intact\n- Use multiple searches only when topics are completely unrelated, not for comparisons",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      },
+      {
+        "type": "function",
+        "name": "webFetch",
+        "description": "Fetch and extract content from a web url",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      }
+    ],
+    "temperature": 1.0,
+    "max_tokens": 15000,
+    "top_p": 0.95,
+    "top_k": 20,
+    "provider_options": {
+      "anthropic": {
+        "thinking": {
+          "budgetTokens": 12000,
+          "type": "enabled"
+        }
+      },
+      "google": {
+        "thinkingConfig": {
+          "includeThoughts": true,
+          "thinkingBudget": 8192
+        }
+      },
+      "moonshot": {
+        "temperature": 1,
+        "thinking": {
+          "type": "enabled"
+        }
+      }
+    },
+    "extra_body": null
+  },
+  "expected_events": [
+    {
+      "type": "reasoning-start",
+      "id": "thinking",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "thinking",
+      "text": "",
+      "provider_metadata": {
+        "anthropic": {
+          "signature": "9392f22ab5b511c1f505e71e41e6c308165a8927198c47aa2b1ee21880a9812b"
+        }
+      }
+    },
+    {
+      "type": "text-delta",
+      "text": "No, not all Ubuntu systems are x86-based. Ubuntu supports multiple hardware architectures."
+    },
+    {
+      "type": "text-delta",
+      "text": " Here's an overview:\n\n## Ubuntu Supported Architectures\n\n| Architecture | Description | Common Use Cases |\n|--------------|-------------|------------------|\n| **x"
+    },
+    {
+      "type": "text-delta",
+      "text": "86_64 (amd64)** | 64-bit Intel/AMD processors | Desktop, server, cloud |\n| **x86 (i"
+    },
+    {
+      "type": "text-delta",
+      "text": "386)** | 32-bit Intel/AMD processors | Legacy systems (deprecated in recent versions) |\n| **ARM64 (arm64)** | "
+    },
+    {
+      "type": "text-delta",
+      "text": "64-bit ARM processors | ARM servers, Apple Silicon (via Rosetta), embedded systems |\n| **ARM (armhf)** |"
+    },
+    {
+      "type": "text-delta",
+      "text": " 32-bit ARM processors | Raspberry Pi, embedded devices |\n| **PowerPC (ppc64el)** | IBM POWER processors | Enterprise"
+    },
+    {
+      "type": "text-delta",
+      "text": " servers |\n| **IBM Z (s390x)** | IBM System z mainframes | Mainframe environments |\n\n## Ubuntu Flav"
+    },
+    {
+      "type": "text-delta",
+      "text": "ors by Architecture\n\n- **Ubuntu Desktop/Server**: Primarily x86_64, but also supports ARM64\n- **Ubuntu for ARM**: Specifically"
+    },
+    {
+      "type": "text-delta",
+      "text": " designed for ARM devices\n- **Ubuntu Core**: IoT-focused, supports multiple architectures\n- **Raspberry Pi images**: Optimized for ARM ("
+    },
+    {
+      "type": "text-delta",
+      "text": "arm64 and armhf)\n\n## Regarding Your Container\n\nThe `starrocks/fe-ubuntu:3.4.4`"
+    },
+    {
+      "type": "text-delta",
+      "text": " image you referenced is likely running on x86_64 architecture, as this is the most common platform for StarRocks deployments. However, Ubuntu"
+    },
+    {
+      "type": "text-delta",
+      "text": " Base Images exist for multiple architectures, and container images can be built for different platforms.\n\n**Key Point**: Ubuntu"
+    },
+    {
+      "type": "text-delta",
+      "text": " is a versatile operating system that supports numerous processor architectures beyond just x86, making it suitable for everything from desktop PCs to main"
+    },
+    {
+      "type": "text-delta",
+      "text": "frames and IoT devices."
+    },
+    {
+      "type": "usage",
+      "input_tokens": 899,
+      "output_tokens": 421,
+      "total_tokens": null,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "done",
+      "finish_reason": "end_turn"
+    }
+  ]
+}

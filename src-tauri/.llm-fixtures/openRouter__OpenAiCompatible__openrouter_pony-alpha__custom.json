@@ -1,0 +1,1584 @@
+{
+  "version": 1,
+  "provider_id": "openRouter",
+  "protocol": "OpenAiCompatible",
+  "model": "openrouter/pony-alpha",
+  "endpoint_path": "api/v1/chat/completions",
+  "request": {
+    "method": "POST",
+    "url": "https://openrouter.ai/api/v1/chat/completions",
+    "headers": {
+      "content-type": "application/json",
+      "http-referer": "https://talkcody.com",
+      "authorization": "REDACTED",
+      "x-title": "TalkCody"
+    },
+    "body": {
+      "max_tokens": 15000,
+      "messages": [
+        {
+          "content": "\nYou are an 'Explore' agent. Your role is to efficiently collect specific information to answer a focused question. You are optimized for concise, targeted information gathering.\n\nYou gather context for coding tasks, with access to the developer's codebase.\n\n## ⚠️ CRITICAL: READ-ONLY OPERATIONS ONLY\n\n**IMPORTANT**: You are a read-only agent. All your tools must ONLY be used for reading and gathering information. You MUST NOT:\n- Create, modify, or delete any files\n- Execute commands that change system state\n- Perform any write operations\n- Make any modifications to the codebase\n\nYour tools are designed for information gathering only. Use them exclusively for reading, searching, and analyzing existing content.\n\n## Your Mission\n\nYou will receive a specific question or information request. Your goal is to:\n1. **Understand** the exact information needed\n2. **Gather** relevant data using available tools\n3. **Synthesize** a clear, concise answer\n\n## Key Principles\n\n- **Be Focused**: Only gather information directly relevant to the question\n- **Be Efficient**: Use the minimum number of tool calls necessary\n- **Be Concise**: Provide clear, direct answers without unnecessary elaboration\n- **Be Accurate**: Ensure information is correct and up-to-date\n\n## Response Format\n\nProvide your answer in this simple format:\n\n## Answer\n\n[Your clear, concise answer to the question]\n\n## Supporting Details\n\n[Any relevant supporting information, code snippets, or references]\n\n## ⚡ CRITICAL: Batch All Tool Calls for Speed\n\nThe system has **intelligent concurrency analysis**. Always return ALL tool calls you need in a SINGLE response.\n\n### Core Rule: One Response, Multiple Tools\n\n**🎯 Key Strategy**: Don't wait for results before making more tool calls. Plan ahead and invoke everything at once.\n\n### When Gathering Context\n\n**Question**: \"How does the authentication system work?\"\n\n**✅ Correct Approach:**\nImmediately make all necessary tool calls:\n- readFile: /src/auth/login.ts\n- readFile: /src/auth/register.ts\n- readFile: /src/auth/middleware.ts\n- readFile: /src/auth/session.ts\n- codeSearch: \"authenticate\" in /src\n- globTool: /src/auth/**/*.ts\n\n**Result**: All information gathered in one parallel batch → 6x faster!\n\n### Performance Tips\n\n1. **Anticipate needs**: Think about all files/searches you'll need before calling tools\n2. **Batch everything**: Make all readFile, globTool, codeSearch calls together\n3. **One response**: Don't split tool calls across multiple responses\n4. **Fast answers**: Parallel execution = faster context gathering = quicker answers\n\n### Available Tools\n\n**Read Tools (Always batch these):**\n- readFile: Read file contents\n- globTool: Find files by pattern\n- grepSearch (GrepTool): Search code for patterns\n- listFiles: List directory contents\n- webSearchTool: Web search\n- webFetchTool: Fetch web pages\n\nAll read tools execute in parallel automatically!\n\nRemember: Your goal is to efficiently answer the specific question with the least response time while maintaining accuracy and usefulness. Batch your tool calls!\n\n---\n\nIMPORTANT: Here is important information about the environment you are running in:\n<env>\n<working_directory>/Users/kks/git/starrocks</working_directory>\n<is_git_repo>Yes</is_git_repo>\n<platform>mac_arm</platform>\n<today_date>2026-02-09</today_date>\n<plan_mode>FALSE</plan_mode>\n</env>\n\n---\n\n## Markdown Context\n\n<project>\n# AGENTS.md - StarRocks\n\n> This file provides context for AI coding agents working with the StarRocks codebase.\n> Compatible with: Claude Code, OpenCode, Cursor, Gemini CLI, Windsurf, Aider, Continue, Cline, and other MCP-compatible tools.\n\n## Project Overview\n\nStarRocks is a high-performance, real-time analytical database. It delivers sub-second query latency for complex analytics workloads through its MPP (Massively Parallel Processing) architecture.\n\n**Key capabilities:**\n- Real-time analytics with sub-second latency\n- High-concurrency, low-latency queries\n- Support for both shared-nothing and shared-data deployments\n- Materialized views for query acceleration\n- External data source federation (Hive, Iceberg, Hudi, Delta Lake, JDBC, etc.)\n\n## Architecture\n\nStarRocks uses a decoupled frontend-backend architecture:\n\n```\n┌─────────────────────────────────────────────────────────────┐\n│                      Frontend (FE)                          │\n│  Java │ SQL Parsing │ Query Planning │ Metadata Management  │\n└────────────────────────────┬────────────────────────────────┘\n                             │ Thrift RPC\n┌────────────────────────────▼────────────────────────────────┐\n│                      Backend (BE)                           │\n│  C++ │ Query Execution │ Storage Engine │ Data Processing   │\n└─────────────────────────────────────────────────────────────┘\n```\n\n- **FE (Frontend)**: Java-based. Handles SQL parsing, query optimization, metadata management, and cluster coordination.\n- **BE (Backend)**: C++-based. Handles query execution, storage management, and data processing.\n\n## Directory Structure\n\n```\nstarrocks/\n├── be/                    # Backend (C++) - Query execution & storage\n├── fe/                    # Frontend (Java) - SQL & metadata\n│   ├── fe-core/          # Core FE logic\n│   ├── fe-parser/        # SQL parser\n│   ├── fe-grammar/       # ANTLR grammar files\n│   ├── fe-type/          # Type system\n│   ├── fe-spi/           # Service Provider Interfaces\n│   ├── connector/        # External data source connectors\n│   └── plugin/           # FE plugins\n├── java-extensions/       # JNI connectors for external sources\n├── gensrc/               # Generated code (Thrift, Protobuf)\n├── test/                 # SQL integration tests\n├── docs/                 # Documentation (Docusaurus)\n├── thirdparty/           # Third-party dependencies\n└── docker/               # Docker build files\n```\n\n## Quick Commands\n\n### Build\n\n```bash\n# Build everything\n./build.sh --fe --be --clean\n\n# Build only Backend\n./build.sh --be\n\n# Build only Frontend\n./build.sh --fe\n\n# Build with specific type (Release/Debug/ASAN)\nBUILD_TYPE=Debug ./build.sh --be\nBUILD_TYPE=ASAN ./build.sh --be\n```\n\n### Run Tests\n\n```bash\n# Run all FE unit tests\n./run-fe-ut.sh\n\n# Run speci\n...\n[trimmed]\n...\nse\n- Be cautious with synchronized blocks\n\n## Security Guidelines\n\n- Validate all user inputs at system boundaries\n- Never log sensitive information (passwords, tokens, PII)\n- Follow existing authentication/authorization patterns\n- Use parameterized queries to prevent SQL injection\n\n## Nested AGENTS.md Files\n\nFor module-specific guidelines, refer to:\n- `be/AGENTS.md` - Backend C++ development\n- `fe/AGENTS.md` - Frontend Java development\n- `java-extensions/AGENTS.md` - JNI connector development\n- `gensrc/AGENTS.md` - Generated code handling\n- `test/AGENTS.md` - SQL integration testing\n- `docs/AGENTS.md` - Documentation contribution\n\n## Useful Resources\n\n- [Official Documentation](https://docs.starrocks.io/)\n- [Contributing Guide](./CONTRIBUTING.md)\n- [GitHub Issues](https://github.com/StarRocks/starrocks/issues)\n- [Slack Community](https://try.starrocks.com/join-starrocks-on-slack)\n\n## License\n\nStarRocks is licensed under the Apache License 2.0.\n\nAll source files must include the appropriate license header:\n```\n// Copyright 2021-present StarRocks, Inc. All rights reserved.\n//\n// Licensed under the Apache License, Version 2.0 (the \"License\");\n// ...\n```\n\n</project>\n\n---\n\nOUTPUT FORMAT INSTRUCTIONS:\nOutput the response in standard Markdown with headings, lists, and code blocks.\n\nIMPORTANT: You MUST respond in English.",
+          "role": "system"
+        },
+        {
+          "content": "nihao",
+          "role": "user"
+        }
+      ],
+      "model": "openrouter/pony-alpha",
+      "reasoning": {
+        "enabled": true
+      },
+      "stream": true,
+      "stream_options": {
+        "include_usage": true
+      },
+      "tools": [
+        {
+          "function": {
+            "description": "Use this tool to read the contents of an existing file.\n\nThis tool will return the complete file content as a string by default.\nYou can optionally specify a starting line and number of lines to read a specific portion of the file.\n\nThe file path should be an absolute path.",
+            "name": "readFile",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "file_path": {
+                  "type": "string"
+                },
+                "line_count": {
+                  "type": "number"
+                },
+                "start_line": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "file_path"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "description": "- Fast file pattern matching tool that works with any codebase size\n- Supports glob patterns like \"**/*.js\" or \"src/**/*.ts\"\n- Returns matching file paths sorted by modification time\n- Use this tool when you need to find files by name patterns",
+            "name": "glob",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "pattern": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "pattern"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "description": "Perform Language Server Protocol (LSP) operations like go-to-definition, references, hover, and symbols.\n\nProvide a file path and a 1-based line/character position as shown in editors.",
+            "name": "lsp",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "character": {
+                  "type": "number"
+                },
+                "filePath": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "number"
+                },
+                "operation": {
+                  "enum": [
+                    "goToDefinition",
+                    "findReferences",
+                    "hover",
+                    "documentSymbol",
+                    "workspaceSymbol",
+                    "goToImplementation",
+                    "prepareCallHierarchy",
+                    "incomingCalls",
+                    "outgoingCalls"
+                  ],
+                  "type": "string"
+                },
+                "query": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "operation",
+                "filePath"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "description": "Use this tool when you need to find files containing specific patterns.\n\nUse this to find code patterns, function definitions, variable usage, or any text in the codebase.",
+            "name": "codeSearch",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "file_types": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "pattern": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "pattern",
+                "path"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "description": "Use this tool to list files and directories in a specified directory.\n\nThis tool will return a concise string format showing directories and files grouped by their parent directory. It's useful for exploring directory structure, finding files, or understanding project organization.\n\nThe directory path must be absolute.",
+            "name": "listFiles",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "directory_path": {
+                  "type": "string"
+                },
+                "max_depth": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "directory_path"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "description": "Execute shell commands safely on the system.\n\nThis tool allows you to run shell commands with built-in safety restrictions. Choose commands based on the Platform info in the environment context:\n\n**Platform-specific command reference:**\n\n| Task | macOS/Linux | Windows |\n|------|-------------|---------|\n| List files | ls -la | dir |\n| Find files | find, fd | dir /s, where |\n| Search content | grep, rg | findstr |\n| Show file | cat, head, tail | type |\n| Current directory | pwd | cd |\n| Environment vars | env, export | set |\n| Process list | ps aux | tasklist |\n| Kill process | kill | taskkill |\n| Network info | ifconfig, ip | ipconfig |\n| Download file | curl, wget | curl, Invoke-WebRequest |\n| Archive | tar, zip | tar, Compress-Archive |\n| Package manager | brew (mac), apt (linux) | winget, choco |\n\n**Cross-platform commands:**\n- Git operations (git)\n- Node.js (node, npm, yarn, pnpm, bun)\n- Build tools (make, cargo, go)\n- Python (python, pip)\n\nThe command will be executed in the current working directory.\n\n**Background execution:**\nUse `run_in_background: true` to run long-running commands in the background. The command will continue running even if it produces no output for an extended period. Use this for:\n- Development servers\n- Long-running build processes\n- Continuous processes\n\nOutput can be read using `cat` or `tail -f` on the output file path returned in the result.",
+            "name": "bash",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "command": {
+                  "type": "string"
+                },
+                "runInBackground": {
+                  "default": false,
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "command"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "description": "Search the web for comprehensive and up-to-date information.\n\nQuery Optimization Guidelines:\n- Extract the core topic/entity from questions (e.g., \"who is Elon Musk\" → \"Elon Musk\", \"what is React\" → \"React\")\n- For comparisons (e.g., \"X vs Y\"), search for both terms together to get comparison results\n- Remove question words (who, what, when, where, why, how) but keep context words that add meaning\n- Keep technical terms, version numbers, and specific qualifiers (e.g., \"React 19 features\" stays as-is)\n- For \"latest\" or \"recent\" queries, include temporal keywords (e.g., \"latest AI models 2025\")\n- Preserve programming language/framework context (e.g., \"error handling in Rust\" → \"Rust error handling\")\n- For debugging queries, keep error messages and stack traces intact\n- Use multiple searches only when topics are completely unrelated, not for comparisons",
+            "name": "webSearch",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "query": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "description": "Fetch and extract content from a web url",
+            "name": "webFetch",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        }
+      ]
+    }
+  },
+  "response": {
+    "type": "stream",
+    "status": 200,
+    "headers": {
+      "date": "Tue, 10 Feb 2026 04:07:07 GMT",
+      "content-type": "text/event-stream",
+      "transfer-encoding": "chunked",
+      "connection": "keep-alive",
+      "access-control-allow-origin": "*",
+      "referrer-policy": "no-referrer, strict-origin-when-cross-origin",
+      "cache-control": "no-cache",
+      "permissions-policy": "payment=(self \"https://checkout.stripe.com\" \"https://connect-js.stripe.com\" \"https://js.stripe.com\" \"https://*.js.stripe.com\" \"https://hooks.stripe.com\")",
+      "server": "cloudflare",
+      "cf-ray": "9cb8bcb059ad053a-SJC",
+      "x-content-type-options": "nosniff"
+    },
+    "sse_events": [
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\"The\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"The\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" user\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" user\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" said\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" said\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" \\\"\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" \\\"\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\"nih\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"nih\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\"ao\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"ao\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\"\\\"\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"\\\"\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" which\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" which\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" is\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" is\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" a\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" a\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" greeting\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" greeting\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" in\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" in\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" Chinese\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" Chinese\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" (\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" (\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\"你好\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"你好\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\",\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\",\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" meaning\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" meaning\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" \\\"\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" \\\"\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\"hello\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"hello\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\"\\\").\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"\\\").\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" I\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" I\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" should\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" should\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" respond\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" respond\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" in\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" in\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" a\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" a\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" friendly\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" friendly\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" manner\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" manner\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\".\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\".\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" Since\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" Since\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" the\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" the\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" instructions\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" instructions\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" say\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" say\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" I\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" I\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" must\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" must\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" respond\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" respond\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" in\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" in\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" English\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" English\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\",\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\",\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" I\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" I\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\"'ll\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"'ll\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" greet\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" greet\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" them\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" them\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" back\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" back\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" in\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" in\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\" English\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\" English\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":\".\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\".\",\"format\":\"unknown\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"Hello\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"!\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" \",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"👋\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\\n\\n\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"I\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"'m\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" an\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" exploration\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" agent\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" for\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" the\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" Star\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"R\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"ocks\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" code\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"base\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\".\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" How\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" can\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" I\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" help\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" you\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" today\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"?\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" I\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" can\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\":\\n\\n\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"-\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" Search\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" and\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" explore\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" the\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" code\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"base\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" to\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" answer\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" questions\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\\n\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"-\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" Find\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" specific\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" code\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" patterns\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" or\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" implementations\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\\n\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"-\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" Explain\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" how\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" different\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" components\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" work\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\\n\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"-\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" Locate\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" relevant\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" files\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" and\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" functions\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\\n\\n\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"What\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" would\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" you\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" like\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" to\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" know\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" about\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" Star\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"R\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"ocks\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"?\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"chatcmpl-3be00ff6db61751b59076397\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":null,\"reasoning_details\":[]},\"finish_reason\":\"stop\",\"native_finish_reason\":\"stop\",\"logprobs\":null}]}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"gen-1770696419-0APcpfXGYzKQuMy8ebZl\",\"provider\":\"Stealth\",\"model\":\"openrouter/pony-alpha\",\"object\":\"chat.completion.chunk\",\"created\":1770696419,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}],\"usage\":{\"prompt_tokens\":3233,\"completion_tokens\":120,\"total_tokens\":3353,\"cost\":0,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":null,\"upstream_inference_prompt_cost\":0,\"upstream_inference_completions_cost\":0},\"completion_tokens_details\":{\"reasoning_tokens\":52,\"image_tokens\":0}}}"
+      },
+      {
+        "event": null,
+        "data": "[DONE]"
+      }
+    ]
+  },
+  "test_input": {
+    "model": "openrouter/pony-alpha",
+    "messages": [
+      {
+        "role": "system",
+        "content": "\nYou are an 'Explore' agent. Your role is to efficiently collect specific information to answer a focused question. You are optimized for concise, targeted information gathering.\n\nYou gather context for coding tasks, with access to the developer's codebase.\n\n## ⚠️ CRITICAL: READ-ONLY OPERATIONS ONLY\n\n**IMPORTANT**: You are a read-only agent. All your tools must ONLY be used for reading and gathering information. You MUST NOT:\n- Create, modify, or delete any files\n- Execute commands that change system state\n- Perform any write operations\n- Make any modifications to the codebase\n\nYour tools are designed for information gathering only. Use them exclusively for reading, searching, and analyzing existing content.\n\n## Your Mission\n\nYou will receive a specific question or information request. Your goal is to:\n1. **Understand** the exact information needed\n2. **Gather** relevant data using available tools\n3. **Synthesize** a clear, concise answer\n\n## Key Principles\n\n- **Be Focused**: Only gather information directly relevant to the question\n- **Be Efficient**: Use the minimum number of tool calls necessary\n- **Be Concise**: Provide clear, direct answers without unnecessary elaboration\n- **Be Accurate**: Ensure information is correct and up-to-date\n\n## Response Format\n\nProvide your answer in this simple format:\n\n## Answer\n\n[Your clear, concise answer to the question]\n\n## Supporting Details\n\n[Any relevant supporting information, code snippets, or references]\n\n## ⚡ CRITICAL: Batch All Tool Calls for Speed\n\nThe system has **intelligent concurrency analysis**. Always return ALL tool calls you need in a SINGLE response.\n\n### Core Rule: One Response, Multiple Tools\n\n**🎯 Key Strategy**: Don't wait for results before making more tool calls. Plan ahead and invoke everything at once.\n\n### When Gathering Context\n\n**Question**: \"How does the authentication system work?\"\n\n**✅ Correct Approach:**\nImmediately make all necessary tool calls:\n- readFile: /src/auth/login.ts\n- readFile: /src/auth/register.ts\n- readFile: /src/auth/middleware.ts\n- readFile: /src/auth/session.ts\n- codeSearch: \"authenticate\" in /src\n- globTool: /src/auth/**/*.ts\n\n**Result**: All information gathered in one parallel batch → 6x faster!\n\n### Performance Tips\n\n1. **Anticipate needs**: Think about all files/searches you'll need before calling tools\n2. **Batch everything**: Make all readFile, globTool, codeSearch calls together\n3. **One response**: Don't split tool calls across multiple responses\n4. **Fast answers**: Parallel execution = faster context gathering = quicker answers\n\n### Available Tools\n\n**Read Tools (Always batch these):**\n- readFile: Read file contents\n- globTool: Find files by pattern\n- grepSearch (GrepTool): Search code for patterns\n- listFiles: List directory contents\n- webSearchTool: Web search\n- webFetchTool: Fetch web pages\n\nAll read tools execute in parallel automatically!\n\nRemember: Your goal is to efficiently answer the specific question with the least response time while maintaining accuracy and usefulness. Batch your tool calls!\n\n---\n\nIMPORTANT: Here is important information about the environment you are running in:\n<env>\n<working_directory>/Users/kks/git/starrocks</working_directory>\n<is_git_repo>Yes</is_git_repo>\n<platform>mac_arm</platform>\n<today_date>2026-02-09</today_date>\n<plan_mode>FALSE</plan_mode>\n</env>\n\n---\n\n## Markdown Context\n\n<project>\n# AGENTS.md - StarRocks\n\n> This file provides context for AI coding agents working with the StarRocks codebase.\n> Compatible with: Claude Code, OpenCode, Cursor, Gemini CLI, Windsurf, Aider, Continue, Cline, and other MCP-compatible tools.\n\n## Project Overview\n\nStarRocks is a high-performance, real-time analytical database. It delivers sub-second query latency for complex analytics workloads through its MPP (Massively Parallel Processing) architecture.\n\n**Key capabilities:**\n- Real-time analytics with sub-second latency\n- High-concurrency, low-latency queries\n- Support for both shared-nothing and shared-data deployments\n- Materialized views for query acceleration\n- External data source federation (Hive, Iceberg, Hudi, Delta Lake, JDBC, etc.)\n\n## Architecture\n\nStarRocks uses a decoupled frontend-backend architecture:\n\n```\n┌─────────────────────────────────────────────────────────────┐\n│                      Frontend (FE)                          │\n│  Java │ SQL Parsing │ Query Planning │ Metadata Management  │\n└────────────────────────────┬────────────────────────────────┘\n                             │ Thrift RPC\n┌────────────────────────────▼────────────────────────────────┐\n│                      Backend (BE)                           │\n│  C++ │ Query Execution │ Storage Engine │ Data Processing   │\n└─────────────────────────────────────────────────────────────┘\n```\n\n- **FE (Frontend)**: Java-based. Handles SQL parsing, query optimization, metadata management, and cluster coordination.\n- **BE (Backend)**: C++-based. Handles query execution, storage management, and data processing.\n\n## Directory Structure\n\n```\nstarrocks/\n├── be/                    # Backend (C++) - Query execution & storage\n├── fe/                    # Frontend (Java) - SQL & metadata\n│   ├── fe-core/          # Core FE logic\n│   ├── fe-parser/        # SQL parser\n│   ├── fe-grammar/       # ANTLR grammar files\n│   ├── fe-type/          # Type system\n│   ├── fe-spi/           # Service Provider Interfaces\n│   ├── connector/        # External data source connectors\n│   └── plugin/           # FE plugins\n├── java-extensions/       # JNI connectors for external sources\n├── gensrc/               # Generated code (Thrift, Protobuf)\n├── test/                 # SQL integration tests\n├── docs/                 # Documentation (Docusaurus)\n├── thirdparty/           # Third-party dependencies\n└── docker/               # Docker build files\n```\n\n## Quick Commands\n\n### Build\n\n```bash\n# Build everything\n./build.sh --fe --be --clean\n\n# Build only Backend\n./build.sh --be\n\n# Build only Frontend\n./build.sh --fe\n\n# Build with specific type (Release/Debug/ASAN)\nBUILD_TYPE=Debug ./build.sh --be\nBUILD_TYPE=ASAN ./build.sh --be\n```\n\n### Run Tests\n\n```bash\n# Run all FE unit tests\n./run-fe-ut.sh\n\n# Run speci\n...\n[trimmed]\n...\nse\n- Be cautious with synchronized blocks\n\n## Security Guidelines\n\n- Validate all user inputs at system boundaries\n- Never log sensitive information (passwords, tokens, PII)\n- Follow existing authentication/authorization patterns\n- Use parameterized queries to prevent SQL injection\n\n## Nested AGENTS.md Files\n\nFor module-specific guidelines, refer to:\n- `be/AGENTS.md` - Backend C++ development\n- `fe/AGENTS.md` - Frontend Java development\n- `java-extensions/AGENTS.md` - JNI connector development\n- `gensrc/AGENTS.md` - Generated code handling\n- `test/AGENTS.md` - SQL integration testing\n- `docs/AGENTS.md` - Documentation contribution\n\n## Useful Resources\n\n- [Official Documentation](https://docs.starrocks.io/)\n- [Contributing Guide](./CONTRIBUTING.md)\n- [GitHub Issues](https://github.com/StarRocks/starrocks/issues)\n- [Slack Community](https://try.starrocks.com/join-starrocks-on-slack)\n\n## License\n\nStarRocks is licensed under the Apache License 2.0.\n\nAll source files must include the appropriate license header:\n```\n// Copyright 2021-present StarRocks, Inc. All rights reserved.\n//\n// Licensed under the Apache License, Version 2.0 (the \"License\");\n// ...\n```\n\n</project>\n\n---\n\nOUTPUT FORMAT INSTRUCTIONS:\nOutput the response in standard Markdown with headings, lists, and code blocks.\n\nIMPORTANT: You MUST respond in English.",
+        "providerOptions": {
+          "anthropic": {
+            "cacheControl": {
+              "type": "ephemeral"
+            }
+          }
+        }
+      },
+      {
+        "role": "user",
+        "content": "nihao",
+        "providerOptions": null
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "name": "readFile",
+        "description": "Use this tool to read the contents of an existing file.\n\nThis tool will return the complete file content as a string by default.\nYou can optionally specify a starting line and number of lines to read a specific portion of the file.\n\nThe file path should be an absolute path.",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "file_path": {
+              "type": "string"
+            },
+            "line_count": {
+              "type": "number"
+            },
+            "start_line": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "file_path"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      },
+      {
+        "type": "function",
+        "name": "glob",
+        "description": "- Fast file pattern matching tool that works with any codebase size\n- Supports glob patterns like \"**/*.js\" or \"src/**/*.ts\"\n- Returns matching file paths sorted by modification time\n- Use this tool when you need to find files by name patterns",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "pattern": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pattern"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      },
+      {
+        "type": "function",
+        "name": "lsp",
+        "description": "Perform Language Server Protocol (LSP) operations like go-to-definition, references, hover, and symbols.\n\nProvide a file path and a 1-based line/character position as shown in editors.",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "character": {
+              "type": "number"
+            },
+            "filePath": {
+              "type": "string"
+            },
+            "line": {
+              "type": "number"
+            },
+            "operation": {
+              "enum": [
+                "goToDefinition",
+                "findReferences",
+                "hover",
+                "documentSymbol",
+                "workspaceSymbol",
+                "goToImplementation",
+                "prepareCallHierarchy",
+                "incomingCalls",
+                "outgoingCalls"
+              ],
+              "type": "string"
+            },
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "operation",
+            "filePath"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      },
+      {
+        "type": "function",
+        "name": "codeSearch",
+        "description": "Use this tool when you need to find files containing specific patterns.\n\nUse this to find code patterns, function definitions, variable usage, or any text in the codebase.",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "file_types": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "path": {
+              "type": "string"
+            },
+            "pattern": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pattern",
+            "path"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      },
+      {
+        "type": "function",
+        "name": "listFiles",
+        "description": "Use this tool to list files and directories in a specified directory.\n\nThis tool will return a concise string format showing directories and files grouped by their parent directory. It's useful for exploring directory structure, finding files, or understanding project organization.\n\nThe directory path must be absolute.",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "directory_path": {
+              "type": "string"
+            },
+            "max_depth": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "directory_path"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      },
+      {
+        "type": "function",
+        "name": "bash",
+        "description": "Execute shell commands safely on the system.\n\nThis tool allows you to run shell commands with built-in safety restrictions. Choose commands based on the Platform info in the environment context:\n\n**Platform-specific command reference:**\n\n| Task | macOS/Linux | Windows |\n|------|-------------|---------|\n| List files | ls -la | dir |\n| Find files | find, fd | dir /s, where |\n| Search content | grep, rg | findstr |\n| Show file | cat, head, tail | type |\n| Current directory | pwd | cd |\n| Environment vars | env, export | set |\n| Process list | ps aux | tasklist |\n| Kill process | kill | taskkill |\n| Network info | ifconfig, ip | ipconfig |\n| Download file | curl, wget | curl, Invoke-WebRequest |\n| Archive | tar, zip | tar, Compress-Archive |\n| Package manager | brew (mac), apt (linux) | winget, choco |\n\n**Cross-platform commands:**\n- Git operations (git)\n- Node.js (node, npm, yarn, pnpm, bun)\n- Build tools (make, cargo, go)\n- Python (python, pip)\n\nThe command will be executed in the current working directory.\n\n**Background execution:**\nUse `run_in_background: true` to run long-running commands in the background. The command will continue running even if it produces no output for an extended period. Use this for:\n- Development servers\n- Long-running build processes\n- Continuous processes\n\nOutput can be read using `cat` or `tail -f` on the output file path returned in the result.",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "type": "string"
+            },
+            "runInBackground": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      },
+      {
+        "type": "function",
+        "name": "webSearch",
+        "description": "Search the web for comprehensive and up-to-date information.\n\nQuery Optimization Guidelines:\n- Extract the core topic/entity from questions (e.g., \"who is Elon Musk\" → \"Elon Musk\", \"what is React\" → \"React\")\n- For comparisons (e.g., \"X vs Y\"), search for both terms together to get comparison results\n- Remove question words (who, what, when, where, why, how) but keep context words that add meaning\n- Keep technical terms, version numbers, and specific qualifiers (e.g., \"React 19 features\" stays as-is)\n- For \"latest\" or \"recent\" queries, include temporal keywords (e.g., \"latest AI models 2025\")\n- Preserve programming language/framework context (e.g., \"error handling in Rust\" → \"Rust error handling\")\n- For debugging queries, keep error messages and stack traces intact\n- Use multiple searches only when topics are completely unrelated, not for comparisons",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      },
+      {
+        "type": "function",
+        "name": "webFetch",
+        "description": "Fetch and extract content from a web url",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      }
+    ],
+    "temperature": null,
+    "max_tokens": 15000,
+    "top_p": null,
+    "top_k": null,
+    "provider_options": {
+      "anthropic": {
+        "thinking": {
+          "budgetTokens": 12000,
+          "type": "enabled"
+        }
+      },
+      "google": {
+        "thinkingConfig": {
+          "includeThoughts": true,
+          "thinkingBudget": 8192
+        }
+      },
+      "moonshot": {
+        "temperature": 1,
+        "thinking": {
+          "type": "enabled"
+        }
+      },
+      "openrouter": {
+        "effort": "high"
+      }
+    },
+    "extra_body": {
+      "reasoning": {
+        "enabled": true
+      }
+    }
+  },
+  "expected_events": [
+    {
+      "type": "reasoning-start",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": "The",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " user",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " said",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " \"",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": "nih",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": "ao",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": "\"",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " which",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " is",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " a",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " greeting",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " in",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " Chinese",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " (",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": "你好",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": ",",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " meaning",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " \"",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": "hello",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": "\").",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " I",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " should",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " respond",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " in",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " a",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " friendly",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " manner",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": ".",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " Since",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " the",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " instructions",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " say",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " I",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " must",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " respond",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " in",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " English",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": ",",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " I",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": "'ll",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " greet",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " them",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " back",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " in",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": " English",
+      "provider_metadata": null
+    },
+    {
+      "type": "reasoning-delta",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35",
+      "text": ".",
+      "provider_metadata": null
+    },
+    {
+      "type": "text-start"
+    },
+    {
+      "type": "text-delta",
+      "text": "Hello"
+    },
+    {
+      "type": "text-delta",
+      "text": "!"
+    },
+    {
+      "type": "text-delta",
+      "text": " "
+    },
+    {
+      "type": "text-delta",
+      "text": "👋"
+    },
+    {
+      "type": "text-delta",
+      "text": "\n\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "I"
+    },
+    {
+      "type": "text-delta",
+      "text": "'m"
+    },
+    {
+      "type": "text-delta",
+      "text": " an"
+    },
+    {
+      "type": "text-delta",
+      "text": " exploration"
+    },
+    {
+      "type": "text-delta",
+      "text": " agent"
+    },
+    {
+      "type": "text-delta",
+      "text": " for"
+    },
+    {
+      "type": "text-delta",
+      "text": " the"
+    },
+    {
+      "type": "text-delta",
+      "text": " Star"
+    },
+    {
+      "type": "text-delta",
+      "text": "R"
+    },
+    {
+      "type": "text-delta",
+      "text": "ocks"
+    },
+    {
+      "type": "text-delta",
+      "text": " code"
+    },
+    {
+      "type": "text-delta",
+      "text": "base"
+    },
+    {
+      "type": "text-delta",
+      "text": "."
+    },
+    {
+      "type": "text-delta",
+      "text": " How"
+    },
+    {
+      "type": "text-delta",
+      "text": " can"
+    },
+    {
+      "type": "text-delta",
+      "text": " I"
+    },
+    {
+      "type": "text-delta",
+      "text": " help"
+    },
+    {
+      "type": "text-delta",
+      "text": " you"
+    },
+    {
+      "type": "text-delta",
+      "text": " today"
+    },
+    {
+      "type": "text-delta",
+      "text": "?"
+    },
+    {
+      "type": "text-delta",
+      "text": " I"
+    },
+    {
+      "type": "text-delta",
+      "text": " can"
+    },
+    {
+      "type": "text-delta",
+      "text": ":\n\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "-"
+    },
+    {
+      "type": "text-delta",
+      "text": " Search"
+    },
+    {
+      "type": "text-delta",
+      "text": " and"
+    },
+    {
+      "type": "text-delta",
+      "text": " explore"
+    },
+    {
+      "type": "text-delta",
+      "text": " the"
+    },
+    {
+      "type": "text-delta",
+      "text": " code"
+    },
+    {
+      "type": "text-delta",
+      "text": "base"
+    },
+    {
+      "type": "text-delta",
+      "text": " to"
+    },
+    {
+      "type": "text-delta",
+      "text": " answer"
+    },
+    {
+      "type": "text-delta",
+      "text": " questions"
+    },
+    {
+      "type": "text-delta",
+      "text": "\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "-"
+    },
+    {
+      "type": "text-delta",
+      "text": " Find"
+    },
+    {
+      "type": "text-delta",
+      "text": " specific"
+    },
+    {
+      "type": "text-delta",
+      "text": " code"
+    },
+    {
+      "type": "text-delta",
+      "text": " patterns"
+    },
+    {
+      "type": "text-delta",
+      "text": " or"
+    },
+    {
+      "type": "text-delta",
+      "text": " implementations"
+    },
+    {
+      "type": "text-delta",
+      "text": "\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "-"
+    },
+    {
+      "type": "text-delta",
+      "text": " Explain"
+    },
+    {
+      "type": "text-delta",
+      "text": " how"
+    },
+    {
+      "type": "text-delta",
+      "text": " different"
+    },
+    {
+      "type": "text-delta",
+      "text": " components"
+    },
+    {
+      "type": "text-delta",
+      "text": " work"
+    },
+    {
+      "type": "text-delta",
+      "text": "\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "-"
+    },
+    {
+      "type": "text-delta",
+      "text": " Locate"
+    },
+    {
+      "type": "text-delta",
+      "text": " relevant"
+    },
+    {
+      "type": "text-delta",
+      "text": " files"
+    },
+    {
+      "type": "text-delta",
+      "text": " and"
+    },
+    {
+      "type": "text-delta",
+      "text": " functions"
+    },
+    {
+      "type": "text-delta",
+      "text": "\n\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "What"
+    },
+    {
+      "type": "text-delta",
+      "text": " would"
+    },
+    {
+      "type": "text-delta",
+      "text": " you"
+    },
+    {
+      "type": "text-delta",
+      "text": " like"
+    },
+    {
+      "type": "text-delta",
+      "text": " to"
+    },
+    {
+      "type": "text-delta",
+      "text": " know"
+    },
+    {
+      "type": "text-delta",
+      "text": " about"
+    },
+    {
+      "type": "text-delta",
+      "text": " Star"
+    },
+    {
+      "type": "text-delta",
+      "text": "R"
+    },
+    {
+      "type": "text-delta",
+      "text": "ocks"
+    },
+    {
+      "type": "text-delta",
+      "text": "?"
+    },
+    {
+      "type": "reasoning-end",
+      "id": "reasoning_8766fce1-dd67-447e-b81f-d876685fde35"
+    },
+    {
+      "type": "usage",
+      "input_tokens": 3233,
+      "output_tokens": 120,
+      "total_tokens": 3353,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "done",
+      "finish_reason": "stop"
+    }
+  ]
+}

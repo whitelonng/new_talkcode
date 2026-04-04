@@ -1,0 +1,268 @@
+{
+  "version": 1,
+  "provider_id": "aiGateway",
+  "protocol": "OpenAiCompatible",
+  "model": "google/gemini-3-pro-preview",
+  "endpoint_path": "v1/chat/completions",
+  "request": {
+    "method": "POST",
+    "url": "https://ai-gateway.vercel.sh/v1/chat/completions",
+    "headers": {
+      "authorization": "REDACTED",
+      "content-type": "application/json",
+      "http-referer": "https://talkcody.com",
+      "x-title": "TalkCody"
+    },
+    "body": {
+      "max_tokens": 15000,
+      "messages": [
+        {
+          "content": "\nYou are a smart AI assistant to give user accurate answers.\n\n## ⚠️ CRITICAL: READ-ONLY OPERATIONS ONLY\n\n**IMPORTANT**: You are a read-only agent. All your tools must ONLY be used for reading and gathering information. You MUST NOT:\n- Create, modify, or delete any files\n- Execute commands that change system state\n- Perform any write operations\n- Make any modifications to the system\n\nYour tools are designed for information gathering only. Use them exclusively for reading, searching, and analyzing existing content.\n\nYour answer must follow the following rules:\n\n1. Write an accurate, detailed, and comprehensive response to the user's QUESTION.\n2. Your answer must be as detailed and organized as possible, Prioritize the use of lists, tables, and quotes to organize output structures.\n3. Your answer must be precise, of high-quality, and written by an expert using an unbiased and journalistic tone.\n4. You MUST ADHERE to the following formatting instructions:\n    - Use markdown to format paragraphs, lists, tables, and quotes whenever possible.\n    - Use headings level 4 to separate sections of your response, like \"#### Header\", but NEVER start an answer with a heading or title of any kind.\n    - Use single new lines for lists and double new lines for paragraphs.\n5. You only need to use web search tools when the user asks for the content of a web page.\n\nToday's date is 2026-02-04T21:59:35.986Z.\n\n\n---\n\nOUTPUT FORMAT INSTRUCTIONS:\nOutput the response in standard Markdown with headings, lists, and code blocks.\n\nIMPORTANT: You MUST respond in English.",
+          "role": "system"
+        },
+        {
+          "content": "如果基于 远程的 3.4.4 tag， 在本地创建一个 3.4.4的分支",
+          "role": "user"
+        }
+      ],
+      "model": "google/gemini-3-pro-preview",
+      "stream": true,
+      "stream_options": {
+        "include_usage": true
+      },
+      "temperature": 1.0,
+      "tools": [
+        {
+          "function": {
+            "description": "Search the web for comprehensive and up-to-date information.\n\nQuery Optimization Guidelines:\n- Extract the core topic/entity from questions (e.g., \"who is Elon Musk\" → \"Elon Musk\", \"what is React\" → \"React\")\n- For comparisons (e.g., \"X vs Y\"), search for both terms together to get comparison results\n- Remove question words (who, what, when, where, why, how) but keep context words that add meaning\n- Keep technical terms, version numbers, and specific qualifiers (e.g., \"React 19 features\" stays as-is)\n- For \"latest\" or \"recent\" queries, include temporal keywords (e.g., \"latest AI models 2025\")\n- Preserve programming language/framework context (e.g., \"error handling in Rust\" → \"Rust error handling\")\n- For debugging queries, keep error messages and stack traces intact\n- Use multiple searches only when topics are completely unrelated, not for comparisons",
+            "name": "webSearch",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "query": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "description": "Fetch and extract content from a web url",
+            "name": "webFetch",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        }
+      ],
+      "top_k": 64,
+      "top_p": 0.949999988079071
+    }
+  },
+  "response": {
+    "type": "stream",
+    "status": 200,
+    "headers": {
+      "content-type": "text/event-stream",
+      "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+      "x-vercel-id": "cle1::cle1::fcdnc-1770242407883-b6586f3fb174",
+      "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+      "access-control-allow-origin": "*",
+      "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+      "x-matched-path": "/v1/chat/completions",
+      "cache-control": "no-cache",
+      "x-vercel-cache": "MISS",
+      "access-control-allow-headers": "Content-Type, Authorization, ai-gateway-auth-method, ai-gateway-protocol-version, ai-model-id, ai-language-model-id, ai-language-model-specification-version, ai-image-model-specification-version, ai-embedding-model-specification-version, ai-language-model-streaming, http-referer, x-title, anthropic-beta",
+      "date": "Wed, 04 Feb 2026 22:00:25 GMT",
+      "server": "Vercel",
+      "transfer-encoding": "chunked"
+    },
+    "sse_events": [
+      {
+        "event": null,
+        "data": "{\"id\":\"gen_01KGNAPZCQCX5PQ0R3BPSBG3HV\",\"object\":\"chat.completion.chunk\",\"created\":1770242425,\"model\":\"google/gemini-3-pro-preview\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"logprobs\":null,\"finish_reason\":null}],\"system_fingerprint\":\"fp_v9b0s7ypco\"}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"gen_01KGNAPZCQCX5PQ0R3BPSBG3HV\",\"object\":\"chat.completion.chunk\",\"created\":1770242425,\"model\":\"google/gemini-3-pro-preview\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"To create a local branch named `3.4.4` based on a remote tag `3.4.4`, follow these steps.\\n\\n\"},\"logprobs\":null,\"finish_reason\":null}],\"system_fingerprint\":\"fp_v9b0s7ypco\"}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"gen_01KGNAPZCQCX5PQ0R3BPSBG3HV\",\"object\":\"chat.completion.chunk\",\"created\":1770242425,\"model\":\"google/gemini-3-pro-preview\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"#### 1. Fetch Remote Tags\\nFirst, ensure your local repository has the latest information about tags from the remote repository. Even if the tag exists remotely, your local git needs to fetch it first.\\n\\n```bash\\ngit fetch --all --tags\\n```\\n\\n#### 2. Create and Switch to the Branch\\n\"},\"logprobs\":null,\"finish_reason\":null}],\"system_fingerprint\":\"fp_v9b0s7ypco\"}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"gen_01KGNAPZCQCX5PQ0R3BPSBG3HV\",\"object\":\"chat.completion.chunk\",\"created\":1770242425,\"model\":\"google/gemini-3-pro-preview\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Run the following command to create a new branch named `3.4.4` based on the specific tag `tags/3.4.4`.\\n\\n```bash\\ngit checkout -b 3.4.4 tags/3.4.4\\n```\\n\\n**Command Breakdown:**\\n*   `checkout\"},\"logprobs\":null,\"finish_reason\":null}],\"system_fingerprint\":\"fp_v9b0s7ypco\"}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"gen_01KGNAPZCQCX5PQ0R3BPSBG3HV\",\"object\":\"chat.completion.chunk\",\"created\":1770242425,\"model\":\"google/gemini-3-pro-preview\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"`: The command to switch branches or restore working tree files.\\n*   `-b 3.4.4`: Creates a **new** branch named `3.4.4`.\\n*   `tags/3.4.4`: This is the **source** (the specific tag) you are basing the new branch\"},\"logprobs\":null,\"finish_reason\":null}],\"system_fingerprint\":\"fp_v9b0s7ypco\"}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"gen_01KGNAPZCQCX5PQ0R3BPSBG3HV\",\"object\":\"chat.completion.chunk\",\"created\":1770242425,\"model\":\"google/gemini-3-pro-preview\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" on.\\n    *   *Note: Using `tags/3.4.4` instead of just `3.4.4` is recommended to prevent ambiguity (git confusing the new branch name with the tag name).*\\n\\n#### Alternative: Using `git switch` (Git 2.23+)\\nIf\"},\"logprobs\":null,\"finish_reason\":null}],\"system_fingerprint\":\"fp_v9b0s7ypco\"}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"gen_01KGNAPZCQCX5PQ0R3BPSBG3HV\",\"object\":\"chat.completion.chunk\",\"created\":1770242425,\"model\":\"google/gemini-3-pro-preview\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" you are using a newer version of Git, you can use the `switch` command, which is more explicit for branch operations.\\n\\n```bash\\ngit switch -c 3.4.4 tags/3.4.4\\n```\\n\\n#### Verification\\nTo confirm that your branch was created successfully and points to the correct commit\"},\"logprobs\":null,\"finish_reason\":null}],\"system_fingerprint\":\"fp_v9b0s7ypco\"}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"gen_01KGNAPZCQCX5PQ0R3BPSBG3HV\",\"object\":\"chat.completion.chunk\",\"created\":1770242425,\"model\":\"google/gemini-3-pro-preview\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\", you can use:\\n\\n```bash\\ngit branch -vv\\n# or\\ngit log -1 --format=%D\\n```\\n\\nYou should see `HEAD -> 3.4.4, tag: 3.4.4` indicating the branch matches the tag.\"},\"logprobs\":null,\"finish_reason\":null}],\"system_fingerprint\":\"fp_v9b0s7ypco\"}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"gen_01KGNAPZCQCX5PQ0R3BPSBG3HV\",\"object\":\"chat.completion.chunk\",\"created\":1770242425,\"model\":\"google/gemini-3-pro-preview\",\"choices\":[{\"index\":0,\"delta\":{\"provider_metadata\":{\"google\":{\"promptFeedback\":null,\"groundingMetadata\":null,\"urlContextMetadata\":null,\"safetyRatings\":null,\"usageMetadata\":{\"thoughtsTokenCount\":1474,\"promptTokenCount\":619,\"candidatesTokenCount\":415,\"totalTokenCount\":2508,\"trafficType\":\"PROVISIONED_THROUGHPUT\"}},\"gateway\":{\"routing\":{\"originalModelId\":\"google/gemini-3-pro-preview\",\"resolvedProvider\":\"vertex\",\"resolvedProviderApiModelId\":\"gemini-3-pro-preview\",\"internalResolvedModelId\":\"vertex:gemini-3-pro-preview\",\"fallbacksAvailable\":[\"google\"],\"internalReasoning\":\"Selected vertex as preferred provider for gemini-3-pro-preview. 1 fallback(s) available: google\",\"planningReasoning\":\"System credentials planned for: vertex, google. Total execution order: vertex(system) → google(system)\",\"canonicalSlug\":\"google/gemini-3-pro-preview\",\"finalProvider\":\"vertex\",\"attempts\":[{\"provider\":\"vertex\",\"internalModelId\":\"vertex:gemini-3-pro-preview\",\"providerApiModelId\":\"gemini-3-pro-preview\",\"credentialType\":\"system\",\"success\":true,\"startTime\":3598587.720122,\"endTime\":3616043.920439,\"statusCode\":200}],\"modelAttemptCount\":1,\"modelAttempts\":[{\"modelId\":\"google/gemini-3-pro-preview\",\"canonicalSlug\":\"google/gemini-3-pro-preview\",\"success\":true,\"providerAttemptCount\":1,\"providerAttempts\":[{\"provider\":\"vertex\",\"internalModelId\":\"vertex:gemini-3-pro-preview\",\"providerApiModelId\":\"gemini-3-pro-preview\",\"credentialType\":\"system\",\"success\":true,\"startTime\":3598587.720122,\"endTime\":3616043.920439,\"statusCode\":200}]}],\"totalProviderAttemptCount\":1},\"cost\":\"0.023906\",\"marketCost\":\"0.023906\",\"generationId\":\"gen_01KGNAPZCQCX5PQ0R3BPSBG3HV\",\"billableWebSearchCalls\":0}}},\"logprobs\":null,\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":619,\"completion_tokens\":415,\"total_tokens\":1034,\"cost\":0.023906,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":null,\"upstream_inference_prompt_cost\":0,\"upstream_inference_completions_cost\":0},\"completion_tokens_details\":{\"reasoning_tokens\":1474,\"image_tokens\":0},\"cache_creation_input_tokens\":0,\"market_cost\":0.023906},\"system_fingerprint\":\"fp_v9b0s7ypco\",\"generationId\":\"gen_01KGNAPZCQCX5PQ0R3BPSBG3HV\"}"
+      },
+      {
+        "event": null,
+        "data": "[DONE]"
+      }
+    ]
+  },
+  "test_input": {
+    "model": "google/gemini-3-pro-preview",
+    "messages": [
+      {
+        "role": "system",
+        "content": "\nYou are a smart AI assistant to give user accurate answers.\n\n## ⚠️ CRITICAL: READ-ONLY OPERATIONS ONLY\n\n**IMPORTANT**: You are a read-only agent. All your tools must ONLY be used for reading and gathering information. You MUST NOT:\n- Create, modify, or delete any files\n- Execute commands that change system state\n- Perform any write operations\n- Make any modifications to the system\n\nYour tools are designed for information gathering only. Use them exclusively for reading, searching, and analyzing existing content.\n\nYour answer must follow the following rules:\n\n1. Write an accurate, detailed, and comprehensive response to the user's QUESTION.\n2. Your answer must be as detailed and organized as possible, Prioritize the use of lists, tables, and quotes to organize output structures.\n3. Your answer must be precise, of high-quality, and written by an expert using an unbiased and journalistic tone.\n4. You MUST ADHERE to the following formatting instructions:\n    - Use markdown to format paragraphs, lists, tables, and quotes whenever possible.\n    - Use headings level 4 to separate sections of your response, like \"#### Header\", but NEVER start an answer with a heading or title of any kind.\n    - Use single new lines for lists and double new lines for paragraphs.\n5. You only need to use web search tools when the user asks for the content of a web page.\n\nToday's date is 2026-02-04T21:59:35.986Z.\n\n\n---\n\nOUTPUT FORMAT INSTRUCTIONS:\nOutput the response in standard Markdown with headings, lists, and code blocks.\n\nIMPORTANT: You MUST respond in English.",
+        "providerOptions": {
+          "anthropic": {
+            "cacheControl": {
+              "type": "ephemeral"
+            }
+          }
+        }
+      },
+      {
+        "role": "user",
+        "content": "如果基于 远程的 3.4.4 tag， 在本地创建一个 3.4.4的分支",
+        "providerOptions": null
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "name": "webSearch",
+        "description": "Search the web for comprehensive and up-to-date information.\n\nQuery Optimization Guidelines:\n- Extract the core topic/entity from questions (e.g., \"who is Elon Musk\" → \"Elon Musk\", \"what is React\" → \"React\")\n- For comparisons (e.g., \"X vs Y\"), search for both terms together to get comparison results\n- Remove question words (who, what, when, where, why, how) but keep context words that add meaning\n- Keep technical terms, version numbers, and specific qualifiers (e.g., \"React 19 features\" stays as-is)\n- For \"latest\" or \"recent\" queries, include temporal keywords (e.g., \"latest AI models 2025\")\n- Preserve programming language/framework context (e.g., \"error handling in Rust\" → \"Rust error handling\")\n- For debugging queries, keep error messages and stack traces intact\n- Use multiple searches only when topics are completely unrelated, not for comparisons",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      },
+      {
+        "type": "function",
+        "name": "webFetch",
+        "description": "Fetch and extract content from a web url",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      }
+    ],
+    "temperature": 1.0,
+    "max_tokens": 15000,
+    "top_p": 0.95,
+    "top_k": 64,
+    "provider_options": {
+      "anthropic": {
+        "thinking": {
+          "budgetTokens": 12000,
+          "type": "enabled"
+        }
+      },
+      "google": {
+        "thinkingConfig": {
+          "includeThoughts": true,
+          "thinkingBudget": 8192
+        }
+      },
+      "moonshot": {
+        "temperature": 1,
+        "thinking": {
+          "type": "enabled"
+        }
+      }
+    },
+    "extra_body": null
+  },
+  "expected_events": [
+    {
+      "type": "text-start"
+    },
+    {
+      "type": "text-delta",
+      "text": "To create a local branch named `3.4.4` based on a remote tag `3.4.4`, follow these steps.\n\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "#### 1. Fetch Remote Tags\nFirst, ensure your local repository has the latest information about tags from the remote repository. Even if the tag exists remotely, your local git needs to fetch it first.\n\n```bash\ngit fetch --all --tags\n```\n\n#### 2. Create and Switch to the Branch\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "Run the following command to create a new branch named `3.4.4` based on the specific tag `tags/3.4.4`.\n\n```bash\ngit checkout -b 3.4.4 tags/3.4.4\n```\n\n**Command Breakdown:**\n*   `checkout"
+    },
+    {
+      "type": "text-delta",
+      "text": "`: The command to switch branches or restore working tree files.\n*   `-b 3.4.4`: Creates a **new** branch named `3.4.4`.\n*   `tags/3.4.4`: This is the **source** (the specific tag) you are basing the new branch"
+    },
+    {
+      "type": "text-delta",
+      "text": " on.\n    *   *Note: Using `tags/3.4.4` instead of just `3.4.4` is recommended to prevent ambiguity (git confusing the new branch name with the tag name).*\n\n#### Alternative: Using `git switch` (Git 2.23+)\nIf"
+    },
+    {
+      "type": "text-delta",
+      "text": " you are using a newer version of Git, you can use the `switch` command, which is more explicit for branch operations.\n\n```bash\ngit switch -c 3.4.4 tags/3.4.4\n```\n\n#### Verification\nTo confirm that your branch was created successfully and points to the correct commit"
+    },
+    {
+      "type": "text-delta",
+      "text": ", you can use:\n\n```bash\ngit branch -vv\n# or\ngit log -1 --format=%D\n```\n\nYou should see `HEAD -> 3.4.4, tag: 3.4.4` indicating the branch matches the tag."
+    },
+    {
+      "type": "usage",
+      "input_tokens": 619,
+      "output_tokens": 415,
+      "total_tokens": 1034,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "done",
+      "finish_reason": "stop"
+    }
+  ]
+}

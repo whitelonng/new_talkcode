@@ -1,0 +1,1168 @@
+{
+  "version": 1,
+  "provider_id": "openai-compatible-longcat2-433957",
+  "protocol": "OpenAiCompatible",
+  "model": "LongCat-Flash-Chat",
+  "endpoint_path": "openai/chat/completions",
+  "request": {
+    "method": "POST",
+    "url": "https://api.longcat.chat/openai/chat/completions",
+    "headers": {
+      "authorization": "REDACTED",
+      "content-type": "application/json"
+    },
+    "body": {
+      "max_tokens": 15000,
+      "messages": [
+        {
+          "content": "\nYou are a smart AI assistant to give user accurate answers.\n\n## ⚠️ CRITICAL: READ-ONLY OPERATIONS ONLY\n\n**IMPORTANT**: You are a read-only agent. All your tools must ONLY be used for reading and gathering information. You MUST NOT:\n- Create, modify, or delete any files\n- Execute commands that change system state\n- Perform any write operations\n- Make any modifications to the system\n\nYour tools are designed for information gathering only. Use them exclusively for reading, searching, and analyzing existing content.\n\nYour answer must follow the following rules:\n\n1. Write an accurate, detailed, and comprehensive response to the user's QUESTION.\n2. Your answer must be as detailed and organized as possible, Prioritize the use of lists, tables, and quotes to organize output structures.\n3. Your answer must be precise, of high-quality, and written by an expert using an unbiased and journalistic tone.\n4. You MUST ADHERE to the following formatting instructions:\n    - Use markdown to format paragraphs, lists, tables, and quotes whenever possible.\n    - Use headings level 4 to separate sections of your response, like \"#### Header\", but NEVER start an answer with a heading or title of any kind.\n    - Use single new lines for lists and double new lines for paragraphs.\n5. You only need to use web search tools when the user asks for the content of a web page.\n\nToday's date is 2026-02-05T05:53:05.329Z.\n\n\n---\n\nOUTPUT FORMAT INSTRUCTIONS:\nOutput the response in standard Markdown with headings, lists, and code blocks.\n\nIMPORTANT: You MUST respond in English.",
+          "role": "system"
+        },
+        {
+          "content": "│     Container ID:  containerd://710d4f0549979de25fccfe0799fb2329662e277f98ee58dc3782528741ecba80                                                                                                         │\n│     Image:         starrocks/fe-ubuntu:3.4.4                                                                                                                                                             │\n│     Image ID:      docker.io/starrocks/fe-ubuntu@sha256:832ef5b44f6dd2cb1da456df66bb2b1ff15e7ecfa82d40c9e498d41adcd94eac                                                                                 │\n\n\nubuntu 系统是不是都是X86的？",
+          "role": "user"
+        }
+      ],
+      "model": "LongCat-Flash-Chat",
+      "stream": true,
+      "stream_options": {
+        "include_usage": true
+      },
+      "tools": [
+        {
+          "function": {
+            "description": "Search the web for comprehensive and up-to-date information.\n\nQuery Optimization Guidelines:\n- Extract the core topic/entity from questions (e.g., \"who is Elon Musk\" → \"Elon Musk\", \"what is React\" → \"React\")\n- For comparisons (e.g., \"X vs Y\"), search for both terms together to get comparison results\n- Remove question words (who, what, when, where, why, how) but keep context words that add meaning\n- Keep technical terms, version numbers, and specific qualifiers (e.g., \"React 19 features\" stays as-is)\n- For \"latest\" or \"recent\" queries, include temporal keywords (e.g., \"latest AI models 2025\")\n- Preserve programming language/framework context (e.g., \"error handling in Rust\" → \"Rust error handling\")\n- For debugging queries, keep error messages and stack traces intact\n- Use multiple searches only when topics are completely unrelated, not for comparisons",
+            "name": "webSearch",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "query": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "description": "Fetch and extract content from a web url",
+            "name": "webFetch",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        }
+      ]
+    }
+  },
+  "response": {
+    "type": "stream",
+    "status": 200,
+    "headers": {
+      "server": "openresty",
+      "date": "Thu, 05 Feb 2026 05:53:15 GMT",
+      "content-type": "text/event-stream",
+      "transfer-encoding": "chunked",
+      "connection": "keep-alive",
+      "m-traceid": "-6703402964612068931"
+    },
+    "sse_events": [
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"No\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\",\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No,\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" Ubuntu systems\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" are not\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" limited to\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" x8\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x8\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"6 architecture\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\". Ubuntu\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" supports multiple\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" CPU\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" architectures,\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures,\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" including:\\n\\n\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"1.\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1.\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" **x\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"86\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"_\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"64\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"/\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"AMD\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"64\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"** -\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** -\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" Most common\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" for\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" desktop and\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" server systems\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"\\n2\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\". **\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"ARM6\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM6\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"4/A\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/A\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"Arch\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"64\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"** -\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** -\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" Used\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" in\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" mobile devices\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\", embedded\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" systems,\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems,\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" and newer\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" servers\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"\\n\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"3.\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3.\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" **ARM\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARM\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"HF\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"/\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"ARM**\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM**\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" - For\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" older\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" ARM devices\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"\\n4\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\". **\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"PowerPC\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"** -\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** -\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" For IBM\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" Power systems\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"\\n5\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\". **\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"s3\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s3\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"90\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"x**\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x**\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" - For\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" IBM Z\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" main\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z main\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"frames\\n\\n\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\n\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"The image\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" you mentioned\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" (\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"starrocks\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"/fe-\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"ubuntu:\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"3.\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"4.\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"4)\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4)\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" could\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" potentially\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" be built\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" for different\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" architectures.\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures.\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" Docker\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" images can\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" be multi\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270794,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"-arch\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\", meaning\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" they can\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" support\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" multiple\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" CPU\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" architectures through\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" manifest\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" lists\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\".\\n\\nTo\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" check\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" the architecture\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" of a\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" running\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" Ubuntu system\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\", you\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" can use\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\":\\n```\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"bash\\n\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\n\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"uname\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" -m\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"\\n```\\n\\n\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\n\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"For\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" Docker\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" images\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\", you\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" can inspect\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" the architecture\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" with\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\":\\n```\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with:\\n```\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"bash\\n\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with:\\n```bash\\n\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"docker inspect\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with:\\n```bash\\ndocker inspect\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" star\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with:\\n```bash\\ndocker inspect star\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"rocks/fe\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with:\\n```bash\\ndocker inspect starrocks/fe\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"-ubuntu\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with:\\n```bash\\ndocker inspect starrocks/fe-ubuntu\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\":3\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with:\\n```bash\\ndocker inspect starrocks/fe-ubuntu:3\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\".4\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with:\\n```bash\\ndocker inspect starrocks/fe-ubuntu:3.4\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\".4\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with:\\n```bash\\ndocker inspect starrocks/fe-ubuntu:3.4.4\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" | grep\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with:\\n```bash\\ndocker inspect starrocks/fe-ubuntu:3.4.4 | grep\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\" Architecture\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with:\\n```bash\\ndocker inspect starrocks/fe-ubuntu:3.4.4 | grep Architecture\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{\"content\":\"\\n```\"},\"index\":0,\"finish_reason\":null,\"matched_stop\":null,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with:\\n```bash\\ndocker inspect starrocks/fe-ubuntu:3.4.4 | grep Architecture\\n```\",\"lastOne\":false}"
+      },
+      {
+        "event": null,
+        "data": "{\"id\":\"b30924953ff04135877cc44cc809a9fc\",\"object\":\"chat.completion.chunk\",\"created\":1770270795,\"model\":\"longcat-flash-chatai-api\",\"choices\":[{\"delta\":{},\"index\":0,\"finish_reason\":\"stop\",\"matched_stop\":2,\"logprobs\":null}],\"content\":\"No, Ubuntu systems are not limited to x86 architecture. Ubuntu supports multiple CPU architectures, including:\\n\\n1. **x86_64/AMD64** - Most common for desktop and server systems\\n2. **ARM64/AArch64** - Used in mobile devices, embedded systems, and newer servers\\n3. **ARMHF/ARM** - For older ARM devices\\n4. **PowerPC** - For IBM Power systems\\n5. **s390x** - For IBM Z mainframes\\n\\nThe image you mentioned (starrocks/fe-ubuntu:3.4.4) could potentially be built for different architectures. Docker images can be multi-arch, meaning they can support multiple CPU architectures through manifest lists.\\n\\nTo check the architecture of a running Ubuntu system, you can use:\\n```bash\\nuname -m\\n```\\n\\nFor Docker images, you can inspect the architecture with:\\n```bash\\ndocker inspect starrocks/fe-ubuntu:3.4.4 | grep Architecture\\n```\",\"usage\":{\"completion_tokens\":210,\"prompt_tokens\":1010,\"total_tokens\":1220,\"cache_write_tokens\":0,\"cache_read_tokens\":0,\"input_tokens\":0,\"output_tokens\":0},\"lastOne\":true}"
+      },
+      {
+        "event": null,
+        "data": "[DONE]"
+      }
+    ]
+  },
+  "test_input": {
+    "model": "LongCat-Flash-Chat",
+    "messages": [
+      {
+        "role": "system",
+        "content": "\nYou are a smart AI assistant to give user accurate answers.\n\n## ⚠️ CRITICAL: READ-ONLY OPERATIONS ONLY\n\n**IMPORTANT**: You are a read-only agent. All your tools must ONLY be used for reading and gathering information. You MUST NOT:\n- Create, modify, or delete any files\n- Execute commands that change system state\n- Perform any write operations\n- Make any modifications to the system\n\nYour tools are designed for information gathering only. Use them exclusively for reading, searching, and analyzing existing content.\n\nYour answer must follow the following rules:\n\n1. Write an accurate, detailed, and comprehensive response to the user's QUESTION.\n2. Your answer must be as detailed and organized as possible, Prioritize the use of lists, tables, and quotes to organize output structures.\n3. Your answer must be precise, of high-quality, and written by an expert using an unbiased and journalistic tone.\n4. You MUST ADHERE to the following formatting instructions:\n    - Use markdown to format paragraphs, lists, tables, and quotes whenever possible.\n    - Use headings level 4 to separate sections of your response, like \"#### Header\", but NEVER start an answer with a heading or title of any kind.\n    - Use single new lines for lists and double new lines for paragraphs.\n5. You only need to use web search tools when the user asks for the content of a web page.\n\nToday's date is 2026-02-05T05:53:05.329Z.\n\n\n---\n\nOUTPUT FORMAT INSTRUCTIONS:\nOutput the response in standard Markdown with headings, lists, and code blocks.\n\nIMPORTANT: You MUST respond in English.",
+        "providerOptions": {
+          "anthropic": {
+            "cacheControl": {
+              "type": "ephemeral"
+            }
+          }
+        }
+      },
+      {
+        "role": "user",
+        "content": "│     Container ID:  containerd://710d4f0549979de25fccfe0799fb2329662e277f98ee58dc3782528741ecba80                                                                                                         │\n│     Image:         starrocks/fe-ubuntu:3.4.4                                                                                                                                                             │\n│     Image ID:      docker.io/starrocks/fe-ubuntu@sha256:832ef5b44f6dd2cb1da456df66bb2b1ff15e7ecfa82d40c9e498d41adcd94eac                                                                                 │\n\n\nubuntu 系统是不是都是X86的？",
+        "providerOptions": null
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "name": "webSearch",
+        "description": "Search the web for comprehensive and up-to-date information.\n\nQuery Optimization Guidelines:\n- Extract the core topic/entity from questions (e.g., \"who is Elon Musk\" → \"Elon Musk\", \"what is React\" → \"React\")\n- For comparisons (e.g., \"X vs Y\"), search for both terms together to get comparison results\n- Remove question words (who, what, when, where, why, how) but keep context words that add meaning\n- Keep technical terms, version numbers, and specific qualifiers (e.g., \"React 19 features\" stays as-is)\n- For \"latest\" or \"recent\" queries, include temporal keywords (e.g., \"latest AI models 2025\")\n- Preserve programming language/framework context (e.g., \"error handling in Rust\" → \"Rust error handling\")\n- For debugging queries, keep error messages and stack traces intact\n- Use multiple searches only when topics are completely unrelated, not for comparisons",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      },
+      {
+        "type": "function",
+        "name": "webFetch",
+        "description": "Fetch and extract content from a web url",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      }
+    ],
+    "temperature": null,
+    "max_tokens": 15000,
+    "top_p": null,
+    "top_k": null,
+    "provider_options": {
+      "anthropic": {
+        "thinking": {
+          "budgetTokens": 12000,
+          "type": "enabled"
+        }
+      },
+      "google": {
+        "thinkingConfig": {
+          "includeThoughts": true,
+          "thinkingBudget": 8192
+        }
+      },
+      "moonshot": {
+        "temperature": 1,
+        "thinking": {
+          "type": "enabled"
+        }
+      }
+    },
+    "extra_body": null
+  },
+  "expected_events": [
+    {
+      "type": "text-start"
+    },
+    {
+      "type": "text-delta",
+      "text": "No"
+    },
+    {
+      "type": "text-delta",
+      "text": ","
+    },
+    {
+      "type": "text-delta",
+      "text": " Ubuntu systems"
+    },
+    {
+      "type": "text-delta",
+      "text": " are not"
+    },
+    {
+      "type": "text-delta",
+      "text": " limited to"
+    },
+    {
+      "type": "text-delta",
+      "text": " x8"
+    },
+    {
+      "type": "text-delta",
+      "text": "6 architecture"
+    },
+    {
+      "type": "text-delta",
+      "text": ". Ubuntu"
+    },
+    {
+      "type": "text-delta",
+      "text": " supports multiple"
+    },
+    {
+      "type": "text-delta",
+      "text": " CPU"
+    },
+    {
+      "type": "text-delta",
+      "text": " architectures,"
+    },
+    {
+      "type": "text-delta",
+      "text": " including:\n\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "1."
+    },
+    {
+      "type": "text-delta",
+      "text": " **x"
+    },
+    {
+      "type": "text-delta",
+      "text": "86"
+    },
+    {
+      "type": "text-delta",
+      "text": "_"
+    },
+    {
+      "type": "text-delta",
+      "text": "64"
+    },
+    {
+      "type": "text-delta",
+      "text": "/"
+    },
+    {
+      "type": "text-delta",
+      "text": "AMD"
+    },
+    {
+      "type": "text-delta",
+      "text": "64"
+    },
+    {
+      "type": "text-delta",
+      "text": "** -"
+    },
+    {
+      "type": "text-delta",
+      "text": " Most common"
+    },
+    {
+      "type": "text-delta",
+      "text": " for"
+    },
+    {
+      "type": "text-delta",
+      "text": " desktop and"
+    },
+    {
+      "type": "text-delta",
+      "text": " server systems"
+    },
+    {
+      "type": "text-delta",
+      "text": "\n2"
+    },
+    {
+      "type": "text-delta",
+      "text": ". **"
+    },
+    {
+      "type": "text-delta",
+      "text": "ARM6"
+    },
+    {
+      "type": "text-delta",
+      "text": "4/A"
+    },
+    {
+      "type": "text-delta",
+      "text": "Arch"
+    },
+    {
+      "type": "text-delta",
+      "text": "64"
+    },
+    {
+      "type": "text-delta",
+      "text": "** -"
+    },
+    {
+      "type": "text-delta",
+      "text": " Used"
+    },
+    {
+      "type": "text-delta",
+      "text": " in"
+    },
+    {
+      "type": "text-delta",
+      "text": " mobile devices"
+    },
+    {
+      "type": "text-delta",
+      "text": ", embedded"
+    },
+    {
+      "type": "text-delta",
+      "text": " systems,"
+    },
+    {
+      "type": "text-delta",
+      "text": " and newer"
+    },
+    {
+      "type": "text-delta",
+      "text": " servers"
+    },
+    {
+      "type": "text-delta",
+      "text": "\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "3."
+    },
+    {
+      "type": "text-delta",
+      "text": " **ARM"
+    },
+    {
+      "type": "text-delta",
+      "text": "HF"
+    },
+    {
+      "type": "text-delta",
+      "text": "/"
+    },
+    {
+      "type": "text-delta",
+      "text": "ARM**"
+    },
+    {
+      "type": "text-delta",
+      "text": " - For"
+    },
+    {
+      "type": "text-delta",
+      "text": " older"
+    },
+    {
+      "type": "text-delta",
+      "text": " ARM devices"
+    },
+    {
+      "type": "text-delta",
+      "text": "\n4"
+    },
+    {
+      "type": "text-delta",
+      "text": ". **"
+    },
+    {
+      "type": "text-delta",
+      "text": "PowerPC"
+    },
+    {
+      "type": "text-delta",
+      "text": "** -"
+    },
+    {
+      "type": "text-delta",
+      "text": " For IBM"
+    },
+    {
+      "type": "text-delta",
+      "text": " Power systems"
+    },
+    {
+      "type": "text-delta",
+      "text": "\n5"
+    },
+    {
+      "type": "text-delta",
+      "text": ". **"
+    },
+    {
+      "type": "text-delta",
+      "text": "s3"
+    },
+    {
+      "type": "text-delta",
+      "text": "90"
+    },
+    {
+      "type": "text-delta",
+      "text": "x**"
+    },
+    {
+      "type": "text-delta",
+      "text": " - For"
+    },
+    {
+      "type": "text-delta",
+      "text": " IBM Z"
+    },
+    {
+      "type": "text-delta",
+      "text": " main"
+    },
+    {
+      "type": "text-delta",
+      "text": "frames\n\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "The image"
+    },
+    {
+      "type": "text-delta",
+      "text": " you mentioned"
+    },
+    {
+      "type": "text-delta",
+      "text": " ("
+    },
+    {
+      "type": "text-delta",
+      "text": "starrocks"
+    },
+    {
+      "type": "text-delta",
+      "text": "/fe-"
+    },
+    {
+      "type": "text-delta",
+      "text": "ubuntu:"
+    },
+    {
+      "type": "text-delta",
+      "text": "3."
+    },
+    {
+      "type": "text-delta",
+      "text": "4."
+    },
+    {
+      "type": "text-delta",
+      "text": "4)"
+    },
+    {
+      "type": "text-delta",
+      "text": " could"
+    },
+    {
+      "type": "text-delta",
+      "text": " potentially"
+    },
+    {
+      "type": "text-delta",
+      "text": " be built"
+    },
+    {
+      "type": "text-delta",
+      "text": " for different"
+    },
+    {
+      "type": "text-delta",
+      "text": " architectures."
+    },
+    {
+      "type": "text-delta",
+      "text": " Docker"
+    },
+    {
+      "type": "text-delta",
+      "text": " images can"
+    },
+    {
+      "type": "text-delta",
+      "text": " be multi"
+    },
+    {
+      "type": "text-delta",
+      "text": "-arch"
+    },
+    {
+      "type": "text-delta",
+      "text": ", meaning"
+    },
+    {
+      "type": "text-delta",
+      "text": " they can"
+    },
+    {
+      "type": "text-delta",
+      "text": " support"
+    },
+    {
+      "type": "text-delta",
+      "text": " multiple"
+    },
+    {
+      "type": "text-delta",
+      "text": " CPU"
+    },
+    {
+      "type": "text-delta",
+      "text": " architectures through"
+    },
+    {
+      "type": "text-delta",
+      "text": " manifest"
+    },
+    {
+      "type": "text-delta",
+      "text": " lists"
+    },
+    {
+      "type": "text-delta",
+      "text": ".\n\nTo"
+    },
+    {
+      "type": "text-delta",
+      "text": " check"
+    },
+    {
+      "type": "text-delta",
+      "text": " the architecture"
+    },
+    {
+      "type": "text-delta",
+      "text": " of a"
+    },
+    {
+      "type": "text-delta",
+      "text": " running"
+    },
+    {
+      "type": "text-delta",
+      "text": " Ubuntu system"
+    },
+    {
+      "type": "text-delta",
+      "text": ", you"
+    },
+    {
+      "type": "text-delta",
+      "text": " can use"
+    },
+    {
+      "type": "text-delta",
+      "text": ":\n```"
+    },
+    {
+      "type": "text-delta",
+      "text": "bash\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "uname"
+    },
+    {
+      "type": "text-delta",
+      "text": " -m"
+    },
+    {
+      "type": "text-delta",
+      "text": "\n```\n\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "For"
+    },
+    {
+      "type": "text-delta",
+      "text": " Docker"
+    },
+    {
+      "type": "text-delta",
+      "text": " images"
+    },
+    {
+      "type": "text-delta",
+      "text": ", you"
+    },
+    {
+      "type": "text-delta",
+      "text": " can inspect"
+    },
+    {
+      "type": "text-delta",
+      "text": " the architecture"
+    },
+    {
+      "type": "text-delta",
+      "text": " with"
+    },
+    {
+      "type": "text-delta",
+      "text": ":\n```"
+    },
+    {
+      "type": "text-delta",
+      "text": "bash\n"
+    },
+    {
+      "type": "text-delta",
+      "text": "docker inspect"
+    },
+    {
+      "type": "text-delta",
+      "text": " star"
+    },
+    {
+      "type": "text-delta",
+      "text": "rocks/fe"
+    },
+    {
+      "type": "text-delta",
+      "text": "-ubuntu"
+    },
+    {
+      "type": "text-delta",
+      "text": ":3"
+    },
+    {
+      "type": "text-delta",
+      "text": ".4"
+    },
+    {
+      "type": "text-delta",
+      "text": ".4"
+    },
+    {
+      "type": "text-delta",
+      "text": " | grep"
+    },
+    {
+      "type": "text-delta",
+      "text": " Architecture"
+    },
+    {
+      "type": "text-delta",
+      "text": "\n```"
+    },
+    {
+      "type": "usage",
+      "input_tokens": 1010,
+      "output_tokens": 210,
+      "total_tokens": 1220,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "done",
+      "finish_reason": "stop"
+    }
+  ]
+}

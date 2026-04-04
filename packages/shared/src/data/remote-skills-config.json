@@ -1,0 +1,253 @@
+{
+  "version": "2026-01-03T07:22:40.405Z",
+  "remoteSkills": [
+    {
+      "id": "algorithmic-art",
+      "name": "algorithmic-art",
+      "category": "Frontend",
+      "description": "Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. Use this when users request creating art using code, generative art, algorithmic art, flow fields, or particle systems. Create original algorithmic art rather than copying existing artists' work to avoid copyright violations.",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/algorithmic-art"
+    },
+    {
+      "id": "brainstorming",
+      "name": "brainstorming",
+      "category": "Workflow",
+      "description": "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation.",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/brainstorming"
+    },
+    {
+      "id": "brand-guidelines",
+      "name": "brand-guidelines",
+      "category": "Writing",
+      "description": "Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit from having Anthropic's look-and-feel. Use it when brand colors or style guidelines, visual formatting, or company design standards apply.",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/brand-guidelines"
+    },
+    {
+      "id": "canvas-design",
+      "name": "canvas-design",
+      "category": "Media",
+      "description": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying existing artists' work to avoid copyright violations.",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/canvas-design"
+    },
+    {
+      "id": "changelog-generator",
+      "name": "changelog-generator",
+      "category": "Workflow",
+      "description": "Automatically creates user-facing changelogs from git commits by analyzing commit history, categorizing changes, and transforming technical commits into clear, customer-friendly release notes. Turns hours of manual changelog writing into minutes of automated generation.",
+      "repository": "ComposioHQ/awesome-claude-skills",
+      "githubPath": "changelog-generator"
+    },
+    {
+      "id": "dispatching-parallel-agents",
+      "name": "dispatching-parallel-agents",
+      "category": "Meta",
+      "description": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/dispatching-parallel-agents"
+    },
+    {
+      "id": "doc-coauthoring",
+      "name": "doc-coauthoring",
+      "category": "Documentation",
+      "description": "Guide users through a structured workflow for co-authoring documentation. Use when user wants to write documentation, proposals, technical specs, decision docs, or similar structured content. This workflow helps users efficiently transfer context, refine content through iteration, and verify the doc works for readers. Trigger when user mentions writing docs, creating proposals, drafting specs, or similar documentation tasks.",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/doc-coauthoring"
+    },
+    {
+      "id": "docx",
+      "name": "docx",
+      "category": "Documents",
+      "description": "Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. When Claude needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/docx"
+    },
+    {
+      "id": "executing-plans",
+      "name": "executing-plans",
+      "category": "Workflow",
+      "description": "Use when you have a written implementation plan to execute in a separate session with review checkpoints",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/executing-plans"
+    },
+    {
+      "id": "finishing-a-development-branch",
+      "name": "finishing-a-development-branch",
+      "category": "Workflow",
+      "description": "Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/finishing-a-development-branch"
+    },
+    {
+      "id": "frontend-design",
+      "name": "frontend-design",
+      "category": "Frontend",
+      "description": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples include websites, landing pages, dashboards, React components, HTML/CSS layouts, or when styling/beautifying any web UI). Generates creative, polished code and UI design that avoids generic AI aesthetics.",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/frontend-design"
+    },
+    {
+      "id": "internal-comms",
+      "name": "internal-comms",
+      "category": "Writing",
+      "description": "A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Claude should use this skill whenever asked to write some sort of internal communications (status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates, etc.).",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/internal-comms"
+    },
+    {
+      "id": "mcp-builder",
+      "name": "mcp-builder",
+      "category": "Development",
+      "description": "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, whether in Python (FastMCP) or Node/TypeScript (MCP SDK).",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/mcp-builder"
+    },
+    {
+      "id": "pdf",
+      "name": "pdf",
+      "category": "Documents",
+      "description": "Comprehensive PDF manipulation toolkit for extracting text and tables, creating new PDFs, merging/splitting documents, and handling forms. When Claude needs to fill in a PDF form or programmatically process, generate, or analyze PDF documents at scale.",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/pdf"
+    },
+    {
+      "id": "pptx",
+      "name": "pptx",
+      "category": "Documents",
+      "description": "Presentation creation, editing, and analysis. When Claude needs to work with presentations (.pptx files) for: (1) Creating new presentations, (2) Modifying or editing content, (3) Working with layouts, (4) Adding comments or speaker notes, or any other presentation tasks",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/pptx"
+    },
+    {
+      "id": "receiving-code-review",
+      "name": "receiving-code-review",
+      "category": "Workflow",
+      "description": "Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/receiving-code-review"
+    },
+    {
+      "id": "requesting-code-review",
+      "name": "requesting-code-review",
+      "category": "Workflow",
+      "description": "Use when completing tasks, implementing major features, or before merging to verify work meets requirements",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/requesting-code-review"
+    },
+    {
+      "id": "skill-creator",
+      "name": "skill-creator",
+      "category": "Meta",
+      "description": "Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Claude's capabilities with specialized knowledge, workflows, or tool integrations.",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/skill-creator"
+    },
+    {
+      "id": "slack-gif-creator",
+      "name": "slack-gif-creator",
+      "category": "Media",
+      "description": "Knowledge and utilities for creating animated GIFs optimized for Slack. Provides constraints, validation tools, and animation concepts. Use when users request animated GIFs for Slack like \"make me a GIF of X doing Y for Slack.",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/slack-gif-creator"
+    },
+    {
+      "id": "subagent-driven-development",
+      "name": "subagent-driven-development",
+      "category": "Meta",
+      "description": "Use when executing implementation plans with independent tasks in the current session",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/subagent-driven-development"
+    },
+    {
+      "id": "systematic-debugging",
+      "name": "systematic-debugging",
+      "category": "Debugging",
+      "description": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/systematic-debugging"
+    },
+    {
+      "id": "test-driven-development",
+      "name": "test-driven-development",
+      "category": "Testing",
+      "description": "Use when implementing any feature or bugfix, before writing implementation code",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/test-driven-development"
+    },
+    {
+      "id": "theme-factory",
+      "name": "theme-factory",
+      "category": "Media",
+      "description": "Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, reportings, HTML landing pages, etc. There are 10 pre-set themes with colors/fonts that you can apply to any artifact that has been creating, or can generate a new theme on-the-fly.",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/theme-factory"
+    },
+    {
+      "id": "using-git-worktrees",
+      "name": "using-git-worktrees",
+      "category": "Workflow",
+      "description": "Use when starting feature work that needs isolation from current workspace or before executing implementation plans - creates isolated git worktrees with smart directory selection and safety verification",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/using-git-worktrees"
+    },
+    {
+      "id": "using-superpowers",
+      "name": "using-superpowers",
+      "category": "Meta",
+      "description": "Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/using-superpowers"
+    },
+    {
+      "id": "verification-before-completion",
+      "name": "verification-before-completion",
+      "category": "Debugging",
+      "description": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/verification-before-completion"
+    },
+    {
+      "id": "web-artifacts-builder",
+      "name": "web-artifacts-builder",
+      "category": "Development",
+      "description": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components - not for simple single-file HTML/JSX artifacts.",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/web-artifacts-builder"
+    },
+    {
+      "id": "webapp-testing",
+      "name": "webapp-testing",
+      "category": "Testing",
+      "description": "Toolkit for interacting with and testing local web applications using Playwright. Supports verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs.",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/webapp-testing"
+    },
+    {
+      "id": "writing-plans",
+      "name": "writing-plans",
+      "category": "Meta",
+      "description": "Use when you have a spec or requirements for a multi-step task, before touching code",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/writing-plans"
+    },
+    {
+      "id": "writing-skills",
+      "name": "writing-skills",
+      "category": "Meta",
+      "description": "Use when creating new skills, editing existing skills, or verifying skills work before deployment",
+      "repository": "obra/superpowers",
+      "githubPath": "skills/writing-skills"
+    },
+    {
+      "id": "xlsx",
+      "name": "xlsx",
+      "category": "Documents",
+      "description": "Comprehensive spreadsheet creation, editing, and analysis with support for formulas, formatting, data analysis, and visualization. When Claude needs to work with spreadsheets (.xlsx, .xlsm, .csv, .tsv, etc) for: (1) Creating new spreadsheets with formulas and formatting, (2) Reading or analyzing data, (3) Modify existing spreadsheets while preserving formulas, (4) Data analysis and visualization in spreadsheets, or (5) Recalculating formulas",
+      "repository": "anthropics/skills",
+      "githubPath": "skills/xlsx"
+    }
+  ]
+}

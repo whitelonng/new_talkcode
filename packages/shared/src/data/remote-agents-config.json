@@ -1,0 +1,397 @@
+{
+  "version": "2026-01-14T07:25:15.915Z",
+  "remoteAgents": [
+    {
+      "id": "accessibility-tester",
+      "name": "accessibility-tester",
+      "description": "Expert accessibility tester specializing in WCAG compliance, inclusive design, and universal access. Masters screen reader compatibility, keyboard navigation, and assistive technology integration with focus on creating barrier-free digital experiences.",
+      "category": "test",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/accessibility-tester.md"
+    },
+    {
+      "id": "ad-security-reviewer",
+      "name": "ad-security-reviewer",
+      "description": "Active Directory security specialist analyzing identity configuration, privileged group design, delegation, authentication policies, legacy protocols, and attack-surface exposure across enterprise domains.",
+      "category": "security",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/ad-security-reviewer.md"
+    },
+    {
+      "id": "api-architect",
+      "name": "api-architect",
+      "description": "Universal API designer specializing in RESTful design, GraphQL schemas, and modern contract standards. **MUST BE USED** proactively whenever a project needs a new or revised API contract. Produces clear resource models, OpenAPI/GraphQL specs, and guidance on auth, versioning, pagination, and error formats—without prescribing any specific backend technology.",
+      "category": "api",
+      "repository": "vijaythecoder/awesome-claude-agents",
+      "githubPath": "agents/universal/api-architect.md"
+    },
+    {
+      "id": "api-designer",
+      "name": "api-designer",
+      "description": "API architecture expert designing scalable, developer-friendly interfaces. Creates REST and GraphQL APIs with comprehensive documentation, focusing on consistency, performance, and developer experience.",
+      "category": "api",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/01-core-development/api-designer.md"
+    },
+    {
+      "id": "architect-reviewer",
+      "name": "architect-reviewer",
+      "description": "Expert architecture reviewer specializing in system design validation, architectural patterns, and technical decision assessment. Masters scalability analysis, technology stack evaluation, and evolutionary architecture with focus on maintainability and long-term viability.",
+      "category": "architect",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/architect-reviewer.md"
+    },
+    {
+      "id": "azure-infra-engineer",
+      "name": "azure-infra-engineer",
+      "description": "Azure cloud infrastructure expert specializing in network design, identity integration, PowerShell automation with Az modules, and infrastructure-as-code patterns using Bicep.",
+      "category": "infra",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/azure-infra-engineer.md"
+    },
+    {
+      "id": "backend-developer",
+      "name": "backend-developer",
+      "description": "Senior backend engineer specializing in scalable API development and microservices architecture. Builds robust server-side solutions with focus on performance, security, and maintainability.",
+      "category": "backend",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/01-core-development/backend-developer.md"
+    },
+    {
+      "id": "chaos-engineer",
+      "name": "chaos-engineer",
+      "description": "Expert chaos engineer specializing in controlled failure injection, resilience testing, and building antifragile systems. Masters chaos experiments, game day planning, and continuous resilience improvement with focus on learning from failure.",
+      "category": "infra",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/chaos-engineer.md"
+    },
+    {
+      "id": "cloud-architect",
+      "name": "cloud-architect",
+      "description": "Expert cloud architect specializing in multi-cloud strategies, scalable architectures, and cost-effective solutions. Masters AWS, Azure, and GCP with focus on security, performance, and compliance while designing resilient cloud-native systems.",
+      "category": "infra",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/cloud-architect.md"
+    },
+    {
+      "id": "code-archaeologist",
+      "name": "code-archaeologist",
+      "description": "MUST BE USED to explore and document unfamiliar, legacy, or complex codebases. Use PROACTIVELY before refactors, onboarding, audits, or risk reviews. Produces a full-length report—architecture, metrics, risks, and a prioritised action plan—that other sub-agents can act on.",
+      "category": "code",
+      "repository": "vijaythecoder/awesome-claude-agents",
+      "githubPath": "agents/core/code-archaeologist.md"
+    },
+    {
+      "id": "code-reviewer",
+      "name": "code-reviewer",
+      "description": "Expert code reviewer specializing in code quality, security vulnerabilities, and best practices across multiple languages. Masters static analysis, design patterns, and performance optimization with focus on maintainability and technical debt reduction.",
+      "category": "review",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/code-reviewer.md"
+    },
+    {
+      "id": "competitive-analyst",
+      "name": "competitive-analyst",
+      "description": "Expert competitive analyst specializing in competitor intelligence, strategic analysis, and market positioning. Masters competitive benchmarking, SWOT analysis, and strategic recommendations with focus on creating sustainable competitive advantages.",
+      "category": "analyst",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/10-research-analysis/competitive-analyst.md"
+    },
+    {
+      "id": "compliance-auditor",
+      "name": "compliance-auditor",
+      "description": "Expert compliance auditor specializing in regulatory frameworks, data privacy laws, and security standards. Masters GDPR, HIPAA, PCI DSS, SOC 2, and ISO certifications with focus on automated compliance validation and continuous monitoring.",
+      "category": "auditor",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/compliance-auditor.md"
+    },
+    {
+      "id": "data-researcher",
+      "name": "data-researcher",
+      "description": "Expert data researcher specializing in discovering, collecting, and analyzing diverse data sources. Masters data mining, statistical analysis, and pattern recognition with focus on extracting meaningful insights from complex datasets to support evidence-based decisions.",
+      "category": "research",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/10-research-analysis/data-researcher.md"
+    },
+    {
+      "id": "database-administrator",
+      "name": "database-administrator",
+      "description": "Expert database administrator specializing in high-availability systems, performance optimization, and disaster recovery. Masters PostgreSQL, MySQL, MongoDB, and Redis with focus on reliability, scalability, and operational excellence.",
+      "category": "infra",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/database-administrator.md"
+    },
+    {
+      "id": "debugger",
+      "name": "debugger",
+      "description": "Expert debugger specializing in complex issue diagnosis, root cause analysis, and systematic problem-solving. Masters debugging tools, techniques, and methodologies across multiple languages and environments with focus on efficient issue resolution.",
+      "category": "debug",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/debugger.md"
+    },
+    {
+      "id": "deployment-engineer",
+      "name": "deployment-engineer",
+      "description": "Expert deployment engineer specializing in CI/CD pipelines, release automation, and deployment strategies. Masters blue-green, canary, and rolling deployments with focus on zero-downtime releases and rapid rollback capabilities.",
+      "category": "deployment",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/deployment-engineer.md"
+    },
+    {
+      "id": "devops-engineer",
+      "name": "devops-engineer",
+      "description": "Expert DevOps engineer bridging development and operations with comprehensive automation, monitoring, and infrastructure management. Masters CI/CD, containerization, and cloud platforms with focus on culture, collaboration, and continuous improvement.",
+      "category": "devops",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/devops-engineer.md"
+    },
+    {
+      "id": "devops-incident-responder",
+      "name": "devops-incident-responder",
+      "description": "Expert incident responder specializing in rapid detection, diagnosis, and resolution of production issues. Masters observability tools, root cause analysis, and automated remediation with focus on minimizing downtime and preventing recurrence.",
+      "category": "incident",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/devops-incident-responder.md"
+    },
+    {
+      "id": "electron-pro",
+      "name": "electron-pro",
+      "description": "Desktop application specialist building secure cross-platform solutions. Develops Electron apps with native OS integration, focusing on security, performance, and seamless user experience.",
+      "category": "github",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/01-core-development/electron-pro.md"
+    },
+    {
+      "id": "error-detective",
+      "name": "error-detective",
+      "description": "Expert error detective specializing in complex error pattern analysis, correlation, and root cause discovery. Masters distributed system debugging, error tracking, and anomaly detection with focus on finding hidden connections and preventing error cascades.",
+      "category": "debug",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/error-detective.md"
+    },
+    {
+      "id": "frontend-developer",
+      "name": "frontend-developer",
+      "description": "Expert UI engineer focused on crafting robust, scalable frontend solutions. Builds high-quality React components prioritizing maintainability, user experience, and web standards compliance.",
+      "category": "frontend",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/01-core-development/frontend-developer.md"
+    },
+    {
+      "id": "fullstack-developer",
+      "name": "fullstack-developer",
+      "description": "End-to-end feature owner with expertise across the entire stack. Delivers complete solutions from database to UI with focus on seamless integration and optimal user experience.",
+      "category": "fullstack",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/01-core-development/fullstack-developer.md"
+    },
+    {
+      "id": "graphql-architect",
+      "name": "graphql-architect",
+      "description": "GraphQL schema architect designing efficient, scalable API graphs. Masters federation, subscriptions, and query optimization while ensuring type safety and developer experience.",
+      "category": "architect",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/01-core-development/graphql-architect.md"
+    },
+    {
+      "id": "incident-responder",
+      "name": "incident-responder",
+      "description": "Expert incident responder specializing in security and operational incident management. Masters evidence collection, forensic analysis, and coordinated response with focus on minimizing impact and preventing future incidents.",
+      "category": "incident",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/incident-responder.md"
+    },
+    {
+      "id": "kubernetes-specialist",
+      "name": "kubernetes-specialist",
+      "description": "Expert Kubernetes specialist mastering container orchestration, cluster management, and cloud-native architectures. Specializes in production-grade deployments, security hardening, and performance optimization with focus on scalability and reliability.",
+      "category": "infra",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/kubernetes-specialist.md"
+    },
+    {
+      "id": "market-researcher",
+      "name": "market-researcher",
+      "description": "Expert market researcher specializing in market analysis, consumer insights, and competitive intelligence. Masters market sizing, segmentation, and trend analysis with focus on identifying opportunities and informing strategic business decisions.",
+      "category": "research",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/10-research-analysis/market-researcher.md"
+    },
+    {
+      "id": "microservices-architect",
+      "name": "microservices-architect",
+      "description": "Distributed systems architect designing scalable microservice ecosystems. Masters service boundaries, communication patterns, and operational excellence in cloud-native environments.",
+      "category": "architect",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/01-core-development/microservices-architect.md"
+    },
+    {
+      "id": "mobile-developer",
+      "name": "mobile-developer",
+      "description": "Cross-platform mobile specialist building performant native experiences. Creates optimized mobile applications with React Native and Flutter, focusing on platform-specific excellence and battery efficiency.",
+      "category": "github",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/01-core-development/mobile-developer.md"
+    },
+    {
+      "id": "network-engineer",
+      "name": "network-engineer",
+      "description": "Expert network engineer specializing in cloud and hybrid network architectures, security, and performance optimization. Masters network design, troubleshooting, and automation with focus on reliability, scalability, and zero-trust principles.",
+      "category": "network",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/network-engineer.md"
+    },
+    {
+      "id": "penetration-tester",
+      "name": "penetration-tester",
+      "description": "Expert penetration tester specializing in ethical hacking, vulnerability assessment, and security testing. Masters offensive security techniques, exploit development, and comprehensive security assessments with focus on identifying and validating security weaknesses.",
+      "category": "test",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/penetration-tester.md"
+    },
+    {
+      "id": "performance-engineer",
+      "name": "performance-engineer",
+      "description": "Expert performance engineer specializing in system optimization, bottleneck identification, and scalability engineering. Masters performance testing, profiling, and tuning across applications, databases, and infrastructure with focus on achieving optimal response times and resource efficiency.",
+      "category": "performance",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/performance-engineer.md"
+    },
+    {
+      "id": "performance-optimizer",
+      "name": "performance-optimizer",
+      "description": "MUST BE USED whenever users report slowness, high cloud costs, or scaling concerns. Use PROACTIVELY before traffic spikes. Identifies bottlenecks, profiles workloads, and applies optimisations for blazingly fast systems.",
+      "category": "performance",
+      "repository": "vijaythecoder/awesome-claude-agents",
+      "githubPath": "agents/core/performance-optimizer.md"
+    },
+    {
+      "id": "platform-engineer",
+      "name": "platform-engineer",
+      "description": "Expert platform engineer specializing in internal developer platforms, self-service infrastructure, and developer experience. Masters platform APIs, GitOps workflows, and golden path templates with focus on empowering developers and accelerating delivery.",
+      "category": "infra",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/platform-engineer.md"
+    },
+    {
+      "id": "powershell-security-hardening",
+      "name": "powershell-security-hardening",
+      "description": "Security-focused PowerShell specialist skilled in hardening Windows systems, securing automation, enforcing least privilege, and aligning scripts with enterprise security baselines and compliance frameworks.",
+      "category": "security",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/powershell-security-hardening.md"
+    },
+    {
+      "id": "project-analyst",
+      "name": "project-analyst",
+      "description": "MUST BE USED to analyse any new or unfamiliar codebase. Use PROACTIVELY to detect frameworks, tech stacks, and architecture so specialists can be routed correctly.",
+      "category": "project",
+      "repository": "vijaythecoder/awesome-claude-agents",
+      "githubPath": "agents/orchestrators/project-analyst.md"
+    },
+    {
+      "id": "qa-expert",
+      "name": "qa-expert",
+      "description": "Expert QA engineer specializing in comprehensive quality assurance, test strategy, and quality metrics. Masters manual and automated testing, test planning, and quality processes with focus on delivering high-quality software through systematic testing.",
+      "category": "test",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/qa-expert.md"
+    },
+    {
+      "id": "research-analyst",
+      "name": "research-analyst",
+      "description": "Expert research analyst specializing in comprehensive information gathering, synthesis, and insight generation. Masters research methodologies, data analysis, and report creation with focus on delivering actionable intelligence that drives informed decision-making.",
+      "category": "research",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/10-research-analysis/research-analyst.md"
+    },
+    {
+      "id": "search-specialist",
+      "name": "search-specialist",
+      "description": "Expert search specialist mastering advanced information retrieval, query optimization, and knowledge discovery. Specializes in finding needle-in-haystack information across diverse sources with focus on precision, comprehensiveness, and efficiency.",
+      "category": "research",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/10-research-analysis/search-specialist.md"
+    },
+    {
+      "id": "security-auditor",
+      "name": "security-auditor",
+      "description": "Expert security auditor specializing in comprehensive security assessments, compliance validation, and risk management. Masters security frameworks, audit methodologies, and compliance standards with focus on identifying vulnerabilities and ensuring regulatory adherence.",
+      "category": "security",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/security-auditor.md"
+    },
+    {
+      "id": "security-engineer",
+      "name": "security-engineer",
+      "description": "Expert infrastructure security engineer specializing in DevSecOps, cloud security, and compliance frameworks. Masters security automation, vulnerability management, and zero-trust architecture with emphasis on shift-left security practices.",
+      "category": "security",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/security-engineer.md"
+    },
+    {
+      "id": "sre-engineer",
+      "name": "sre-engineer",
+      "description": "Expert Site Reliability Engineer balancing feature velocity with system stability through SLOs, automation, and operational excellence. Masters reliability engineering, chaos testing, and toil reduction with focus on building resilient, self-healing systems.",
+      "category": "test",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/sre-engineer.md"
+    },
+    {
+      "id": "tailwind-frontend-expert",
+      "name": "tailwind-frontend-expert",
+      "description": "MUST BE USED for any Tailwind‑CSS styling, utility‑first refactors, or responsive component work. Use PROACTIVELY whenever a UI task involves Tailwind or when framework‑agnostic styling is required.",
+      "category": "frontend",
+      "repository": "vijaythecoder/awesome-claude-agents",
+      "githubPath": "agents/universal/tailwind-css-expert.md"
+    },
+    {
+      "id": "terraform-engineer",
+      "name": "terraform-engineer",
+      "description": "Expert Terraform engineer specializing in infrastructure as code, multi-cloud provisioning, and modular architecture. Masters Terraform best practices, state management, and enterprise patterns with focus on reusability, security, and automation.",
+      "category": "infra",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/terraform-engineer.md"
+    },
+    {
+      "id": "test-automator",
+      "name": "test-automator",
+      "description": "Expert test automation engineer specializing in building robust test frameworks, CI/CD integration, and comprehensive test coverage. Masters multiple automation tools and frameworks with focus on maintainable, scalable, and efficient automated testing solutions.",
+      "category": "test",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/04-quality-security/test-automator.md"
+    },
+    {
+      "id": "trend-analyst",
+      "name": "trend-analyst",
+      "description": "Expert trend analyst specializing in identifying emerging patterns, forecasting future developments, and strategic foresight. Masters trend detection, impact analysis, and scenario planning with focus on helping organizations anticipate and adapt to change.",
+      "category": "analyst",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/10-research-analysis/trend-analyst.md"
+    },
+    {
+      "id": "ui-designer",
+      "name": "ui-designer",
+      "description": "Expert visual designer specializing in creating intuitive, beautiful, and accessible user interfaces. Masters design systems, interaction patterns, and visual hierarchy to craft exceptional user experiences that balance aesthetics with functionality.",
+      "category": "frontend",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/01-core-development/ui-designer.md"
+    },
+    {
+      "id": "websocket-engineer",
+      "name": "websocket-engineer",
+      "description": "Real-time communication specialist implementing scalable WebSocket architectures. Masters bidirectional protocols, event-driven systems, and low-latency messaging for interactive applications.",
+      "category": "websocket",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/01-core-development/websocket-engineer.md"
+    },
+    {
+      "id": "windows-infra-admin",
+      "name": "windows-infra-admin",
+      "description": "Windows infrastructure expert specializing in Active Directory, DNS, DHCP, GPO, server administration, and enterprise automation via PowerShell.",
+      "category": "infra",
+      "repository": "VoltAgent/awesome-claude-code-subagents",
+      "githubPath": "categories/03-infrastructure/windows-infra-admin.md"
+    }
+  ]
+}

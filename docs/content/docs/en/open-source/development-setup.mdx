@@ -1,0 +1,237 @@
+---
+title: Development Setup
+description: TalkCody development environment setup and build guide.
+icon: Wrench
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## Prerequisites
+
+### Required Software
+
+**Node.js and Bun**
+```bash
+# Install Node.js 20+ (via nvm recommended)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+nvm install 20
+nvm use 20
+
+# Install Bun
+curl -fsSL https://bun.sh/install | bash
+```
+
+**Rust**
+```bash
+# Install Rust via rustup
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Verify installation
+rustc --version
+cargo --version
+```
+
+**Git**
+```bash
+# macOS (via Homebrew)
+brew install git
+
+# Windows (via Chocolatey)
+choco install git
+
+# Linux (Ubuntu/Debian)
+sudo apt install git
+```
+
+**Platform-Specific Requirements**
+
+**macOS**:
+```bash
+# Install Xcode Command Line Tools
+xcode-select --install
+
+# Install Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+**Windows**:
+```powershell
+# Install Visual Studio Build Tools
+# Download from: https://visualstudio.microsoft.com/downloads/
+# Select: Desktop development with C++
+
+# Install WebView2 (usually pre-installed on Windows 11)
+# Download if needed: https://developer.microsoft.com/microsoft-edge/webview2/
+```
+
+**Linux**:
+```bash
+# Ubuntu/Debian
+sudo apt update
+sudo apt install libwebkit2gtk-4.1-dev \
+  build-essential \
+  curl \
+  wget \
+  file \
+  libssl-dev \
+  libgtk-3-dev \
+  libayatana-appindicator3-dev \
+  librsvg2-dev
+
+# Fedora
+sudo dnf install webkit2gtk4.1-devel \
+  openssl-devel \
+  curl \
+  wget \
+  file \
+  gtk3-devel \
+  libappindicator-gtk3-devel \
+  librsvg2-devel
+
+# Arch Linux
+sudo pacman -S webkit2gtk \
+  base-devel \
+  curl \
+  wget \
+  file \
+  openssl \
+  gtk3 \
+  libappindicator-gtk3 \
+  librsvg
+```
+
+## Getting Started
+
+<Steps>
+
+<Step>
+### Clone the Repository
+
+```bash
+# Clone via HTTPS
+git clone https://github.com/talkcody/talkcody.git
+
+# Navigate to directory
+cd talkcody
+```
+</Step>
+
+<Step>
+### Install Dependencies
+
+```bash
+# Install frontend dependencies
+bun install
+
+# Install Rust dependencies (automatic during first build)
+cd src-tauri
+cargo fetch
+cd ..
+```
+
+<Callout type="info">
+First-time setup may take 5-10 minutes as dependencies are downloaded and compiled.
+</Callout>
+</Step>
+
+<Step>
+### Run Development Server
+
+```bash
+# Start Tauri development server
+bun run tauri dev
+```
+
+This will:
+- Start the Vite dev server
+- Compile Rust code
+- Launch the application window
+- Enable hot-reload for frontend changes
+</Step>
+
+</Steps>
+
+## Development Workflow
+
+### Project Structure
+
+```
+talkcody/
+├── src/                    # React frontend source
+│   ├── components/         # UI components
+│   ├── hooks/              # React hooks
+│   ├── lib/                # Utilities
+│   ├── pages/              # Page components
+│   ├── services/           # Business logic
+│   ├── styles/             # CSS files
+│   └── types/              # TypeScript types
+│
+├── src-tauri/              # Rust backend
+│   ├── src/                # Rust source files
+│   │   ├── main.rs         # Entry point
+│   │   ├── commands/       # Tauri commands
+│   │   └── lib.rs          # Library code
+│   ├── Cargo.toml          # Rust dependencies
+│   └── tauri.conf.json     # Tauri configuration
+│
+├── public/                 # Static assets
+├── docs/                   # Documentation site
+├── package.json            # Node dependencies
+├── tsconfig.json           # TypeScript config
+├── vite.config.ts          # Vite configuration
+└── README.md
+```
+
+### Common Commands
+
+**Development**:
+```bash
+# Start dev server with hot reload
+bun run tauri dev
+
+# Start frontend only (for UI work)
+bun run dev
+
+# Run TypeScript type checking
+bun run tsc
+
+# Run linter
+bun run lint
+
+# Run frontend tests
+bun run test
+
+# Run backend tests
+cd src-tauri
+cargo test
+```
+
+**Building**:
+```bash
+# Build for production
+bun run tauri build
+
+# Build frontend only
+bun run build
+```
+
+## Contributing
+
+### Getting Started with Contributions
+
+1. **Fork the repository** on GitHub
+2. **Clone your fork** locally
+3. **Create a branch** for your feature/fix
+4. **Make your changes**
+5. **Test thoroughly**
+6. **Submit a pull request**
+
+## Coding Standards
+
+Please refer to our [AGENTS.md](https://github.com/talkcody/talkcody/blob/main/AGENTS.md) for coding conventions and best practices.
+
+## Next Steps
+
+- [Architecture](/docs/open-source/architecture) - Understand the codebase
+- [GitHub Issues](https://github.com/talkcody/talkcody/issues) - Report bugs or request features

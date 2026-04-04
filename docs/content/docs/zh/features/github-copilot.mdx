@@ -1,0 +1,205 @@
+---
+title: 通过 GitHub Copilot 订阅使用 AI 模型
+sidebarTitle: GitHub Copilot
+description: 通过 GitHub Copilot 订阅在 TalkCody 中使用 AI 模型
+icon: Github
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+你可以直接在 TalkCody 中使用您的 **GitHub Copilot** 订阅额度，无需额外购买 API。
+
+## 工作原理
+
+TalkCody 使用 GitHub 官方提供的 **Device Code Flow（设备码流程）** 进行认证。这是 GitHub 为桌面应用和 CLI 工具推荐的认证方式。
+
+认证流程如下：
+1. TalkCody 获取一个**用户码（User Code）**和**验证链接**
+2. 自动打开浏览器到 GitHub 设备授权页面
+3. 您在浏览器中**输入显示的用户码**并完成授权
+4. TalkCody 轮询获取访问令牌，完成认证
+
+<Callout type="info">
+GitHub Copilot 使用与 GitHub CLI (gh)、VS Code Copilot 相同的认证机制。
+</Callout>
+
+## 使用条款与免责声明
+
+<Callout type="warn">
+**重要提示**：使用此功能前，请仔细阅读以下条款。
+</Callout>
+
+此功能专为**个人开发使用**设计，仅限于您自己的 GitHub Copilot 订阅。使用此功能即表示您同意：
+
+### 允许的使用方式
+
+- ✅ 个人编码辅助和生产力提升
+- ✅ 遵守 GitHub Copilot 的速率限制和使用政策
+- ✅ 不将访问权限用于商业服务或转售
+- ✅ 遵守 [GitHub Copilot 使用条款](https://docs.github.com/zh/copilot/overview-of-github-copilot/about-github-copilot-individual#关于-github-copilot-个人版) 和 [使用政策](https://docs.github.com/zh/site-policy/acceptable-use-policies/github-acceptable-use-policies#6-用户生成内容)
+
+### 禁止的使用方式
+
+- ❌ 商业 API 转售或白标服务
+- ❌ 超出个人使用范围的高并发自动化请求
+- ❌ 使用一个订阅为多用户提供服务
+- ❌ 任何违反 GitHub 可接受使用政策的行为
+
+### 免责声明
+
+- 本项目**与 GitHub 没有任何关联**
+- GitHub Copilot 是 GitHub 的商标
+- 这是一个独立的开源项目，未经 GitHub 认可、赞助或关联
+- 违反 GitHub 使用条款可能导致账户受限
+
+---
+
+## 配置步骤
+
+<Steps>
+
+<Step>
+### 打开设置
+
+1. 启动 TalkCody
+2. 点击左侧的 **设置** 图标
+3. 导航到 **API Keys** 页面
+4. 找到 **GitHub Copilot** 部分
+
+</Step>
+
+<Step>
+### 同意免责声明
+
+点击 **使用 GitHub 登录** 按钮后，会弹出一个免责声明对话框。
+
+请仔细阅读条款内容，勾选同意选项，然后点击 **确认** 继续。
+
+</Step>
+
+<Step>
+### 获取用户码
+
+系统会自动向 GitHub 请求设备码。成功后您会看到：
+
+- **用户码（User Code）**：一个 8 字符的代码（如 `ABCD-1234`）
+- **验证链接**：GitHub 设备授权页面
+
+系统会自动在浏览器中打开验证页面。
+
+<Callout type="tip">
+如果浏览器没有自动打开，您可以点击界面上的 "Re-open Link" 按钮手动打开。
+</Callout>
+
+</Step>
+
+<Step>
+### 在浏览器中输入用户码
+
+1. 浏览器会自动打开到 GitHub 设备授权页面（https://github.com/login/device）
+2. 在页面提示的输入框中**输入步骤 3 显示的用户码**
+3. 点击 **Continue** 或 **授权** 按钮
+
+</Step>
+
+<Step>
+### 确认授权
+
+1. 如果您之前没有授权过此应用，GitHub 会提示您确认授权
+2. 点击 **Authorize** 按钮确认授权给 TalkCody
+3. 授权成功后，浏览器会显示成功提示
+
+</Step>
+
+<Step>
+### 等待认证完成
+
+返回 TalkCody，系统正在轮询等待授权完成：
+
+- 界面会显示 "Waiting for authorization..." 或 "Exchanging code..."
+- 授权成功后，状态会变为 **已连接**
+
+<Callout type="warning">
+如果在浏览器中关闭了授权页面，您可以点击界面上的 "Connect" 按钮重新尝试轮询。
+</Callout>
+
+</Step>
+
+<Step>
+### 开启 Copilot 模型功能
+
+**此步骤非常重要** - GitHub Copilot 默认未启用所有模型。
+
+1. 打开 [GitHub Copilot 功能设置页面](https://github.com/settings/copilot/features)
+2. 确保已开启您想要使用的模型选项
+
+![GitHub Copilot 模型设置](https://cdn.talkcody.com/images/github-copilot-setting.png)
+
+</Step>
+
+<Step>
+### 验证连接
+
+授权成功后，您会看到：
+
+- 连接状态显示为 **已连接**
+- 在模型选择器中可以查看可用的 Copilot 模型
+- 可以开始使用 GitHub Copilot 进行对话
+
+</Step>
+
+</Steps>
+
+<Callout type="success">
+认证成功后，令牌会自动刷新，无需重复登录。但请注意：如果您在 GitHub 设置中更改了模型权限，可能需要重新登录以获取新的模型访问权限。
+</Callout>
+
+---
+
+## 查看使用量
+
+TalkCody 提供了**使用量仪表板**，让您可以实时查看 GitHub Copilot 订阅的使用情况。
+
+### 访问使用量仪表板
+
+1. 点击左侧导航栏中的 **使用量** 图标
+2. 选择 **GitHub Copilot** 标签页查看 GitHub Copilot 使用情况
+
+### 使用量指标说明
+
+
+![GitHub Copilot 使用量仪表板](https://cdn.talkcody.com/images/github-usage.png)
+
+
+仪表板会显示以下指标：
+
+#### 总体使用量
+
+- **使用量百分比**：显示当前计费周期内的 API 使用百分比
+- **已使用额度**：显示具体已使用的请求数量
+- **剩余额度**：显示剩余可用的请求数量
+- **重置日期**：显示下一次额度重置的日期
+
+#### 额度详情
+
+仪表板会显示详细的额度信息：
+
+- **已使用**：显示已使用的请求数（橙色）和百分比
+- **剩余**：显示剩余的请求数（绿色）和百分比
+
+### 刷新使用量
+
+点击右上角的 **刷新** 按钮可以手动更新使用量数据。
+
+---
+
+## 常见问题
+
+### 为什么我看不到任何可用的模型？
+
+请检查以下几点：
+
+1. **确认已开启模型功能**：访问 [GitHub Copilot 功能设置页面](https://github.com/settings/copilot/features)，确保已启用相关模型
+2. **确认订阅状态**：确保您的 GitHub 账户有有效的 Copilot 订阅
+3. **重新登录**：更改模型设置后，可能需要重新登录以刷新权限

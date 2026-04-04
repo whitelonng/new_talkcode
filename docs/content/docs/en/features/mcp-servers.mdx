@@ -1,0 +1,178 @@
+---
+title: MCP Servers
+description: Extend TalkCody with Model Context Protocol integrations
+icon: Server
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## What is MCP?
+
+![TalkCody MCP Servers](https://cdn.talkcody.com/images/mcp.png)
+
+**Model Context Protocol (MCP)** is an open standard for connecting AI applications to external tools and data sources. It allows:
+
+- **Custom Tools**: Add new capabilities beyond built-in tools
+- **External Data**: Connect to databases, APIs, and services
+- **Specialized Functions**: Integrate domain-specific functionality
+- **Third-Party Services**: Use existing MCP servers from the community
+
+<Callout type="info">
+MCP is developed by Anthropic and is supported by many AI tools and services. Learn more at [modelcontextprotocol.io](https://modelcontextprotocol.io)
+</Callout>
+
+## How MCP Works
+
+```
+┌─────────────┐
+│  TalkCody   │
+│  (Client)   │
+└──────┬──────┘
+       │ MCP Protocol
+       ├─────────────────┐
+       │                 │
+┌──────▼──────┐   ┌──────▼──────┐
+│ MCP Server  │   │ MCP Server  │
+│  (GitHub)   │   │ (Database)  │
+└─────────────┘   └─────────────┘
+```
+
+1. **TalkCody** acts as an MCP client
+2. **MCP Servers** provide tools and resources
+3. **AI Agents** can use tools from connected servers
+4. **Communication** happens via standard MCP protocol
+
+## MCP Server Types
+
+### 1. Stdio Servers
+
+Run as local processes, communicate via stdin/stdout:
+
+```json
+{
+  "name": "filesystem",
+  "type": "stdio",
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+}
+```
+
+**Use for**: Local tools, file access, system integration
+
+### 2. SSE Servers
+
+Server-Sent Events for real-time communication:
+
+```json
+{
+  "name": "notifications",
+  "type": "sse",
+  "url": "http://localhost:3000/sse"
+}
+```
+
+**Use for**: Real-time updates, streaming data, webhooks
+
+### 3. HTTP Servers
+
+Standard HTTP-based MCP servers:
+
+```json
+{
+  "name": "api-service",
+  "type": "http",
+  "url": "https://api.example.com/mcp",
+  "headers": {
+    "Authorization": "Bearer YOUR_TOKEN"
+  }
+}
+```
+
+**Use for**: Cloud services, remote APIs, hosted tools
+
+## Installing MCP Servers
+
+<Steps>
+
+<Step>
+### Navigate to MCP Servers View
+
+1. Open TalkCody
+2. Click on the **MCP Servers** tab in the sidebar
+3. Click **+ Add Server**
+</Step>
+
+<Step>
+### Configure Server Details
+
+**Basic Information**:
+- **Name**: Identifier for the server (e.g., "GitHub", "Postgres")
+- **Type**: stdio, sse, or http
+- **Description**: Optional notes about the server's purpose
+
+**Connection Settings**:
+- For **stdio**: Command and arguments
+- For **sse**: Server URL
+- For **http**: URL and optional headers
+</Step>
+
+<Step>
+### Test Connection
+
+1. Click **Test Connection**
+2. Verify the server responds correctly
+3. Check that tools are discovered
+</Step>
+
+<Step>
+### Enable for Agents
+
+1. Save the MCP server configuration
+2. Navigate to Agents view
+3. Edit an agent
+4. Enable MCP tools for that agent
+</Step>
+
+</Steps>
+
+## Using MCP Tools in Conversations
+
+Once an MCP server is configured, AI agents can use its tools:
+
+### Example: GitHub Issue Creation
+
+```
+User: Create a GitHub issue for the login bug we just discussed
+
+AI: I'll create an issue in your repository.
+[Uses GitHub MCP server]
+[Creates issue with title and description]
+
+Created issue #123: "Fix login authentication timeout"
+Link: https://github.com/user/repo/issues/123
+```
+
+### Example: Database Query
+
+```
+User: Show me users who signed up in the last week
+
+AI: I'll query the database for recent users.
+[Uses PostgreSQL MCP server]
+[Executes: SELECT * FROM users WHERE created_at > NOW() - INTERVAL '7 days']
+
+Found 47 users who signed up in the last 7 days:
+- user1@example.com (2024-10-20)
+- user2@example.com (2024-10-21)
+...
+```
+
+## Resources
+
+- [MCP Official Documentation](https://modelcontextprotocol.io/docs)
+- [MCP Server Directory](https://github.com/modelcontextprotocol/servers)
+
+<Callout type="success">
+MCP servers unlock unlimited potential for extending TalkCody. Start with official servers and explore custom integrations!
+</Callout>

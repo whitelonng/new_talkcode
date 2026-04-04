@@ -1,0 +1,136 @@
+---
+title: Web Search
+description: TalkCody uses web search to get the latest information
+icon: Search
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## What is Web Search?
+
+**Web Search** is TalkCody's web search feature that allows AI agents to search the internet for the latest information. This is very useful for querying the latest technical documentation, API references, programming Q&A, and more.
+
+TalkCody supports multiple search providers and will automatically select an available method for searching.
+
+## Search Providers and Priority
+
+TalkCody automatically selects search providers in the following priority order:
+
+| Priority | Provider | Requirement |
+|----------|----------|-------------|
+| 1 | Tavily Search | Configure Tavily API Key |
+| 2 | Serper Search | Configure Serper API Key |
+| 3 | MiniMax Coding Plan | Configure MiniMax API Key + Enable Coding Plan |
+| 4 | GLM Coding Plan | Configure Zhipu AI API Key + Enable Coding Plan |
+| 5 | Exa Search (Free) | No configuration required, automatically available |
+
+<Callout type="info">
+The system checks in priority order and uses the first available search provider.
+</Callout>
+
+## Configuration
+
+### Option 1: Tavily Search (Recommended)
+
+Tavily is a search API designed specifically for AI agents, providing accurate, real-time search results.
+
+<Steps>
+
+<Step>
+### Get Tavily API Key
+
+1. Visit [tavily.com](https://tavily.com)
+2. Click "Get API Key" or "Sign Up" to register
+3. Complete email verification
+4. After logging in, view your key in the "API Keys" section of the Dashboard
+5. Copy the API key
+</Step>
+
+<Step>
+### Configure in TalkCody
+
+1. Open TalkCody
+2. Click the **Settings** icon
+3. Navigate to the **API Keys** page
+4. Paste your API Key in the **Tavily** input field
+5. Click **Test Key** to verify it works
+</Step>
+
+</Steps>
+
+<Callout type="success">
+Tavily provides 1000 free search requests per month, suitable for individual developers.
+</Callout>
+
+### Option 2: Serper Search
+
+Serper provides a Google Search API that returns structured search results.
+
+<Steps>
+
+<Step>
+### Get Serper API Key
+
+1. Visit [serper.dev](https://serper.dev)
+2. Register an account and log in
+3. Get the API Key from the Dashboard
+</Step>
+
+<Step>
+### Configure in TalkCody
+
+1. Open **Settings** → **API Keys**
+2. Paste your API Key in the **Serper** input field
+3. Click **Test Key** to verify
+</Step>
+
+</Steps>
+
+<Callout type="success">
+Serper provides 2500 free search requests upon registration.
+</Callout>
+
+### Option 3: Using Coding Plan Built-in Search
+
+If you have already configured MiniMax or Zhipu AI's Coding Plan, you can directly use its built-in web search feature without an additional search API Key.
+
+For detailed configuration, please refer to the [Coding Plan documentation](/en/docs/features/coding-plan)
+
+### Option 4: Exa Free Search (No Configuration Required)
+
+Exa provides a free AI search service as TalkCody's default fallback option. When no other search provider is configured, the system will automatically use Exa for searching.
+
+<Callout type="info">
+Exa free search requires no configuration and works out of the box.
+</Callout>
+
+**Features**:
+- ✅ Completely free, no API Key required
+- ✅ Automatically enabled as the last fallback option
+
+## How to Use
+
+After configuration, click the **Tools** button in the toolbar above the chat input box and select the **web_search** tool. Then ask the AI questions that require searching, and the AI will automatically use web search to get the latest information.
+
+```
+User: Search for new features in React 19
+
+AI: I will search for the latest React 19 information.
+[Using web_search tool]
+
+Based on the search results, the main new features in React 19 include:
+1. Actions - Simplified form handling
+2. use() hook - New way to read resources
+3. Server component improvements
+...
+```
+
+## FAQ
+
+### What if the search returns no results?
+
+1. Check if at least one search provider's API Key is configured
+2. Verify the API Key is valid
+3. If using Coding Plan search, ensure the **Use Coding Plan** toggle is enabled
+4. Check if the network connection is working properly

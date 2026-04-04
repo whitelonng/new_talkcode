@@ -1,0 +1,91 @@
+---
+title: Search
+description: A comprehensive guide to TalkCody's search features, including global file search, global content search, in-file search, and chat history search
+icon: Search
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## Overview
+
+TalkCody provides multiple search methods to help you quickly locate files, content, and code.
+
+![TalkCody Search Features](https://cdn.talkcody.com/images/search.png)
+
+## Global File Search
+
+Global file search allows you to quickly locate files in your project by filename.
+
+### How to Open
+
+- Use the shortcut `Cmd+O` (macOS) / `Ctrl+O` (Windows/Linux)
+
+![TalkCody Global File Search](https://cdn.talkcody.com/images/file-search.png)
+
+### Search Operations
+
+1. Type the filename in the search box
+2. Search results will display in real-time
+3. Use `↑` `↓` arrow keys to navigate results
+4. Press `Enter` to open the selected file
+5. Press `Esc` to cancel the search
+
+### Features
+
+- **Multi-keyword Search**: Use spaces to separate multiple keywords, matching files that contain all keywords. For example: typing `user auth` will find files containing both "user" and "auth"
+- **Line Number Jump**: Supports `filename:line_number` format to jump directly to a specific line. For example: typing `test.cpp:82` will open the file and jump to line 82
+- **High Performance**: Uses Rust backend for searching, supports large codebases
+
+### Keyboard Shortcuts
+
+| Action | macOS | Windows/Linux |
+|--------|-------|---------------|
+| Open global file search | `Cmd + O` | `Ctrl + O` |
+| Navigate search results | `↑` `↓` | `↑` `↓` |
+| Open file | `Enter` | `Enter` |
+| Cancel search | `Esc` | `Esc` |
+
+## Global Content Search
+
+Global content search finds specified text content across all files in the entire project.
+
+### How to Open
+
+- Use the shortcut `Cmd+G` (macOS) / `Ctrl+G` (Windows/Linux)
+
+![TalkCody Global Content Search](https://cdn.talkcody.com/images/content-search.png)
+
+## In-File Search
+
+In-file search finds text content within the currently open editor, using Monaco editor's built-in search functionality.
+
+### How to Open
+
+- Use the shortcut `Cmd+F` (macOS) / `Ctrl+F` (Windows/Linux)
+
+### Keyboard Shortcuts
+
+| Action | macOS | Windows/Linux |
+|--------|-------|---------------|
+| Open in-file search | `Cmd + F` | `Ctrl + F` |
+| Find next | `Enter` or `F3` | `Enter` or `F3` |
+| Find previous | `Shift + Enter` or `Shift + F3` | `Shift + Enter` or `Shift + F3` |
+| Close search | `Esc` | `Esc` |
+
+<Callout type="info">
+In-file search uses Monaco editor's built-in search functionality, supporting advanced options such as regular expressions, case sensitivity, and whole word matching.
+</Callout>
+
+## Chat History Search
+
+In the Chat history panel, you can search through previous conversation records.
+
+### How to Open
+
+- Click the history icon on the Chat toolbar to open the history panel
+
+![TalkCody Chat History Search](https://cdn.talkcody.com/images/chat-search.png)
+
+## Related Settings
+
+You can customize search-related shortcuts in settings. See [Shortcut Settings](../configuration/shortcut-settings) for details.

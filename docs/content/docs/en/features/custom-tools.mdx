@@ -1,0 +1,630 @@
+---
+title: Custom Tools
+sidebarTitle: Custom Tools
+description: Custom Tools allow you to create custom feature extensions to meet specific business needs. Combined with Tool Playground, you can quickly develop, test, and deploy custom tools.
+icon: Hammer
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+## What is a Custom Tool?
+
+Custom Tool is an extensible feature module that allows you to create specialized capabilities beyond built-in tools and MCP servers. With custom tools, you can:
+
+- **Encapsulate Business Logic**: Package complex business processes into reusable tools
+- **Integrate Third-party APIs**: Connect to any RESTful API or web service
+- **Data Processing**: Implement specific data transformation, analysis, and processing logic
+- **Custom UI Rendering**: Provide rich visual presentations for tool results
+
+## Custom Tool vs MCP vs Skills
+
+| Feature | Custom Tool | MCP Servers | Skills |
+|---------|-------------|-------------|--------|
+| **UI Customization** | ✅ Fully Supported | ❌ Not Supported | ❌ Not Supported |
+| **Fine-grained Permission Control** | ✅ Declarative Permissions (fs/net/command) | ⚠️ Server-level Control | ⚠️ Global Toggle |
+| **Parameter Validation** | ✅ Zod Schema Strict Validation | ❌ MCP Protocol Limitations | ❌ No Structured Parameters |
+| **Development Language** | TypeScript/React | Any Language | Markdown + Optional Scripts |
+| **Execution Environment** | Sandboxed Environment | Separate Process | File System |
+| **Runtime Compilation** | ✅ Supported (Playground) | ❌ Requires Restart | ✅ Hot Reload |
+| **Distribution Method** | File Copy | npm/Standalone Installation | GitHub/Marketplace |
+| **Use Case** | Tools requiring custom UI and fine control | Integrating third-party services and protocols | Prompt and workflow enhancement |
+
+<Callout type="info">
+**Two Core Advantages of Custom Tool**:
+
+1. **Custom UI**: Through `renderToolDoing` and `renderToolResult` functions, you can create fully custom UI components for your tools, including charts, tables, interactive controls, etc., making the tool execution process and results more intuitive.
+
+2. **Fine-grained Control**: Use Zod schema for strict parameter validation, declarative permission system (fs/net/command) ensures tools can only access necessary resources, providing higher security and controllability.
+</Callout>
+
+## Tool Directory Structure
+
+TalkCody supports loading custom tools from multiple directories. The system scans the following locations in priority order:
+
+| Priority | Directory Location | Description |
+|----------|-------------------|-------------|
+| 1 | Custom Directory `.talkcody/tools` | User-specified custom directory in settings |
+| 2 | Workspace `.talkcody/tools` | Tools directory in current project root |
+| 3 | User Directory `~/.talkcody/tools` | Tools directory in user home directory |
+
+<Callout type="info">
+Tools with the same name retain the highest priority version (custom directory > workspace > user directory).
+</Callout>
+
+### Directory Structure Example
+
+```
+~/.talkcody/
+└── tools/
+    ├── weather.tsx          # Weather query tool
+    ├── stock-price.tsx      # Stock price tool
+    └── database-query.tsx   # Database query tool
+
+workspace/
+├── .talkcody/
+│   └── tools/
+│       └── project-search.tsx    # Project-specific search tool
+└── src/
+```
+
+### Tool File Requirements
+
+- File extension: `.ts` or `.tsx`
+- File must export `default` object as tool definition
+- File name is the tool name (without extension)
+
+## Creating Custom Tools
+
+### Basic Structure
+
+Each custom tool file needs to contain the following core parts:
+
+```tsx
+import React from 'react';
+import { toolHelper } from '@/lib/custom-tool-sdk';
+import { z } from 'zod';
+
+// 1. Define parameter schema (using Zod)
+const inputSchema = z.object({
+  message: z.string().min(1, 'Message cannot be empty'),
+  count: z.number().default(1),
+});
+
+// 2. Define tool execution function
+async function executeTool(params: { message: string; count: number }) {
+  // Execute specific business logic
+  return {
+    success: true,
+    result: `${params.message} x ${params.count}`,
+  };
+}
+
+// 3. Optional: Define execution UI
+function renderDoing(params: { message: string }) {
+  return <div>Processing: {params.message}</div>;
+}
+
+// 4. Optional: Define result rendering UI
+function renderResult(result: { result: string }) {
+  return <div>Result: {result.result}</div>;
+}
+
+// 5. Export tool definition
+export default toolHelper({
+  name: 'my_custom_tool',
+  description: 'This is a custom tool description',
+  inputSchema: inputSchema,
+  execute: executeTool,
+  ui: {
+    Doing: renderDoing,
+    Result: renderResult,
+  },
+});
+```
+
+### Using toolHelper
+
+`toolHelper` is a helper function for custom tools to normalize tool definitions:
+
+```tsx
+import { toolHelper } from '@/lib/custom-tool-sdk';
+import { z } from 'zod';
+
+export default toolHelper({
+  // Tool name (required)
+  name: 'my_tool',
+
+  // Tool description (required)
+  description: {
+    en: 'This is an English description',
+    zh: '这是中文描述',
+  },
+
+  // Parameter schema (required)
+  args: z.object({
+    param1: z.string(),
+    param2: z.number(),
+  }),
+
+  // Execution function (required)
+  async execute(params, context) {
+    // params: Parameters parsed based on args schema
+    // context: Execution context (includes taskId, toolId)
+
+    return { /* Result object */ };
+  },
+
+  // UI rendering (optional)
+  ui: {
+    // Execution status display
+    Doing: (params) => <div>...</div>,
+
+    // Result rendering
+    Result: (result, params, context) => <div>...</div>,
+  },
+
+  // Permission declaration (optional)
+  permissions: ['net'],  // 'fs' | 'net' | 'command'
+});
+```
+
+### Parameter Schema Definition
+
+Use Zod to define parameter validation and types:
+
+```tsx
+import { z } from 'zod';
+
+const inputSchema = z.object({
+  // Required string
+  name: z.string().min(1),
+
+  // Optional string
+  description: z.string().optional(),
+
+  // Field with default value
+  count: z.number().default(10),
+
+  // Enum type
+  status: z.enum(['pending', 'completed', 'failed']),
+
+  // Complex object
+  config: z.object({
+    enabled: z.boolean(),
+    timeout: z.number(),
+  }),
+
+  // Array
+  tags: z.array(z.string()),
+});
+```
+
+### Execution Function
+
+```tsx
+async execute(params, context) {
+  // params: Validated parameter object
+  // context: { taskId: string, toolId: string }
+
+  // Return result can be any object
+  return {
+    success: true,
+    data: { /* ... */ },
+    message: 'Operation successful',
+  };
+
+  // Or return error
+  return {
+    success: false,
+    error: 'Error message',
+  };
+}
+```
+
+### UI Rendering
+
+#### Execution Status (Doing)
+
+```tsx
+renderToolDoing(params) {
+  // params: Current execution parameters
+  return (
+    <div className="flex items-center gap-2">
+      <Loader2 className="w-4 h-4 animate-spin" />
+      <span>Processing {params.name}...</span>
+    </div>
+  );
+}
+```
+
+#### Result Rendering (Result)
+
+```tsx
+renderToolResult(result, params, context) {
+  // result: Result returned by execute function
+  // params: Original parameters
+  // context: { toolName: string }
+
+  if (!result.success) {
+    return <div className="text-red-500">{result.error}</div>;
+  }
+
+  return (
+    <div>
+      <h3 className="font-semibold">Result</h3>
+      <pre>{JSON.stringify(result.data, null, 2)}</pre>
+    </div>
+  );
+}
+```
+
+<Callout type="warn">
+UI rendering functions must return valid React Nodes, including strings, numbers, arrays, or JSX elements.
+</Callout>
+
+## Tool Playground
+
+Tool Playground is a built-in development and testing environment that allows you to quickly create, debug, and validate custom tools.
+
+### Opening Tool Playground
+
+1. Click the **Tool Playground** icon in the left sidebar
+2. Or use the shortcut `Cmd/Ctrl + Shift + P` then search "Tool Playground"
+
+### Main Features
+
+<Tabs items={["Code Editor", "Parameter Panel", "Result Panel", "History"]}>
+<Tab value="Code Editor">
+**Monaco Code Editor** supports:
+- TypeScript/TSX syntax highlighting
+- Auto-completion (based on project type definitions)
+- Real-time compilation feedback
+- Import path intelligent suggestions
+
+</Tab>
+
+<Tab value="Parameter Panel">
+**Parameter Configuration Panel** provides:
+- Input forms automatically generated based on Zod schema
+- Parameter type detection and validation
+- Parameter preset save/load
+- Default value and optional field display
+
+</Tab>
+
+<Tab value="Result Panel">
+**Result Display Panel** includes:
+- Raw JSON output
+- Custom UI rendering view
+- Execution logs
+- Result copy/download
+
+</Tab>
+
+<Tab value="History">
+**Execution History** features:
+- Automatically record each execution
+- View historical parameters and results
+- Quickly replay historical executions
+- Search and filter history records
+
+</Tab>
+</Tabs>
+
+### Built-in Templates
+
+Tool Playground provides multiple preset templates to help you get started quickly:
+
+#### Basic Tool
+
+Suitable for simple input/output processing:
+
+```tsx
+import React from 'react';
+import { toolHelper } from '@/lib/custom-tool-sdk';
+import { z } from 'zod';
+
+const inputSchema = z.object({
+  message: z.string().min(1, 'message is required'),
+});
+
+export default toolHelper({
+  name: 'basic_tool',
+  description: 'A basic tool example',
+  inputSchema: inputSchema,
+  async execute(params) {
+    return {
+      success: true,
+      message: `Hello, ${params.message}!`,
+    };
+  },
+  renderToolDoing(params) {
+    return <div>Processing: {params.message}</div>;
+  },
+  renderToolResult(result, params) {
+    return <div>{result.message}</div>;
+  },
+});
+```
+
+#### Network Tool
+
+Suitable for API calls and data fetching:
+
+```tsx
+import React from 'react';
+import { toolHelper } from '@/lib/custom-tool-sdk';
+import { simpleFetch } from '@/lib/tauri-fetch';
+import { z } from 'zod';
+
+const inputSchema = z.object({
+  url: z.string().url(),
+  method: z.enum(['GET', 'POST']).default('GET'),
+  headers: z.record(z.string()).optional(),
+  body: z.string().optional(),
+});
+
+export default toolHelper({
+  name: 'network_tool',
+  description: 'Fetch data from a URL',
+  inputSchema: inputSchema,
+  permissions: ['net'],
+  async execute(params) {
+    const response = await simpleFetch(params.url, {
+      method: params.method,
+      headers: params.headers,
+      body: params.body,
+    });
+
+    return { success: true, data: await response.json() };
+  },
+  renderToolDoing(params) {
+    return <div>Fetching {params.method} {params.url}...</div>;
+  },
+  renderToolResult(result) {
+    return <pre>{JSON.stringify(result.data, null, 2)}</pre>;
+  },
+});
+```
+
+### Playground Settings
+
+Click the **Settings** icon in the top right to configure:
+
+| Setting | Description | Default Value |
+|---------|-------------|---------------|
+| **Timeout** | Maximum execution time (ms) | 30000ms |
+| **Mock Mode** | Mock network requests to return test data | Off |
+
+### Installing Custom Tools
+
+After completing tool development and testing, you can directly install custom tools in Tool Playground:
+
+1. Ensure the tool has been successfully compiled (status shows `ready`)
+2. Click the **Install** button in the top right
+3. The tool will be automatically saved to one of the following directories:
+   - Workspace `.talkcody/tools/` directory (if workspace exists)
+   - User directory `~/.talkcody/tools/` (when no workspace)
+4. After the tool is saved, it will automatically refresh and be immediately available
+
+<Callout type="success">
+After successful installation, you can find and enable this custom tool in **Agents Settings** for AI agents to use.
+</Callout>
+
+### Saving Tool to File
+
+After completing tool development, you can also:
+
+1. Click the **Save** button
+2. Choose save location (workspace `.talkcody/tools` directory)
+3. The tool will be automatically loaded by the system
+
+## SDK Reference
+
+### Available Imports
+
+```tsx
+// Main SDK import
+import { toolHelper } from '@/lib/custom-tool-sdk';
+
+// Type definitions
+import type { CustomToolDefinition, CustomToolPermission, CustomToolUI } from '@/lib/custom-tool-sdk';
+```
+
+### Supported Dependencies
+
+Custom Tool supports the following built-in dependencies:
+
+| Package | Purpose |
+|---------|---------|
+| `react` | UI component building |
+| `zod` | Parameter schema definition and validation |
+| `recharts` | Data visualization charts |
+| `@/lib/tauri-fetch` | Network requests (requires `net` permission) |
+| `@/lib/*` | Project internal modules |
+
+<Callout type="info">
+Dynamic import of external npm packages is not supported. All dependencies must use bare module specifiers.
+</Callout>
+
+### Permission System
+
+Custom Tool supports the following permissions:
+
+| Permission | Function | Required Dependency |
+|------------|----------|---------------------|
+| `fs` | File system read/write | `@tauri-apps/plugin-fs` |
+| `net` | Network requests | `@/lib/tauri-fetch` |
+| `command` | Execute system commands | `bash` tool |
+
+Declare permissions in tool definition:
+
+```tsx
+export default toolHelper({
+  name: 'my_tool',
+  description: 'Tool with permissions',
+  permissions: ['net', 'fs'],  // Declare required permissions
+  // ...
+});
+```
+
+<Callout type="warn">
+In Tool Playground, permissions are automatically granted for development convenience. In actual use, the system will decide whether to allow execution based on permission configuration.
+</Callout>
+
+## Complete Example
+
+### Weather Query Tool
+
+```tsx
+import React from 'react';
+import { toolHelper } from '@/lib/custom-tool-sdk';
+import { simpleFetch } from '@/lib/tauri-fetch';
+import { z } from 'zod';
+
+const inputSchema = z.object({
+  city: z.string().min(1, 'City name cannot be empty'),
+  unit: z.enum(['celsius', 'fahrenheit']).default('celsius'),
+});
+
+interface WeatherResult {
+  temperature: number;
+  humidity: number;
+  description: string;
+  city: string;
+}
+
+export default toolHelper({
+  name: 'weather_query',
+  description: 'Query weather information for a specified city',
+  inputSchema: inputSchema,
+  permissions: ['net'],
+  async execute(params): Promise<{ success: true; data: WeatherResult } | { success: false; error: string }> {
+    try {
+      const response = await simpleFetch(
+        `https://api.example.com/weather?city=${params.city}`,
+        { method: 'GET' }
+      );
+
+      const data = await response.json();
+
+      return {
+        success: true,
+        data: {
+          city: params.city,
+          temperature: params.unit === 'fahrenheit' ? data.temp_f : data.temp_c,
+          humidity: data.humidity,
+          description: data.condition.text,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch weather',
+      };
+    }
+  },
+  renderToolDoing(params) {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="animate-pulse">Querying weather for {params.city}...</span>
+      </div>
+    );
+  },
+  renderToolResult(result) {
+    if (!result.success) {
+      return (
+        <div className="p-3 bg-red-50 text-red-600 rounded">
+          ❌ {result.error}
+        </div>
+      );
+    }
+
+    const weather = result.data;
+    return (
+      <div className="space-y-2">
+        <div className="text-lg font-semibold">{weather.city} Weather</div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-2 bg-blue-50 rounded">
+            <div className="text-sm text-blue-600">Temperature</div>
+            <div className="text-xl">{weather.temperature}°</div>
+          </div>
+          <div className="p-2 bg-green-50 rounded">
+            <div className="text-sm text-green-600">Humidity</div>
+            <div className="text-xl">{weather.humidity}%</div>
+          </div>
+        </div>
+        <div className="text-sm text-gray-600">{weather.description}</div>
+      </div>
+    );
+  },
+});
+```
+
+## Best Practices
+
+### 1. Error Handling
+
+Always handle possible errors in the `execute` function:
+
+```tsx
+async execute(params) {
+  try {
+    // Business logic
+    return { success: true, data: result };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+```
+
+### 2. Parameter Validation
+
+Use Zod for strict parameter validation:
+
+```tsx
+const inputSchema = z.object({
+  // Add descriptions to help AI understand
+  query: z.string().min(1).describe('Search query keyword'),
+  limit: z.number().min(1).max(100).default(10).describe('Result count limit'),
+});
+```
+
+## FAQ
+
+### Q: What should I do if tool loading fails?
+
+1. Check if the tool file exports `default`
+2. Verify Zod schema syntax is correct
+3. Check error logs in settings
+4. Test tool code in Tool Playground
+
+### Q: How to debug custom tools?
+
+It is recommended to use Tool Playground for debugging:
+1. Copy tool code to Playground
+2. Set parameters and execute
+3. View log output in the result panel
+4. Use `console.log` to output debug information
+
+### Q: Do tools need to be restarted after updating?
+
+No. Tool files are automatically reloaded after saving. If the tool is not updated, try:
+1. Click "Refresh Tools" in settings
+2. Check if the tool directory path is correct
+
+### Q: How to share custom tools?
+
+Currently, the following sharing methods are supported:
+1. **File Sharing**: Directly share the `.tsx` file with others, place it in the corresponding directory to use
+2. **Project Integration**: Put the tool in the project's `.talkcody/tools` directory, with project version control
+
+## Related Documentation
+
+- [Tools](/docs/en/features/tools)
+- [MCP Servers](/docs/en/features/mcp-servers)
+- [AI Agents](/docs/en/features/ai-agents)

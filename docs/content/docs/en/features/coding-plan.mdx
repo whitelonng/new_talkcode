@@ -1,0 +1,169 @@
+---
+title: Coding Plan
+description: Using MiniMax 2, GLM 4.6 and Kimi's Coding Plan feature in TalkCody
+icon: CodeXml
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## What is Coding Plan?
+
+**Coding Plan** is a subscription plan designed specifically for AI coding scenarios, provided by MiniMax, Zhipu AI, Moonshot, and Alibaba Cloud (Aliyun). Coding Plan is optimized for high-frequency programming scenarios, offering a cost-effective subscription model that can save significant costs compared to direct API billing.
+
+TalkCody supports Coding Plan for the following models:
+
+| Model | Provider |
+|-------|----------|
+| MiniMax 2 | MiniMax |
+| GLM 4.6 | Zhipu AI |
+| Kimi | Moonshot |
+| Qwen (Tongyi Qianwen) | Aliyun (Alibaba Cloud) |
+
+<Callout type="info">
+Coding Plan mode uses dedicated API endpoints that provide optimized responses for programming tasks.
+</Callout>
+
+## How to Set Up and Enable Coding Plan
+
+<Steps>
+
+<Step>
+### Get API Key
+
+First, you need to obtain an API Key from the respective provider:
+
+- **MiniMax**: Visit [MiniMax Platform](https://platform.minimaxi.com/docs/coding-plan/intro) to get your API Key
+- **Zhipu AI (GLM)**: Visit [Zhipu AI Platform](https://docs.bigmodel.cn/cn/coding-plan/overview) to get your API Key
+- **Moonshot (Kimi)**: Visit [Moonshot Platform](https://www.kimi.com/coding/docs/) to get your API Key
+- **Aliyun (Alibaba Cloud)**: Visit [Aliyun Model Studio](https://dash.console.aliyun.com/model-api) to get your API Key. Aliyun Coding Plan supports Qwen 3.5 Plus, GLM-5, Kimi K2.5, and Minimax 2.5 models.
+</Step>
+
+<Step>
+### Configure API Key
+
+1. Open TalkCody
+2. Click the **Settings** icon
+3. Navigate to the **API Keys** page
+4. Enter your API Key in the corresponding provider's input field
+</Step>
+
+<Step>
+### Enable Coding Plan
+
+On the API Keys settings page, there is a **Use Coding Plan** toggle below each provider that supports Coding Plan:
+
+1. Find the provider for which you have configured an API Key
+2. Enable the **Use Coding Plan** toggle
+3. Settings are saved automatically
+
+</Step>
+
+</Steps>
+
+## Built-in MCP Servers
+
+TalkCody has built-in MCP servers for MiniMax 2 and GLM 4.6, providing **web search** and **image recognition** capabilities.
+
+<Callout type="success">
+When you enable Coding Plan, the API Key is automatically synced to the corresponding MCP server, requiring no additional configuration.
+</Callout>
+
+### MiniMax MCP Server
+
+| Server Name | Feature | Tool Name |
+|-------------|---------|-----------|
+| minimax-coding-plan | Web Search | `web_search` |
+
+**Web Search**: Search for the latest technical documentation, API references, and programming Q&A.
+
+### GLM MCP Server
+
+| Server Name | Feature | Tool Name |
+|-------------|---------|-----------|
+| glm-coding-plan-search | Web Search | `webSearchPrime` |
+| glm-coding-plan-vision | Image Recognition | Vision Understanding Tool |
+
+**Web Search**: Search technical materials and get the latest information.
+
+**Image Recognition**: Recognize and understand image content, suitable for:
+- Analyzing error messages in screenshots
+- Understanding UI design mockups
+- Interpreting charts and flowcharts
+
+### Aliyun MCP Server
+
+| Server Name | Feature | Tool Name |
+|-------------|---------|-----------|
+| qwen-coding-plan | Web Search | `web_search` |
+
+**Web Search**: Search for the latest technical documentation, API references, and programming Q&A.
+
+## How to Use MCP Tools
+
+<Steps>
+
+<Step>
+### Ensure Correct Configuration
+
+1. API Key for the corresponding provider is configured
+2. **Use Coding Plan** toggle is enabled
+3. API Key will automatically sync to the MCP server
+</Step>
+
+<Step>
+### Select MCP Tool
+
+In the toolbar above the chat input box, click the **MCP** button and select the MCP tool you want to use:
+
+- `minimax-coding-plan__web_search` (MiniMax Web Search)
+- `glm-coding-plan-search__webSearchPrime` (GLM Web Search)
+- GLM Image Recognition Tool
+- `qwen-coding-plan__web_search` (Aliyun Web Search)
+
+The selected tool will be active in the current conversation.
+</Step>
+
+<Step>
+### Start Using
+
+In the conversation, the AI agent will automatically invoke these tools as needed.
+
+**Web Search Example**:
+```
+User: Search for new features in React 19
+
+AI: I will search for the latest React 19 information.
+[Using web_search tool]
+
+Based on the search results, the main new features in React 19 include:
+1. Actions - Simplified form handling
+2. use() hook - New way to read resources
+3. Server component improvements
+...
+```
+
+**Image Recognition Example**:
+```
+User: [Upload error screenshot] What does this error mean?
+
+AI: Let me analyze this screenshot.
+[Using image recognition tool]
+
+This is a TypeScript type error. The error message shows...
+Suggested solutions:
+1. Check variable type declarations
+2. Add type assertions
+...
+```
+</Step>
+
+</Steps>
+
+## FAQ
+
+### What if the MCP server connection fails?
+
+1. Check if the API Key is correctly configured
+2. Ensure the Coding Plan toggle is enabled
+3. Try reconnecting on the MCP servers page

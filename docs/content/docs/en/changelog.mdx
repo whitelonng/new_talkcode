@@ -1,0 +1,431 @@
+---
+title: Changelog
+description: TalkCody release history and version notes
+icon: History
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+All notable changes to TalkCody are documented here.
+
+## [0.5.0] - 2026-03-28
+
+### Added
+
+- **New Global Memory System**: Support for global and project-level Memory management, with Topic-based storage mechanism
+- **Orchestrator Agent**: New orchestration Agent for task scheduling and Agent coordination
+- **ZenMux Provider**: New ZenMux model provider support
+- **Increased Parallel Agent Limit**: Maximum parallel sub-agent count increased to 20, supporting more complex parallel workflows
+
+### Fixed
+
+- Fixed Windows platform path check issues
+- Fixed http_proxy decoding errors
+- Fixed code-search tool bug
+
+### Acknowledgments
+
+- Thanks to @bigboss2063 for contributing the Memory feature
+
+## [0.4.4] - 2026-02-26
+
+### Added
+
+- **Aliyun Coding Plan Support**: Aliyun Coding Plan supports Qwen 3.5 Plus, GLM-5, Kimi K2.5, and Minimax 2.5 models
+- **New Nano Banana 2 Model**: Added Nano Banana 2 model support
+- **New GPT-5.3-Codex API Model**: Added GPT-5.3-Codex API model support
+
+### Improved
+
+- **Major web-fetch tool optimization**
+
+## [0.4.3] - 2026-02-20
+
+### Added
+
+- **New Claude Opus 4.6 Model**: Added Claude Opus 4.6 model support.
+- **New GPT-5.3 Codex Spark Model**: Added GPT-5.3 Codex Spark model support.
+- **New Gemini 3.1 Pro Model**: Added Gemini 3.1 Pro model support.
+- All of the above models are available via hot update immediately. Future new coding models will also be hot-updated as soon as possible.
+
+### Fixed
+
+- Fixed UI layout bug when opening files on the homepage.
+
+## [0.4.2] - 2026-02-16
+
+### Added
+
+- **PPT Generator Agent**: One-click AI-powered PPT generation
+- **Multiple Image Generation Models**: Doubao Seedream, GLM Image, Qwen Image Max
+- **Qwen 3.5 Plus Model**: Added Qwen 3.5 Plus model support
+- **Prompt AI Enhancement**: Enhanced AI prompt generation for better results
+
+### Fixed
+
+- **Fixed Compaction Bug**: Fixed context compaction related bug
+- Fixed Windows compatibility bug
+
+### Documentation
+
+- [PPT Generator Documentation](/docs/features/ppt-generator.mdx)
+- [Image Generator Documentation](/docs/features/image-generator.mdx)
+
+### Acknowledgments
+
+- Thanks to @taiji666 for contributing Prompt AI enhancement features
+
+## [0.4.1] - 2026-02-11
+
+### Added
+
+- **Video Input Support**: Added video input feature, allowing direct generation of frontend pages from videos (currently only Kimi API model is supported, more models will be supported in the next version)
+- **MiniMax M2.5 Model**: Added MiniMax M2.5 model support and set it as the default free model
+- **GLM-5 Model**: Added GLM-5 series model support
+
+### Changed
+
+- Made Kimi Coding Plan a separate Provider
+
+### Fixed
+
+- **Fixed Issue #50**: Fixed terminal panel related bug
+- **Fixed Issue #51**: Fixed workspace root related bug
+- **Fixed Issue #52**: Fixed bug where application did not fully exit when window was closed
+
+## [0.4.0] - 2026-02-09
+
+### Added
+
+- **Telegram Remote Control**: Support Telegram remote control for desktop TalkCody, supporting text, voice, and image messages with streaming response support.
+- **Feishu (Lark) Remote Control**: Support Feishu remote control for desktop TalkCody, supporting text, voice, and image messages with streaming response support.
+- [Telegram Remote Control Documentation](/docs/features/telegram-remote)
+- [Feishu Remote Control Documentation](/docs/features/feishu-remote)
+- **Voice Transcription**: Added Groq Whisper voice transcription support, available for free.
+- **Model Support**: Added OpenRouter Pony Alpha free model.
+- **Explore Agent**: Open Explore Agent, suitable for quickly understanding code repositories.
+
+### Fixed
+
+- Fixed custom Provider configuration and request issues.
+- Fixed input Token status display issue.
+- Fixed share page theme display issue.
+
+## [0.3.5] - 2026-02-05
+
+### Added
+
+- Support for Claude Opus 4.6 model
+- Support for GPT 5.3 Codex model (OpenAI OAuth only)
+- Support for disabling Tracing
+
+### Improved
+
+- **Model Search Optimization**: Model search now supports filtering by provider name.
+
+### Fixed
+
+- **Fix Issue #47**: Fixed Windows workspace-root path handling bug.
+- **Fix Issue #46**: Fixed OpenAI OAuth login flow issues.
+
+## [0.3.4] - 2026-02-04
+
+### Improved
+
+- **User Abort Handling**: Optimized handling of user aborts before hooks are triggered.
+
+### Fixed
+
+- **Cross-platform Compatibility**: Fixed cross-platform path separator compatibility issues in project service and multiple other locations.
+- **Settings Store Fix**: Fixed issue where the current task was not reset when switching projects.
+- **Fix Issue #43 & #44**: Fixed bug causing loss of custom models.
+- **Gemini & Google AI Fix**: Fixed Gemini model schema and Google AI API 400 errors.
+- **Fix Issue #45**: Fixed GitHub skill import bug.
+
+### Acknowledgments
+
+- Thanks to @qingzhongli for fixing cross-platform path compatibility issues and settings store bug.
+
+## [0.3.3] - 2026-02-02
+
+### Added
+
+- **LLM Tracing**: Added complete LLM tracing functionality, supporting recording and viewing detailed AI request processes, execution time, Token usage, and Tool call details for debugging and prompt optimization.
+- **Kimi Coding Plan Usage**: Added support for displaying Kimi Coding Plan usage statistics.
+
+### Improved
+
+- **Rust Backend LLM Architecture Refactoring**: Refactored the LLM processing logic on the Rust side, laying the foundation for supporting 10-20 tasks in parallel.
+
+### Fixed
+
+- Fixed window state save and restore bugs, improving multi-window experience.
+- Fixed Issue #36: Optimized UI rendering logic in specific scenarios.
+- Fixed Issue #39: Improved Bash tool execution feedback for complex commands.
+- Fixed Issue #40: Fixed infinite refresh bug on Agents page.
+- Fixed Kimi Coding Plan bugs.
+
+## [0.3.2] - 2026-01-27
+
+### Added
+
+- **Ralph Loop (Experimental)**: New persistent execution mode supporting AI Agent autonomous iteration for complex tasks. Agents can continue learning across multiple iterations, self-correcting based on execution feedback until completion criteria are met
+- **Kimi 2.5 Model Support**: Added support for Kimi 2.5 model
+
+### Improved
+
+- **Web Fetch Tool Optimization**: Improved web content fetching capabilities
+- **Create Agent Agent Optimization**: Improved custom Agent creation experience
+
+### Fixed
+
+- Fixed tool UI registration related bugs
+- Fixed custom tool UI display bugs
+- Fixed recent project list bug
+- Fixed LLM retry mechanism issues
+- Fixed Whats New dialog video Linux platform compatibility issue
+
+## [0.3.1] - 2026-01-25
+
+### Added
+
+- **Hooks System**: New event-driven Hooks mechanism that supports triggering custom scripts at key events (user submission, before/after tool calls, session start/end, stop, etc.), enabling operation interception, parameter modification, audit logs, and other functionalities
+- **Auto Code Review**: Support for automatic code review (Auto Code Review), which automatically runs the Code Review Agent after file changes
+- **LSP Tools**: New complete LSP (Language Server Protocol) tools, supporting go-to-definition, find references, hover hints, document symbols, workspace symbols, go-to-implementation, call hierarchy analysis, and other operations
+- **API Usage Dashboard**: New API usage visualization page, displaying chart statistics for Token usage, costs, and request counts, with filtering by today/this week/this month
+- **Custom Plan and Code Review Models**: Support for configuring dedicated models for Plan Agent and Code Review Agent in settings
+- **Direct Plan Content Display**: Display Plan file content directly in call-agent-tool-result without manually opening the file
+- **Custom Tool package.json Support**: Custom Tools now support using package.json to define dependencies, automatically installing npm/bun packages, supporting any third-party libraries
+- Support for customizing Plan Agent and Code Review Agent Models
+
+### Fixed
+
+- Fixed bugs related to AI Pricing Service and LSP Tool
+- Fixed API Usage Tab refresh issue
+- Fixed OpenAI compatible type path handling (automatically appends /v1)
+
+### Acknowledgments
+
+- Thanks to @qingzhongli for fixing OpenAI compatible type path handling
+- Thanks to @MiaMia-Li for completing the "TalkCody Free Usage Guide" documentation
+
+## [0.3.0] - 2026-01-19
+
+### Added
+
+- Google Login Support
+- New create-agent command: One-click creation of custom AI agents
+- New create-skill command: One-click creation of skills
+- New create-tool command: One-click creation of custom tools
+- New compact command: Manually compact conversations early
+- Mac Keep Awake Support: Prevent system sleep
+- Auto-Approve Plan Setting Support
+- Reasoning-Effort Setting Support
+- [Commands Documentation](/en/docs/commands)
+
+## [0.2.6] - 2026-01-14
+
+### Added
+
+- **Agent Compatible with Claude Code Subagent Definition**: Support for importing and using Claude Code subagent-defined agents from GitHub repositories, with more excellent built-in agents
+
+### Improved
+
+- **Task Title Generation Optimization**: Improved task title generation logic for better user experience
+
+### Fixed
+
+- Fixed Lint feature compatibility issue on Windows platform
+- Fixed MiniMax Usage Cookie missing or expired issue
+- Fixed Custom Tool refresh bug
+- Fixed Chinese input method Enter key directly sending bug
+
+### Acknowledgments
+
+- Thanks to @qingzhongli for fixing Lint feature compatibility issue on Windows platform
+
+## [0.2.5] - 2026-01-11
+
+### Added
+
+- **Custom Tools Support (Experimental)**: Added Custom Tools and Custom Tools Playground, allowing users to define custom AI tools with core capability to customize UI. For details, refer to [Custom Tools](/en/docs/features/custom-tools)
+- **Edit Auto-Approval**: Can be enabled in settings, eliminating the need to wait for approval when modifying files
+- Global file search now displays recently opened files
+- When using multiple windows, the Project name is used as the window title
+
+### Improved
+
+- **UI Rendering Performance Optimization**: Optimized UI rendering performance during multi-task parallel execution, improving response speed under complex workflows
+
+### Fixed
+
+- **Fixed File Changes Summary Bug**: Fixed display issues with the file-changes-summary component
+- **Path Handling Compatibility**: Fixed compatibility issues with Windows and Unix path handling
+- Fixed Mac dock menu bug showing recent projects
+
+## [0.2.4] - 2026-01-06
+
+### Added
+
+- **Share Links**: Support for generating exclusive links to share AI conversation tasks with others, with multiple expiration options and password protection. For details, refer to [TalkCody Share Link Feature](/docs/features/share-link)
+- **MiniMax Usage**: Usage page now displays MiniMax Coding Plan usage
+- **Free Web Search**: New free Web Search without additional configuration
+
+### Improved
+
+- **Plan Mode Optimization**: Support for saving Plan results as files
+- **Global File Search Enhancement**: Added support for hidden files and directories, with path search support
+- **Glob Tool Optimization**: Support for searching hidden files and directories
+
+### Fixed
+
+- **Fixed External File Modification Detection**: Resolved inaccurate detection when files are modified externally
+- **Fixed Keyboard Shortcut Conflict**: Resolved Shift+Esc and Cmd+F keyboard shortcut conflict
+- **Fixed Agent Tool Timeout Issue**: Optimized call-agent-tool timeout handling mechanism
+
+## [0.2.3] - 2026-01-03
+
+### Added
+
+- **Usage Page**: New usage statistics page to view usage for Claude subscription, OpenAI subscription, GitHub Copilot subscription, and Zhipu Coding Plan.
+- **Free Usage Expansion**: now supporting 8 completely free usage methods. For details, refer to [TalkCody Free Usage Guide](/docs/guides/free-use).
+- **GitHub Skill Import**: Support for one-click import of Agent Skills from GitHub repositories.
+- **macOS Dock Menu Support**: Support for quickly opening recent projects and creating new windows, enhancing the macOS user experience.
+- **Vue Syntax Highlighting Support**: New Vue syntax highlighting and LSP support for a better Vue project development experience.
+
+### Improved
+
+- **Optimized Plan Agent**: Improved Plan Agent execution logic.
+- **Agent Skills Specification Refactoring**: Refactored Skills to Agent Skills Specification for better standardization of agents.
+- **Improved Timeout Handling**: Optimized call-agent-tool timeout handling mechanism.
+
+### Fixed
+
+- **Fixed Linux Chinese Input**: Resolved Chinese input method compatibility issues on Linux.
+
+## [0.2.2] - 2025-12-30
+
+### Added
+
+- **Unified Pages**: Unified Explore page and Chat page for a more coherent user experience.
+
+### Improved
+
+- **Optimized Context Compaction**: Improved message filtering and compaction logic to better support Long Run Tasks.
+- **Optimized GPT-5.2 Codex Experience**: Optimized prompts for use via OpenAI subscriptions.
+- **Optimized Sub-Agent Calls**: Improved timeout handling when calling sub-agents.
+
+### Fixed
+
+- **Fixed GitHub Copilot Image Handling**: Resolved a bug in GitHub Copilot provider when handling image requests.
+- **Fixed Editor Synchronization**: Fixed an issue where the editor could not perceive external file modifications in a timely manner.
+- **Fixed UI Display**: Fixed a bug where the Diff display was incorrect for large files in the Edit File result UI.
+
+## [0.2.1] - 2025-12-27
+
+### Added
+
+- Add Qwen Code Free Provider, to save your coding cost 
+- Add Github Copilot Free Provider, to save your coding cost 
+
+### Improved
+
+- Improve context compaction logic, to better handle long conversations
+
+## [0.2.0] - 2025-12-25
+
+### Added
+
+- **Claude model support via Claude Pro/Max subscription**
+- **OpenAI model support via ChatGPT Plus/Pro subscription**
+- **LSP Support**: Complete Language Server Protocol implementation with code navigation, code completion, go-to-definition, find references, and other core features, significantly improving code understanding and editing experience
+- **Exa Free Web Search**: New Exa search engine provider for out-of-the-box web search
+- **Custom Terminal Font**: Support for custom terminal font and font size settings
+- MiniMax 2.1 model support (**free to use via TalkCody Provider**)
+- GLM 4.7 model support (TalkCody supports hot model updates, latest excellent coding models are usually auto-updated within 12 hours)
+
+### Improved
+
+- Improved write file and edit file tool result display
+- Optimized Prompt Cache for further cost savings
+
+### Fixed
+
+- Fixed Windows terminal related bug
+- Fixed model selector list duplicate display bug
+- Fixed write file tool failing to write files correctly in some cases
+- Fixed incorrect git status display in multi-window scenarios
+
+## [0.1.20] - 2025-12-19
+
+### Added
+
+- MiniMax M2.1 beta model support - all users can try it for free. Select MiniMax M2.1 Beta model with talkcody provider to use it.
+
+### Improved
+
+- Improved Plan Mode approval and Diff Review UI
+
+## [0.1.19] - 2025-12-18
+
+### Added
+
+- Multi-Agent parallel execution (experimental) - multiple agents can now execute tasks simultaneously
+- Git Worktree-based Task parallel execution (experimental) - tasks can run in parallel in isolated working directories
+- One-click Git Commit: New Commit button in file changes summary with AI-generated commit messages
+- One-click Code Review: New Review button in file changes summary to invoke Code Review Agent
+
+### Improved
+
+- Improved MCP tool selection buttons
+- Improved local agent loading performance
+- Improved Edit File tool
+- Improved Bash tool dangerous command detection
+- Improved Context Compaction logic
+- Improved AI request retry strategy
+
+### Fixed
+
+- Fixed Windows terminal bug
+
+## [0.1.18] - 2025-12-13
+
+### Added
+
+- Editor Lint feature with real-time syntax checking and quick fixes
+- GPT 5.2 model support
+- New feature documentation: Coding Plan, Web Search, Voice Input, Code Lint
+
+### Improved
+
+- Improved Web Search tool
+- Improved Web Fetch tool
+
+### Fixed
+
+- Fixed Windows PowerShell terminal bug
+- Fixed missing environment variables due to not correctly reading bashrc/zshrc
+
+## [0.1.17] - 2025-12-11
+
+### Added
+
+- Support for multiple sessions running in parallel, significantly improving workflow efficiency
+- Custom AI provider configuration support
+- New built-in AI provider: Moonshot
+- New built-in model: GLM-4.6 v
+- New built-in Minimax Coding Plan MCP with web search and image input support
+- New built-in GLM Coding Plan MCP with web search and image input support
+- What's New dialog to show changelog after updates
+
+### Improved
+
+- Optimized Bash tool output for better performance
+- Optimized GitHub PR tool output for better performance
+- Optimized Context Compaction logic for improved multi-turn conversation performance
+
+### Fixed
+
+- Fixed HTTP MCP server header configuration bug
+- Fixed Stdio MCP server not supporting custom environment variables
+- Fixed database exit issue when using multiple windows

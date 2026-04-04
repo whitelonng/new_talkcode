@@ -1,0 +1,114 @@
+---
+title: 语音输入
+description: 在 TalkCody 中使用语音转文字功能进行输入
+icon: Mic
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## 什么是语音输入？
+
+**语音输入** 是 TalkCody 的语音转文字功能，允许您通过语音进行输入，无需手动打字。这对于快速输入长文本、编程问题描述或在移动场景下使用非常方便。
+
+TalkCody 支持多种语音转录提供商，您可以根据需求选择合适的服务。
+
+## 支持的转录提供商
+
+| 提供商 | 模型 | 特点 |
+|--------|------|------|
+| Eleven Labs | Scribe | 高质量实时多语言转录 |
+| OpenAI | Whisper | 业界领先的语音识别，支持多种语言 |
+| Google | Gemini | 多模态理解，支持长音频 |
+
+<Callout type="info">
+您需要配置至少一个转录提供商的 API Key，并在设置中选择转录模型才能使用语音输入功能。
+</Callout>
+
+## 配置方法
+
+<Steps>
+
+<Step>
+### 获取 API Key
+
+根据您想使用的转录服务，获取对应的 API Key：
+
+**Eleven Labs（推荐）**
+1. 访问 [elevenlabs.io](https://elevenlabs.io)
+2. 点击 "Sign Up" 注册账户
+3. 登录后，点击右上角头像 → "Profile + API key"
+4. 在 API Key 部分点击眼睛图标查看密钥
+5. 复制 API 密钥
+
+**OpenAI**
+1. 访问 [platform.openai.com](https://platform.openai.com/api-keys)
+2. 登录或注册账户
+3. 点击 "Create new secret key" 创建密钥
+4. 复制密钥（格式：`sk-...`）
+
+**Google AI**
+1. 访问 [aistudio.google.com](https://aistudio.google.com/api-keys)
+2. 使用 Google 账户登录
+3. 点击 "Create API key in new project"
+4. 复制生成的密钥
+
+</Step>
+
+<Step>
+### 配置 API Key
+
+1. 打开 TalkCody
+2. 点击 **设置** 图标
+3. 导航到 **API Keys** 页面
+4. 在对应提供商的输入框中粘贴您的 API Key
+5. 点击 **测试密钥** 验证是否有效
+</Step>
+
+<Step>
+### 选择转录模型
+
+1. 在 **设置** 页面，导航到 **模型设置**
+2. 找到 **转录模型 (Transcription)** 选项
+3. 从下拉列表中选择您想使用的转录模型：
+   - `eleven_scribe_v1` - Eleven Labs Scribe
+   - `whisper-1` - OpenAI Whisper
+   - `gemini-2.0-flash` - Google Gemini
+</Step>
+
+</Steps>
+
+## 使用方法
+
+配置完成后，您可以在聊天输入框中使用语音输入功能：
+
+1. 点击输入框旁边的 **麦克风** 图标
+2. 允许浏览器访问麦克风权限（首次使用时）
+3. 开始说话，您的语音会被实时录制
+4. 说完后点击 **停止** 按钮
+5. 语音会被自动转录为文字并填入输入框
+6. 您可以编辑转录的文字，然后发送
+
+<Callout type="tip">
+录音时说话清晰、语速适中可以获得更好的转录效果。
+</Callout>
+
+## 各提供商特点
+
+### Eleven Labs Scribe
+
+- 支持 32 种语言的多语言转录
+- 高准确率，特别适合专业术语
+- 免费套餐每月提供 10,000 字符额度
+
+### OpenAI Whisper
+
+- 业界领先的语音识别准确率
+- 支持多种音频格式
+- 可以识别说话人的语言
+
+### Google Gemini
+
+- 多模态理解能力
+- 支持长音频转录
+- Google AI 提供慷慨的免费额度

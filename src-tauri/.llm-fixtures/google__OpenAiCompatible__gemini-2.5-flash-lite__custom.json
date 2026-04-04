@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "provider_id": "google",
+  "protocol": "OpenAiCompatible",
+  "model": "gemini-2.5-flash-lite",
+  "endpoint_path": "v1beta/chat/completions",
+  "request": {
+    "method": "POST",
+    "url": "https://generativelanguage.googleapis.com/v1beta/chat/completions",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "REDACTED"
+    },
+    "body": {
+      "messages": [
+        {
+          "content": "You are an AI assistant that generates concise, descriptive titles for tasks.\n\nUser's message: \"Who is Kang Kai Sen? Kang Kai Sen.\"\n\nGenerate a short, clear title (5-10 words) that captures the essence of what the user is asking or discussing.\n\nGuidelines:\n1. Keep it concise (5-10 words maximum)\n2. Use title case (capitalize first letter of main words)\n3. Be specific and descriptive\n4. Avoid generic titles like \"New Chat\" or \"Question\"\n5. Focus on the main topic or intent\n\nExamples:\n- \"Fix Login Bug\"\n- \"Create User Dashboard\"\n- \"Explain React Hooks\"\n- \"Database Schema Design\"\n- \"API Rate Limiting Issue\"\n\nGenerate the title in English.\n\nProvide ONLY the title without any quotes, explanations, or additional formatting.",
+          "role": "user"
+        }
+      ],
+      "model": "gemini-2.5-flash-lite",
+      "stream": true,
+      "stream_options": {
+        "include_usage": true
+      }
+    }
+  },
+  "response": {
+    "type": "stream",
+    "status": 200,
+    "headers": {
+      "transfer-encoding": "chunked",
+      "cache-control": "private",
+      "x-content-type-options": "nosniff",
+      "date": "Sun, 08 Feb 2026 04:58:18 GMT",
+      "server": "scaffolding on HTTPServer2",
+      "expires": "Sun, 08 Feb 2026 04:58:18 GMT",
+      "accept-ranges": "none",
+      "x-frame-options": "SAMEORIGIN",
+      "server-timing": "gfet4t7; dur=479",
+      "content-type": "text/event-stream",
+      "vary": "Origin,Accept-Encoding",
+      "x-xss-protection": "0",
+      "set-cookie": "NID=528=iZIcf1LLkoXLoQk2YOSgeUmzgFlt-tVPam3OhV_gVYpRjDmRULAh4ZcYigWdqZJjMGSXCkHrYHDNa51hmxJ-ryHNNRpjVm4sAxPkJL6-JcMOTYKhavdDdi7_ZtL8xT9P6tn2RL8rF5vE127Q6FUjctgxqqS5aiznApZn5Miifz43Pz-oIxCeg4g0YJwzG5DkWcAaXIHGsw; expires=Mon, 10-Aug-2026 04:58:17 GMT; path=/; domain=.generativelanguage.googleapis.com; HttpOnly",
+      "p3p": "CP=\"This is not a P3P policy! See g.co/p3phelp for more info.\"",
+      "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+    },
+    "sse_events": [
+      {
+        "event": null,
+        "data": "{\"choices\":[{\"delta\":{\"content\":\"Identify Kang Kai Sen\",\"role\":\"assistant\"},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1770526698,\"id\":\"6heIaeu4D7CujrEPiZKswAY\",\"model\":\"gemini-2.5-flash-lite\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":4,\"prompt_tokens\":184,\"total_tokens\":188}}"
+      },
+      {
+        "event": null,
+        "data": "[DONE]"
+      }
+    ]
+  },
+  "test_input": {
+    "model": "gemini-2.5-flash-lite",
+    "messages": [
+      {
+        "role": "user",
+        "content": "You are an AI assistant that generates concise, descriptive titles for tasks.\n\nUser's message: \"Who is Kang Kai Sen? Kang Kai Sen.\"\n\nGenerate a short, clear title (5-10 words) that captures the essence of what the user is asking or discussing.\n\nGuidelines:\n1. Keep it concise (5-10 words maximum)\n2. Use title case (capitalize first letter of main words)\n3. Be specific and descriptive\n4. Avoid generic titles like \"New Chat\" or \"Question\"\n5. Focus on the main topic or intent\n\nExamples:\n- \"Fix Login Bug\"\n- \"Create User Dashboard\"\n- \"Explain React Hooks\"\n- \"Database Schema Design\"\n- \"API Rate Limiting Issue\"\n\nGenerate the title in English.\n\nProvide ONLY the title without any quotes, explanations, or additional formatting.",
+        "providerOptions": null
+      }
+    ],
+    "tools": null,
+    "temperature": null,
+    "max_tokens": null,
+    "top_p": null,
+    "top_k": null,
+    "provider_options": null,
+    "extra_body": null
+  },
+  "expected_events": [
+    {
+      "type": "usage",
+      "input_tokens": 184,
+      "output_tokens": 4,
+      "total_tokens": 188,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "text-start"
+    },
+    {
+      "type": "text-delta",
+      "text": "Identify Kang Kai Sen"
+    },
+    {
+      "type": "done",
+      "finish_reason": "stop"
+    }
+  ]
+}

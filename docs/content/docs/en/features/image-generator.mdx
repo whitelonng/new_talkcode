@@ -1,0 +1,147 @@
+---
+title: Image Generator
+description: TalkCody's AI image generation feature that creates high-quality images from text descriptions
+icon: Image
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## What is Image Generation?
+
+**Image Generation** is TalkCody's AI image generation feature that can create high-quality images based on your text descriptions. Whether it's concept art, illustrations, product prototypes, or creative images, AI can help you generate them quickly.
+
+## Supported Image Generation Models
+
+TalkCody supports the following image generation models (Image Output):
+
+| Model | Provider | Features |
+|-------|----------|----------|
+| **DALL-E 3** | OpenAI | High quality, rich details, creative image generation |
+| **Nano Banana** (Gemini 2.5 Flash Image) | Google / OpenRouter / AI Gateway | Google's latest image generation model, fast and efficient |
+| **Nano Banana Pro** (Gemini 3 Pro Image) | Google / OpenRouter / AI Gateway / Ollama | Google's professional image generation, highest quality |
+| **Doubao Seedream** | VolcEngine | ByteDance Doubao series, optimized for Chinese scenarios |
+| **GLM Image** | Zhipu AI | Zhipu GLM series, excellent Chinese understanding |
+| **Qwen Image Max** | Alibaba | Tongyi Wanxiang, professional image generation |
+
+<Callout type="info">
+You need to configure the corresponding provider's API Key in [API Keys Configuration](/en/docs/configuration/api-keys) to use the corresponding image generation model.
+</Callout>
+
+## Configuration
+
+### Configure API Keys
+
+Different image generation models require configuring the corresponding provider's API Key:
+
+| Model | Required API Key |
+|-------|-----------------|
+| DALL-E 3 | OpenAI |
+| Nano Banana / Nano Banana Pro | Google AI / OpenRouter / Vercel AI Gateway |
+| Doubao Seedream | VolcEngine |
+| GLM Image | Zhipu AI |
+| Qwen Image Max | Alibaba Qwen |
+
+For detailed configuration steps, please refer to [API Keys Management](/en/docs/configuration/api-keys).
+
+## How to Use
+
+### Use via Agent
+
+1. Click the agent selector in the top-left corner of the chat interface
+2. Select **Image Generator** agent
+3. Describe the image content you want
+4. AI will automatically generate the image
+
+### Call as Sub-agent
+
+In conversations with other agents, you can call Image Generator to generate images:
+
+```
+User: Help me create a cover image about machine learning
+
+AI: I'll call the image generation agent to create a cover image for you.
+[Calling Image Generator agent]
+```
+
+### Call Tool Directly
+
+In agents that support Tools, you can directly enable the **imageGeneration** tool:
+
+1. Click the **Tools** icon above the input box
+2. Check the **imageGeneration** tool
+3. Request image generation in the conversation
+
+## Image Specifications
+
+### Size Options
+
+| Size | Aspect Ratio | Use Cases |
+|------|--------------|-----------|
+| 1024x1024 | 1:1 | Square images, social media avatars |
+| 1792x1024 | 16:9 | Landscape images, PPT covers, widescreen display |
+| 1024x1792 | 9:16 | Portrait images, phone wallpapers, story images |
+
+<Callout type="tip">
+When generating PPTs, we recommend using **1792x1024** size, which is the standard 16:9 aspect ratio.
+</Callout>
+
+### Quality Options
+
+- **Standard** - Standard quality, faster generation, lower cost
+- **HD / High** - High definition quality, richer details, suitable for professional use
+
+### Generation Count
+
+Supports generating 1-4 images simultaneously, allowing you to choose the most satisfactory result.
+
+## Prompt Techniques
+
+### Effective Prompt Structure
+
+```
+[Subject Description] + [Environment/Background] + [Style/Artistic Effect] + [Lighting/Atmosphere] + [Technical Specifications]
+```
+
+### Examples
+
+**Simple Prompt**:
+> A cat on grass
+
+**Optimized Prompt**:
+> An orange tabby cat sitting on a sunny green lawn, surrounded by wildflowers, realistic style, soft afternoon light, HD details, 8K quality
+
+### Recommended Description Elements
+
+| Element | Examples |
+|---------|----------|
+| Artistic Style | Realistic, cartoon, watercolor, oil painting, sketch |
+| Lighting & Atmosphere | Soft light, backlight, warm tones, cool tones, golden hour |
+| Color Scheme | Vibrant colors, soft tones, monochrome, high contrast |
+| Quality Description | HD, 8K, rich details, professional photography |
+
+## Where Generated Images are Saved
+
+Generated images are automatically saved in the application data directory:
+
+```
+~/Library/Application Support/com.talkcody/images/
+```
+
+Each image has a unique identifier and can be viewed and downloaded in the chat history.
+
+## Frequently Asked Questions
+
+### What to do if image generation fails?
+
+1. Check if the API Key is valid and has sufficient balance
+2. Confirm the current model supports image generation
+3. Check if the network connection is normal
+4. Try simplifying the prompt and avoid sensitive content
+
+### How to get better generation results?
+
+- Use detailed, specific descriptions
+- Clearly specify artistic style and lighting conditions
+- Refer to the prompt techniques above to optimize descriptions
+- Use HD quality option for finer results

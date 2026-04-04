@@ -1,0 +1,415 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "agent_skills_v2",
+  "prevId": "fd7cc6d5-f485-4486-9fe8-3816aa7448ca",
+  "tables": {
+    "marketplace_skills": {
+      "name": "marketplace_skills",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "long_description": {
+          "name": "long_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "author_id": {
+          "name": "author_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "system_prompt_fragment": {
+          "name": "system_prompt_fragment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "workflow_rules": {
+          "name": "workflow_rules",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "documentation": {
+          "name": "documentation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "storage_url": {
+          "name": "storage_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "package_size": {
+          "name": "package_size",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "checksum": {
+          "name": "checksum",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "required_permission": {
+          "name": "required_permission",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'read-only'"
+        },
+        "has_scripts": {
+          "name": "has_scripts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "icon_url": {
+          "name": "icon_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "banner_url": {
+          "name": "banner_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "download_count": {
+          "name": "download_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "install_count": {
+          "name": "install_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "usage_count": {
+          "name": "usage_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "rating": {
+          "name": "rating",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "rating_count": {
+          "name": "rating_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "is_featured": {
+          "name": "is_featured",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "is_published": {
+          "name": "is_published",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "latest_version": {
+          "name": "latest_version",
+          "type": "text(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "search_vector": {
+          "name": "search_vector",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "compatibility": {
+          "name": "compatibility",
+          "type": "text(500)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "skills_slug_idx": {
+          "name": "skills_slug_idx",
+          "columns": ["slug"],
+          "isUnique": false
+        },
+        "skills_author_idx": {
+          "name": "skills_author_idx",
+          "columns": ["author_id"],
+          "isUnique": false
+        },
+        "skills_featured_idx": {
+          "name": "skills_featured_idx",
+          "columns": ["is_featured"],
+          "isUnique": false
+        },
+        "skills_downloads_idx": {
+          "name": "skills_downloads_idx",
+          "columns": ["download_count"],
+          "isUnique": false
+        },
+        "skills_created_idx": {
+          "name": "skills_created_idx",
+          "columns": ["created_at"],
+          "isUnique": false
+        },
+        "skills_published_idx": {
+          "name": "skills_published_idx",
+          "columns": ["is_published"],
+          "isUnique": false
+        },
+        "skills_storage_idx": {
+          "name": "skills_storage_idx",
+          "columns": ["storage_url"],
+          "isUnique": false
+        },
+        "skills_compatibility_idx": {
+          "name": "skills_compatibility_idx",
+          "columns": ["compatibility"],
+          "isUnique": false
+        },
+        "skills_metadata_idx": {
+          "name": "skills_metadata_idx",
+          "columns": ["metadata"],
+          "isUnique": false
+        }
+      }
+    },
+    "skill_versions": {
+      "name": "skill_versions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "skill_id": {
+          "name": "skill_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "text(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "system_prompt_fragment": {
+          "name": "system_prompt_fragment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "workflow_rules": {
+          "name": "workflow_rules",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "documentation": {
+          "name": "documentation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "storage_url": {
+          "name": "storage_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "package_size": {
+          "name": "package_size",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "checksum": {
+          "name": "checksum",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "change_log": {
+          "name": "change_log",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_prerelease": {
+          "name": "is_prerelease",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "compatibility": {
+          "name": "compatibility",
+          "type": "text(500)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "skill_versions_skill_idx": {
+          "name": "skill_versions_skill_idx",
+          "columns": ["skill_id"],
+          "isUnique": false
+        },
+        "skill_versions_unique": {
+          "name": "skill_versions_unique",
+          "columns": ["skill_id", "version"],
+          "isUnique": true
+        },
+        "skill_versions_created_idx": {
+          "name": "skill_versions_created_idx",
+          "columns": ["created_at"],
+          "isUnique": false
+        },
+        "skill_versions_storage_idx": {
+          "name": "skill_versions_storage_idx",
+          "columns": ["storage_url"],
+          "isUnique": false
+        },
+        "skill_versions_compatibility_idx": {
+          "name": "skill_versions_compatibility_idx",
+          "columns": ["compatibility"],
+          "isUnique": false
+        },
+        "skill_versions_metadata_idx": {
+          "name": "skill_versions_metadata_idx",
+          "columns": ["metadata"],
+          "isUnique": false
+        }
+      }
+    }
+  }
+}

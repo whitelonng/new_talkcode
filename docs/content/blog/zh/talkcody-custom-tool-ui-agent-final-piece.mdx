@@ -1,0 +1,107 @@
+---
+title: 继 MCP、Skills 之后，TalkCody 迈向通用 Agent 的最后一环：自定义交互 UI
+description: 为什么通用 Agent 还缺一块交互拼图，以及 TalkCody 如何用 Custom Tool 把“中间态 UI”变成一等能力。
+author: Kaisen Kang
+date: 2026-01-19
+tags: [Agent, Custom Tools, MCP, Skills, UI]
+---
+
+通用 Agent 的能力拼图，过去两年被拼上了很多重要块：MCP 让工具接入标准化，Skills 让知识和流程可复用。但真正复杂的任务往往需要“中间交互”，而不是只等最终结果。TalkCody 用 Custom Tool 把这块补齐：让**工具执行过程本身也能自定义 UI**，从而把 Agent 从“会调用工具”升级为“会对话式协作”。
+
+下面从架构拆解、痛点分析、实现方式到组合打法，讲清这件事。
+
+## 1. Agent UI 的组成：中间 Tool 交互 UI + 结果 UI
+
+从用户视角看，Agent UI 其实包含两层：
+
+1. **中间 Tool 交互 UI**：工具执行过程中，给用户提示、确认、参数补全、表单选择、步骤反馈。
+2. **结果 UI**：工具执行完成后输出结果，形式可以是 Markdown、表格、流程图、PDF、网页、PPT 等。
+
+结果 UI 在行业里已经广泛存在（Markdown/报告卡片/表格等）。真正稀缺的是“**中间 Tool 交互 UI**”：当工具正在执行或需要用户介入时，能不能展示可视化、可交互的组件？这恰好是 TalkCody [Custom Tool](/zh/docs/features/custom-tools) 的核心能力和优势之一：通过 `renderToolDoing` 和 `renderToolResult` 为工具提供完全自定义 UI 渲染能力，而不仅仅是文本提示。
+
+## 2. 为什么 Skills 和 MCP 仍难以实现自定义交互 UI
+
+从定位上看，Skills 和 MCP 解决的是“能力接入”和“知识复用”，但不是“交互渲染”。
+
+- **MCP** 是一个连接外部工具与数据源的开放协议，关注的是“工具接入与调用标准化”。它的核心是协议层互通，而不是 UI 渲染规范。TalkCody 的文档也明确：MCP 服务器是外部工具，仍不具备 UI 定制能力。TalkCody [MCP 服务器文档](/zh/docs/features/mcp-servers) 详细说明了这一点。
+- **Skills** 是可移植的“知识与流程封装”，更像是 SOP + 资源集合，不强调结构化参数与交互 UI。TalkCody [Skills 文档](/zh/docs/features/skills) 进一步阐述了这一点。
+
+行业层面，交互式 Agent UI 的协议正在出现，但仍处于“刚开始标准化”的阶段。例如 MCP Apps Extension 和 MCP-UI 仍处于提案/扩展期，AG-UI 也在推动事件式 UI 协议。它们说明“交互 UI”是方向，但离“普遍可用、内置到 Agent 生态”还有距离。参考：
+- [MCP Apps Extension 提案（Model Context Protocol Blog）](https://blog.modelcontextprotocol.io/posts/2025-11-21-mcp-apps/)
+- [MCP-UI 项目介绍](https://mcpui.dev/guide/introduction)
+- [AG-UI Overview](https://docs.ag-ui.com/introduction)
+
+因此，Skills 和 MCP 解决“能做什么”，但无法解决“做的过程中如何交互”。这就是 Custom Tool 想解决的核心问题之一。
+
+## 3. TalkCody 如何通过 Custom Tool 实现自定义交互 UI
+
+TalkCody 的 Custom Tool 不只是“写个工具函数”，而是把“**执行逻辑 + UI 渲染 + 权限控制 + 参数校验**”当作一套完整能力。
+
+**关键点**如下：
+
+1. **内置 UI 渲染能力**
+   - Custom Tool 可定义 `renderToolDoing` 和 `renderToolResult`，分别渲染“执行中”和“执行后”的 UI。
+   - 这使得工具执行过程中可以显示表单、进度、分支选择、参数确认等交互组件。
+
+2. **结构化参数 + Zod 校验**
+   - Custom Tool 使用 Zod schema 定义参数结构，避免自然语言歧义。
+
+3. **权限与沙箱**
+   - Custom Tool 支持 `fs/net/command` 权限声明，并在 Playground 里通过 sandbox 进行控制。
+
+4. **工具注册与 UI 适配**
+   - Custom Tool 会被适配成 `ToolWithUI` 类型，确保 UI 渲染被前端统一接管（例如 `renderToolDoing` / `renderToolResult` 的调用链）。
+换句话说，TalkCody 把“工具交互 UI”作为工具定义的一部分，而不是后置的 UI hack。这就是它能真正实现“中间交互 UI”的关键。
+
+两个自定义 tool 的 UI 示例：
+
+![get-weather-tool](https://cdn.talkcody.com/images/tool-city-weather.png)
+
+![get-chain-tool](https://cdn.talkcody.com/images/tool-get-chain.png)
+
+
+## 4. 自定义 Agent vs Agent Skills：什么时候用哪一个？
+
+TalkCody 把 Agent 和 Skills 放在了不同层级：
+
+- **[自定义 Agent](/zh/docs/features/ai-agents)**：是“角色级”定义，包含系统提示、工具集、默认模型、规则等，适合形成一个完整的专业角色。
+- **Agent Skills**：是“能力级”复用，把 SOP、模板、脚本打包成可复用能力，不改变 Agent 的整体身份和工具集。
+
+**什么时候用自定义 Agent？**
+- 你需要一个“长期稳定的专业角色”，例如：安全审计员、测试生成器、产品 PRD 写手。
+- 你需要独立的模型、工具集与权限边界（比如写权限 vs 只读权限）。
+- 任务需要连续对话、多步骤计划、固定输出格式。
+
+**什么时候用 Skills？**
+- 你只想注入某些流程或知识片段，且希望复用到多个 Agent。
+- 你希望“能力可组合”，比如在不同 Agent 里共享同一个风控 SOP 或代码规范。
+- 你不需要改变 Agent 的角色与工具边界，只需要补充上下文。
+
+Skills 更像“插件能力包”，Agent 更像“专职角色”。两者组合才是高效的工程化路径。
+
+## 5. TalkCody 如何基于 Custom Agent + Custom Tool + MCP + Skills 实现任意 AI Agent
+
+最终的通用 Agent 不是单点能力，而是组合：
+
+1. **Custom Agent** 决定角色与协作边界（模型、规则、工具集）。
+2. **Custom Tool** 提供深度可交互 UI 的核心能力，让复杂流程在对话中可视化、可确认、可修正。
+3. **MCP** 负责连接外部真实系统（数据库、工单系统、CRM、CI/CD）。
+4. **Skills** 负责沉淀流程、模板、组织知识。
+
+这四者组合之后，TalkCody 就能实现 “任意 AI Agent”：
+
+- 要做数据分析：MCP 拉数据，Custom Tool 展示表格/图表，Skills 执行公司统计 SOP。
+- 要做运营流程：Custom Agent 定义角色，Custom Tool 做审批交互，MCP 写回工单系统。
+- 要做复杂研发任务：Agent 负责计划与执行，Custom Tool 做评审/确认 UI，Skills 提供工程规范。
+
+**结论**：MCP 和 Skills 解决“接入能力”和“沉淀知识”，Custom Tool 解决“交互界面”，Custom Agent 负责“角色组织”。这四块拼齐，TalkCody 真正实现了迈向“通用 AI Agent”。
+
+## 参考资料
+
+- [TalkCody Custom Tools 文档](/zh/docs/features/custom-tools)
+- [TalkCody MCP 服务器文档](/zh/docs/features/mcp-servers)
+- [TalkCody AI Agents 文档](/zh/docs/features/ai-agents)
+- [TalkCody Skills 文档](/zh/docs/features/skills)
+- [MCP Apps Extension 提案](https://blog.modelcontextprotocol.io/posts/2025-11-21-mcp-apps/)
+- [MCP-UI 介绍](https://mcpui.dev/guide/introduction)
+- [AG-UI Overview](https://docs.ag-ui.com/introduction)

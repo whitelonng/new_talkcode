@@ -1,0 +1,83 @@
+---
+title: Commands
+description: TalkCody built-in commands start with / and are used to trigger task management and creation flows.
+icon: Command
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## What are Built-in Commands
+
+Built-in commands are TalkCody chat instructions that start with `/`, primarily used for task management and creation flows (unlike Tools, commands do not directly read/write files or execute terminal commands).
+
+## When to Use
+
+- Use `/new` when you need to start a new task
+- Use `/compact` when the current task context is too long and needs to be compressed
+- Use `/init` when the project doesn't have AI specification files and needs initialization
+- Use `/create-tool` when you need to create a custom tool
+- Use `/create-agent` when you need to create a custom agent
+- Use `/create-skill` when you need to create a custom skill
+
+## Commands List
+
+| Command | Purpose | When to Use | Examples |
+|---------|---------|-------------|----------|
+| `/new` | Create new task | Start a new work context | `/new` |
+| `/compact` | Compress current task context | Task dialogue is long, need to clean up context | `/compact` |
+| `/init` | Initialize project specification | When project lacks AGENTS.md guide | `/init` / `/init web application` |
+| `/create-tool` | Create custom tool | When you need new reusable tool capability | `/create-tool` / `/create-tool weather fetcher` |
+| `/create-agent` | Create custom agent | When you need a new specialized agent | `/create-agent` / `/create-agent code reviewer` |
+| `/create-skill` | Create custom skill | When you need a new local skill | `/create-skill` / `/create-skill design system coach` |
+
+## Detailed Description
+
+### /new
+
+- **Purpose**: Create a new task.
+- **When to Use**: When you need to switch to a new problem or workflow.
+
+### /compact
+
+- **Purpose**: Manually compress the current task context.
+- **Aliases**: `/compress`.
+- **When to Use**: When the current task dialogue is too long and you want to reduce context usage.
+- **Note**: Only available when there is a "current task".
+
+### /init
+
+- **Purpose**: Initialize the project and generate an AI collaboration guide `AGENTS.md`.
+- **Parameters**: Optional `type` (project type, such as web, api, mobile, etc.).
+- **Aliases**: `/initialize`.
+- **When to Use**: When a new project is just created or lacks `AGENTS.md`.
+
+### /create-tool
+
+- **Purpose**: Create and install a custom tool.
+- **Parameters**: Optional `name` (tool name or brief description).
+- **Aliases**: `/new-tool`, `/tool`.
+- **When to Use**: When you need to extend new tool capabilities.
+
+### /create-agent
+
+- **Purpose**: Create and register a local agent.
+- **Parameters**: Optional `name` (agent name or brief description).
+- **Aliases**: `/new-agent`, `/agent`.
+- **When to Use**: When you need a specialized workflow agent.
+
+### /create-skill
+
+- **Purpose**: Create a local Skill (`SKILL.md`).
+- **Parameters**: Optional `name` (skill name or brief description).
+- **Aliases**: `/new-skill`, `/skill`.
+- **When to Use**: When you need to codify reusable knowledge and processes.
+
+## How to Use
+
+1. Type `/` in the chat input box and select a command
+2. Add necessary parameters (such as `/init web application`)
+3. After sending, the system will start the corresponding guidance process
+
+<Callout type="info">
+Built-in commands are used to trigger flows or task management; for file and terminal operations, please use Tools.
+</Callout>

@@ -1,0 +1,172 @@
+---
+title: Use Claude Models with Claude Pro/Max Subscription
+sidebarTitle: Claude Pro
+description: Use Claude models with your Claude Pro/Max subscription
+icon: Anthropic
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+<Callout type="error">
+This feature has been deprecated! There is a risk of your account being banned by Anthropic.
+</Callout>
+
+If you already have a **Claude Pro** ($20/month) or **Claude Max** ($100-200/month) subscription, you can use your subscription quota directly in TalkCody without purchasing additional API credits.
+
+## How It Works
+
+TalkCody uses the official **OAuth authentication** provided by Anthropic, which is the same authentication method used by official Claude clients (claude.ai, Claude desktop app).
+
+After logging in via OAuth, TalkCody can use the model quota included in your subscription, including Claude Sonnet, Claude Opus, and other models.
+
+## Terms of Use & Disclaimer
+
+<Callout type="warn">
+**Important**: Please read the following terms carefully before using this feature.
+</Callout>
+
+This feature is designed for **personal development use** only, limited to your own Claude Pro/Max subscription. By using this feature, you agree to:
+
+### Permitted Uses
+
+- ✅ Personal coding assistance and productivity enhancement
+- ✅ Compliance with Anthropic's rate limits and usage policies
+- ✅ Adherence to [Anthropic Usage Policy](https://www.anthropic.com/policies)
+
+### Prohibited Uses
+
+- ❌ Commercial API resale or white-label services
+- ❌ High-concurrency automated requests beyond personal use
+- ❌ Using one subscription to serve multiple users
+- ❌ Any behavior that violates Anthropic's Acceptable Use Policy
+
+<Callout type="info">
+This feature uses **Anthropic's official OAuth authentication** (the same method as official Claude clients). However, users are responsible for ensuring their usage complies with Anthropic's Terms of Service.
+</Callout>
+
+### Disclaimer
+
+- This project is **not affiliated with Anthropic in any way**
+- Claude, Claude Pro, Claude Max are trademarks of Anthropic
+- This is an independent open-source project, not endorsed, sponsored, or affiliated with Anthropic
+- Violation of Anthropic's Terms of Service may result in account restrictions
+
+**For production or commercial use, please purchase official API credits through the [Anthropic API](https://console.anthropic.com/).**
+
+---
+
+## Configuration Steps
+
+<Steps>
+
+<Step>
+### Open Settings
+
+1. Launch TalkCody
+2. Click the **Settings** icon on the left
+3. Navigate to the **API Keys** page
+4. Find the **Anthropic (Claude)** section
+
+</Step>
+
+<Step>
+### Login with Claude
+
+In the Anthropic settings area, click the **Login with Claude** button.
+
+The system will display an authorization URL and automatically open it in your browser.
+
+</Step>
+
+<Step>
+### Complete Browser Authorization
+
+1. On the opened browser page, log in with your Claude Pro/Max account
+2. Review the scope of permissions requested
+3. Click the **Authorize** button to grant authorization
+
+</Step>
+
+<Step>
+### Paste Authorization Code
+
+After successful authorization, the browser will display an authorization code (format like `code#state`).
+
+1. Copy the complete authorization code
+2. Return to TalkCody
+3. Paste the authorization code in the popup input box
+4. Click **Confirm**
+
+</Step>
+
+<Step>
+### Verify Connection
+
+After successful authorization, you will see:
+
+- Connection status shows as **Connected**
+- You can start using Claude models for conversations
+
+</Step>
+
+</Steps>
+
+<Callout type="success">
+After successful OAuth login, tokens will refresh automatically, no need to log in repeatedly.
+</Callout>
+
+---
+
+## View Usage
+
+TalkCody provides a **Usage Dashboard** that allows you to monitor your Claude Pro/Max subscription usage in real-time.
+
+### Access Usage Dashboard
+
+1. Click the **Usage** icon in the left navigation bar
+2. Select the **Claude** tab to view Claude usage
+
+### Usage Metrics Explained
+
+
+![Claude Usage Dashboard](https://cdn.talkcody.com/images/claude-usage.png)
+
+
+The dashboard displays the following metrics:
+
+#### 5-Hour Session Usage
+
+- **Content**: API usage percentage in the last 5 hours
+- **Reset Time**: Time until next reset
+- **Color Indicators**:
+  - Green (< 50%): Normal usage
+  - Yellow (50-80%): Moderate usage
+  - Orange (80-95%): High usage
+  - Red (>95%): Approaching limit
+
+#### 7-Day Weekly Usage
+
+- **Content**: API usage percentage in the last 7 days
+- **Reference Metric**: Helps you understand your overall weekly usage
+
+#### Additional Usage (if applicable)
+
+- **Current Spending**: Additional fees already used
+- **Budget Limit**: Additional fee cap you've set
+- **Progress Bar**: Shows additional fee usage progress
+
+### Refresh Usage
+
+Click the **Refresh** button in the top right corner to manually update usage data.
+
+---
+
+## FAQ
+
+### What's the difference between OAuth authentication and API Key?
+
+| Method | Pros | Cons |
+|--------|------|------|
+| OAuth (Subscription) | Use existing subscription, no additional payment needed | Personal use only, rate limited |
+| API Key | Higher rate limits, suitable for commercial use | Requires separate API credit purchase |

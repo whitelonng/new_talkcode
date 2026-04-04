@@ -1,0 +1,404 @@
+{
+  "version": 1,
+  "provider_id": "google",
+  "protocol": "OpenAiCompatible",
+  "model": "gemini-2.5-flash",
+  "endpoint_path": "v1beta/chat/completions",
+  "request": {
+    "method": "POST",
+    "url": "https://generativelanguage.googleapis.com/v1beta/chat/completions",
+    "headers": {
+      "authorization": "REDACTED",
+      "content-type": "application/json"
+    },
+    "body": {
+      "max_tokens": 15000,
+      "messages": [
+        {
+          "content": "\nYou are a smart AI assistant to give user accurate answers.\n\n## ⚠️ CRITICAL: READ-ONLY OPERATIONS ONLY\n\n**IMPORTANT**: You are a read-only agent. All your tools must ONLY be used for reading and gathering information. You MUST NOT:\n- Create, modify, or delete any files\n- Execute commands that change system state\n- Perform any write operations\n- Make any modifications to the system\n\nYour tools are designed for information gathering only. Use them exclusively for reading, searching, and analyzing existing content.\n\nYour answer must follow the following rules:\n\n1. Write an accurate, detailed, and comprehensive response to the user's QUESTION.\n2. Your answer must be as detailed and organized as possible, Prioritize the use of lists, tables, and quotes to organize output structures.\n3. Your answer must be precise, of high-quality, and written by an expert using an unbiased and journalistic tone.\n4. You MUST ADHERE to the following formatting instructions:\n    - Use markdown to format paragraphs, lists, tables, and quotes whenever possible.\n    - Use headings level 4 to separate sections of your response, like \"#### Header\", but NEVER start an answer with a heading or title of any kind.\n    - Use single new lines for lists and double new lines for paragraphs.\n5. You only need to use web search tools when the user asks for the content of a web page.\n\nToday's date is 2026-02-05T06:39:37.004Z.\n\n\n---\n\nOUTPUT FORMAT INSTRUCTIONS:\nOutput the response in standard Markdown with headings, lists, and code blocks.\n\nIMPORTANT: You MUST respond in English.",
+          "role": "system"
+        },
+        {
+          "content": "│     Container ID:  containerd://710d4f0549979de25fccfe0799fb2329662e277f98ee58dc3782528741ecba80                                                                                                         │\n│     Image:         starrocks/fe-ubuntu:3.4.4                                                                                                                                                             │\n│     Image ID:      docker.io/starrocks/fe-ubuntu@sha256:832ef5b44f6dd2cb1da456df66bb2b1ff15e7ecfa82d40c9e498d41adcd94eac                                                                                 │\n\n\nubuntu 系统是不是都是X86的？",
+          "role": "user"
+        },
+        {
+          "content": null,
+          "role": "assistant",
+          "tool_calls": [
+            {
+              "function": {
+                "arguments": "{\"query\":\"Ubuntu supported architectures\"}",
+                "name": "webSearch"
+              },
+              "id": "function-call-17331175902947498761",
+              "type": "function"
+            }
+          ]
+        },
+        {
+          "content": "[\n  {\n    \"title\": \"SupportedArchitectures - Community Help Wiki\",\n    \"url\": \"https://help.ubuntu.com/community/SupportedArchitectures\",\n    \"content\": \"SupportedArchitectures - Community Help Wiki\\n* [Partners] \\n* [Support] \\n* [Community] \\n* [Ubuntu.com] \\n# [Ubuntu Documentation] \\n* [Official Documentation] \\n* [Community Help Wiki] \\n* [Contribute] \\n* [Page History] \\n* [Login to edit] \\n# [SupportedArchitectures] \\nContents\\n1. [x86\\\\_64] \\n2. [ARM] \\n3. [POWER (OpenPOWER) Servers] \\n4. [S390X (IBM Mainframe Systems)] \\n5. [x86 (legacy)] \\n6. [PowerPC (legacy)] \\n7. [SPARC64 (legacy)] \\n8. [Multiprocessor Machines] \\n9. [Related Links] \\n|\\nUbuntu is currently...\"\n  },\n  {\n    \"title\": \"Supported architectures - Ubuntu project documentation\",\n    \"url\": \"https://documentation.ubuntu.com/project/how-ubuntu-is-made/concepts/supported-architectures/\",\n    \"content\": \"Supported architectures - Ubuntu project documentation\\n* [![Logo] \\nUbuntu project\\n] \\n* [documentation.ubuntu.com] \\n* [More resources] \\n* [Discourse] \\n* [Matrix] \\n* [GitHub] \\nContentsMenuExpandLight modeDark modeAuto light/dark, in light modeAuto light/dark, in dark mode[Skip to content] \\n[\\nUbuntu project documentation\\n] \\n[Ubuntu project documentation] \\n* [How Ubuntu is made] \\n* [The Ubuntu Community] \\n* [Community support] \\n* [Matrix] \\n* [Rooms and spaces] \\n* [Room publishing] \\n* [Moderation and...\"\n  },\n  {\n    \"title\": \"Ubuntu release cycle\",\n    \"url\": \"https://ubuntu.com/about/release-cycle\",\n    \"content\": \"Ubuntu release cycle\\n| Ubuntu\\nYour submission was sent successfully![*Close*] \\nThank you for contacting us. A member of our team will be in touch shortly.[*Close*] \\nYou have successfully unsubscribed![*Close*] \\nThank you for signing up for our newsletter!\\nIn these regular emails you will find the latest updates about\\nUbuntu and upcoming events where you can meet our team.[*Close*] \\nYour preferences have been successfully updated.[*Close notification*] \\nPlease try again or[file a bug report.] [*C...\"\n  },\n  {\n    \"title\": \"Introducing architecture variants: amd64v3 now available in Ubuntu ...\",\n    \"url\": \"https://itsfoss.community/t/introducing-architecture-variants-amd64v3-now-available-in-ubuntu-25-10/14988\",\n    \"content\": \"Introducing architecture variants: amd64v3 now available in Ubuntu 25.10 - Ubuntu - It&#39;s FOSS Community\"\n  },\n  {\n    \"title\": \"Ubuntu 25.10 Offers x86-64-v3 Architecture Variant Packages\",\n    \"url\": \"https://www.omgubuntu.co.uk/2025/11/ubuntu-amd64v3-x86-64-v3-support\",\n    \"content\": \"[Skip to content] \\n\\n**Ubuntu has added a new x86-64-v3 ‘architecture variant’ for Ubuntu 25.10, configuring its build infrastructure and package managers to support compiling and installing optimised packages.**\\n\\n_“By making changes to dpkg, apt and Launchpad, we are able to build multiple versions of a package, each for a different level of the x86-64 architecture, meaning we can have packages that specifically target x86-64-v3,”_ Canonical’s Michael Hudson-Doyle [says].\\n\\n> Canonical will offer...\"\n  },\n  {\n    \"title\": \"We're very excited to introduce architecture variants in Ubuntu! In ...\",\n    \"url\": \"https://www.facebook.com/ubuntulinux/posts/were-very-excited-to-introduce-architecture-variants-in-ubuntu-in-ubuntu-2510-yo/2325643569589693/\",\n    \"content\": \"Ubuntu - We’re very excited to introduce architecture...\\n**\\nFacebook\\n[\\nLog In\\n] \\n## Ubuntu&#x27;s Post\\n[\\n] \\n### [**Ubuntu**] \\n[October 30, 2025] ·Shared with Public\\nWe’re very excited to introduce architecture variants in Ubuntu!\\nIn Ubuntu 25.10, you can now opt in to packages optimized for x86-64-v3 architecture.\\nLearn more about getting more out of your processor without compromising compatibility:[https://bit.ly/3J87wbW] \\n[\\n![May be a graphic of text that says &#x27;Canonical Discourse Ubuntu...\"\n  },\n  {\n    \"title\": \"Architectures\",\n    \"url\": \"https://documentation.ubuntu.com/lxd/en/stable-5.21/architectures/\",\n    \"content\": \"Architectures\\n* [![Logo] \\nLXD\\n] \\n* [canonical.com/lxd] \\n* [More resources] \\n* [Install LXD] \\n* [Manage LXD] \\n* [Forum] \\n* [GitHub] \\nContentsMenuExpandLight modeDark modeAuto light/dark, in light modeAuto light/dark, in dark mode[Skip to content] \\n[\\nLXD\\n] \\n[] \\n* [LXD] \\n* [Tutorial] \\n* [How-to guides] \\n* [Getting started] \\n* [Install LXD] \\n* [Initialize LXD] \\n* [Access the UI] \\n* [Access documentation locally] \\n* [LXD server and client] \\n* [Expose LXD to the network] \\n* [Configure the LXD server] ...\"\n  },\n  {\n    \"title\": \"Architectures\",\n    \"url\": \"https://documentation.ubuntu.com/lxd/en/latest/architectures/\",\n    \"content\": \"[Skip to content] \\n\\n[Back to top] \\n\\n[View this page] \\n\\nToggle Light / Dark / Auto color theme\\n\\nToggle table of contents sidebar\\n\\n# Architectures [¶] \\n\\nLXD can run on just about any architecture that is supported by the Linux kernel and by Go.\\n\\nSome entities in LXD are tied to an architecture, for example, the instances, instance snapshots and images.\\n\\nThe following table lists all supported architectures including their unique identifier and the name used to refer to them.\\nThe architecture names...\"\n  },\n  {\n    \"title\": \"CPU compatibility matrix for Ubuntu | Ubuntu\",\n    \"url\": \"https://ubuntu.com/cpu-compatibility\",\n    \"content\": \"CPU compatibility matrix for Ubuntu\\n| Ubuntu\\nYour submission was sent successfully![*Close*] \\nThank you for contacting us. A member of our team will be in touch shortly.[*Close*] \\nYou have successfully unsubscribed![*Close*] \\nThank you for signing up for our newsletter!\\nIn these regular emails you will find the latest updates about\\nUbuntu and upcoming events where you can meet our team.[*Close*] \\nYour preferences have been successfully updated.[*Close notification*] \\nPlease try again or[file a b...\"\n  },\n  {\n    \"title\": \"Supported architectures - Ubuntu documentation\",\n    \"url\": \"https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/reference/architectures/\",\n    \"content\": \"Supported architectures - Ubuntu documentation\\n* [![Logo] \\nUbuntu\\n] \\n* [ubuntu.com] \\n* [More resources] \\n* [Forum] \\n* [GitHub] \\nContentsMenuExpandLight modeDark modeAuto light/dark, in light modeAuto light/dark, in dark mode\\nHide navigation sidebar\\nHide table of contents sidebar\\n[Skip to content] \\nToggle site navigation sidebar\\n**\\n[\\nUbuntu documentation\\n] \\nToggle Light / Dark / Auto color theme\\nToggle table of contents sidebar\\n**\\n[Ubuntu documentation] \\n* [Tutorial] \\nToggle navigation of Tutoria...\"\n  }\n]",
+          "role": "tool",
+          "tool_call_id": "function-call-17331175902947498761"
+        }
+      ],
+      "model": "gemini-2.5-flash",
+      "stream": true,
+      "stream_options": {
+        "include_usage": true
+      },
+      "temperature": 1.0,
+      "tools": [
+        {
+          "function": {
+            "description": "Search the web for comprehensive and up-to-date information.\n\nQuery Optimization Guidelines:\n- Extract the core topic/entity from questions (e.g., \"who is Elon Musk\" → \"Elon Musk\", \"what is React\" → \"React\")\n- For comparisons (e.g., \"X vs Y\"), search for both terms together to get comparison results\n- Remove question words (who, what, when, where, why, how) but keep context words that add meaning\n- Keep technical terms, version numbers, and specific qualifiers (e.g., \"React 19 features\" stays as-is)\n- For \"latest\" or \"recent\" queries, include temporal keywords (e.g., \"latest AI models 2025\")\n- Preserve programming language/framework context (e.g., \"error handling in Rust\" → \"Rust error handling\")\n- For debugging queries, keep error messages and stack traces intact\n- Use multiple searches only when topics are completely unrelated, not for comparisons",
+            "name": "webSearch",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "query": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "description": "Fetch and extract content from a web url",
+            "name": "webFetch",
+            "parameters": {
+              "additionalProperties": false,
+              "properties": {
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "function"
+        }
+      ],
+      "top_p": 0.949999988079071
+    }
+  },
+  "response": {
+    "type": "stream",
+    "status": 200,
+    "headers": {
+      "content-type": "text/event-stream",
+      "x-xss-protection": "0",
+      "vary": "Origin,Accept-Encoding",
+      "server-timing": "gfet4t7; dur=457",
+      "date": "Thu, 05 Feb 2026 06:42:56 GMT",
+      "p3p": "CP=\"This is not a P3P policy! See g.co/p3phelp for more info.\"",
+      "x-frame-options": "SAMEORIGIN",
+      "accept-ranges": "none",
+      "cache-control": "private",
+      "expires": "Thu, 05 Feb 2026 06:42:56 GMT",
+      "x-content-type-options": "nosniff",
+      "server": "scaffolding on HTTPServer2",
+      "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+      "transfer-encoding": "chunked",
+      "set-cookie": "NID=528=PHgvjJLx4fyzLFATWhCQpPcAfxRaVFoBl8Yr50TEmiya_h-r3knyLkXstmAqOzMwGovGL2fjwojV__oWj3faGlpoXH6zc59Vq1AwmkiiDHThJl-MrCGKeyn89otocgOgqyefMZ2M1u533F9_jC8jbncyR1a_LYsP1Z_9Vf2k371QZHK5mGfmrGCZPbBBlHOOUIjL5yy0; expires=Fri, 07-Aug-2026 06:42:56 GMT; path=/; domain=.generativelanguage.googleapis.com; HttpOnly"
+    },
+    "sse_events": [
+      {
+        "event": null,
+        "data": "{\"choices\":[{\"delta\":{\"content\":\"Ubuntu\",\"role\":\"assistant\"},\"index\":0}],\"created\":1770273776,\"id\":\"8DuEab7ZOPzVz7IP5vvW8Ao\",\"model\":\"gemini-2.5-flash\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":1,\"prompt_tokens\":2916,\"total_tokens\":2917}}"
+      },
+      {
+        "event": null,
+        "data": "{\"choices\":[{\"delta\":{\"content\":\" officially supports a variety of architectures, not just x86. While x86 (\",\"role\":\"assistant\"},\"index\":0}],\"created\":1770273777,\"id\":\"8DuEab7ZOPzVz7IP5vvW8Ao\",\"model\":\"gemini-2.5-flash\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":20,\"prompt_tokens\":2916,\"total_tokens\":2936}}"
+      },
+      {
+        "event": null,
+        "data": "{\"choices\":[{\"delta\":{\"content\":\"specifically x86-64, also known as `amd64`) is very common, Ubuntu also provides support for other CPU architectures.\\n\\n#### Currently Supported Architectures for Ubuntu\\n\\n*   **x86-64 (amd64\",\"role\":\"assistant\"},\"index\":0}],\"created\":1770273777,\"id\":\"8DuEab7ZOPzVz7IP5vvW8Ao\",\"model\":\"gemini-2.5-flash\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":71,\"prompt_tokens\":2916,\"total_tokens\":2987}}"
+      },
+      {
+        "event": null,
+        "data": "{\"choices\":[{\"delta\":{\"content\":\")**: This is the most prevalent architecture for desktop and server computers, and it is widely supported by Ubuntu.\\n*   **ARM**: Ubuntu supports various ARM-based systems, which are common in embedded devices, single-board computers (\",\"role\":\"assistant\"},\"index\":0}],\"created\":1770273777,\"id\":\"8DuEab7ZOPzVz7IP5vvW8Ao\",\"model\":\"gemini-2.5-flash\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":119,\"prompt_tokens\":2916,\"total_tokens\":3035}}"
+      },
+      {
+        "event": null,
+        "data": "{\"choices\":[{\"delta\":{\"content\":\"like Raspberry Pi), and some servers.\\n*   **POWER (OpenPOWER) Servers**: Ubuntu provides support for servers utilizing the OpenPOWER architecture.\\n*   **S390X (IBM Mainframe Systems)**: Ubuntu is also\",\"role\":\"assistant\"},\"index\":0}],\"created\":1770273777,\"id\":\"8DuEab7ZOPzVz7IP5vvW8Ao\",\"model\":\"gemini-2.5-flash\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":168,\"prompt_tokens\":2916,\"total_tokens\":3084}}"
+      },
+      {
+        "event": null,
+        "data": "{\"choices\":[{\"delta\":{\"content\":\" available for IBM mainframe systems, which use the S390X architecture.\\n\\n#### Legacy and Previously Supported Architectures\\n\\nHistorically, Ubuntu has also supported other architectures, though some are no longer actively maintained for newer releases:\\n\\n*   **x8\",\"role\":\"assistant\"},\"index\":0}],\"created\":1770273777,\"id\":\"8DuEab7ZOPzVz7IP5vvW8Ao\",\"model\":\"gemini-2.5-flash\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":219,\"prompt_tokens\":2916,\"total_tokens\":3135}}"
+      },
+      {
+        "event": null,
+        "data": "{\"choices\":[{\"delta\":{\"content\":\"6 (i386)**: This refers to 32-bit x86 processors. While still supported for some older Ubuntu releases, newer versions primarily focus on x86-64.\\n*   **PowerPC\",\"role\":\"assistant\"},\"index\":0}],\"created\":1770273778,\"id\":\"8DuEab7ZOPzVz7IP5vvW8Ao\",\"model\":\"gemini-2.5-flash\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":267,\"prompt_tokens\":2916,\"total_tokens\":3183}}"
+      },
+      {
+        "event": null,
+        "data": "{\"choices\":[{\"delta\":{\"content\":\" (powerpc)**: Ubuntu previously supported PowerPC-based systems.\\n*   **SPARC64 (sparc64)**: Support for SPARC64 architecture was also available in earlier Ubuntu versions.\\n\\nTherefore, while x86\",\"role\":\"assistant\"},\"index\":0}],\"created\":1770273778,\"id\":\"8DuEab7ZOPzVz7IP5vvW8Ao\",\"model\":\"gemini-2.5-flash\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":318,\"prompt_tokens\":2916,\"total_tokens\":3234}}"
+      },
+      {
+        "event": null,
+        "data": "{\"choices\":[{\"delta\":{\"content\":\" is a major platform for Ubuntu, it is not the only one. The image you provided (`starrocks/fe-ubuntu:3.4.4`) would typically be built for the `amd64` (x86-\",\"role\":\"assistant\"},\"index\":0}],\"created\":1770273778,\"id\":\"8DuEab7ZOPzVz7IP5vvW8Ao\",\"model\":\"gemini-2.5-flash\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":366,\"prompt_tokens\":2916,\"total_tokens\":3282}}"
+      },
+      {
+        "event": null,
+        "data": "{\"choices\":[{\"delta\":{\"content\":\"64) architecture if it's a standard container for servers, but the Ubuntu operating system itself has broader architectural support.\",\"role\":\"assistant\"},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1770273778,\"id\":\"8DuEab7ZOPzVz7IP5vvW8Ao\",\"model\":\"gemini-2.5-flash\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":391,\"prompt_tokens\":2916,\"total_tokens\":3307}}"
+      },
+      {
+        "event": null,
+        "data": "[DONE]"
+      }
+    ]
+  },
+  "test_input": {
+    "model": "gemini-2.5-flash",
+    "messages": [
+      {
+        "role": "system",
+        "content": "\nYou are a smart AI assistant to give user accurate answers.\n\n## ⚠️ CRITICAL: READ-ONLY OPERATIONS ONLY\n\n**IMPORTANT**: You are a read-only agent. All your tools must ONLY be used for reading and gathering information. You MUST NOT:\n- Create, modify, or delete any files\n- Execute commands that change system state\n- Perform any write operations\n- Make any modifications to the system\n\nYour tools are designed for information gathering only. Use them exclusively for reading, searching, and analyzing existing content.\n\nYour answer must follow the following rules:\n\n1. Write an accurate, detailed, and comprehensive response to the user's QUESTION.\n2. Your answer must be as detailed and organized as possible, Prioritize the use of lists, tables, and quotes to organize output structures.\n3. Your answer must be precise, of high-quality, and written by an expert using an unbiased and journalistic tone.\n4. You MUST ADHERE to the following formatting instructions:\n    - Use markdown to format paragraphs, lists, tables, and quotes whenever possible.\n    - Use headings level 4 to separate sections of your response, like \"#### Header\", but NEVER start an answer with a heading or title of any kind.\n    - Use single new lines for lists and double new lines for paragraphs.\n5. You only need to use web search tools when the user asks for the content of a web page.\n\nToday's date is 2026-02-05T06:39:37.004Z.\n\n\n---\n\nOUTPUT FORMAT INSTRUCTIONS:\nOutput the response in standard Markdown with headings, lists, and code blocks.\n\nIMPORTANT: You MUST respond in English.",
+        "providerOptions": {
+          "anthropic": {
+            "cacheControl": {
+              "type": "ephemeral"
+            }
+          }
+        }
+      },
+      {
+        "role": "user",
+        "content": "│     Container ID:  containerd://710d4f0549979de25fccfe0799fb2329662e277f98ee58dc3782528741ecba80                                                                                                         │\n│     Image:         starrocks/fe-ubuntu:3.4.4                                                                                                                                                             │\n│     Image ID:      docker.io/starrocks/fe-ubuntu@sha256:832ef5b44f6dd2cb1da456df66bb2b1ff15e7ecfa82d40c9e498d41adcd94eac                                                                                 │\n\n\nubuntu 系统是不是都是X86的？",
+        "providerOptions": null
+      },
+      {
+        "role": "assistant",
+        "content": [
+          {
+            "type": "tool-call",
+            "toolCallId": "function-call-17331175902947498761",
+            "toolName": "webSearch",
+            "input": {
+              "query": "Ubuntu supported architectures"
+            },
+            "provider_metadata": null
+          }
+        ],
+        "providerOptions": null
+      },
+      {
+        "role": "tool",
+        "content": [
+          {
+            "type": "tool-result",
+            "toolCallId": "function-call-17331175902947498761",
+            "toolName": "webSearch",
+            "output": {
+              "type": "text",
+              "value": "[\n  {\n    \"title\": \"SupportedArchitectures - Community Help Wiki\",\n    \"url\": \"https://help.ubuntu.com/community/SupportedArchitectures\",\n    \"content\": \"SupportedArchitectures - Community Help Wiki\\n* [Partners] \\n* [Support] \\n* [Community] \\n* [Ubuntu.com] \\n# [Ubuntu Documentation] \\n* [Official Documentation] \\n* [Community Help Wiki] \\n* [Contribute] \\n* [Page History] \\n* [Login to edit] \\n# [SupportedArchitectures] \\nContents\\n1. [x86\\\\_64] \\n2. [ARM] \\n3. [POWER (OpenPOWER) Servers] \\n4. [S390X (IBM Mainframe Systems)] \\n5. [x86 (legacy)] \\n6. [PowerPC (legacy)] \\n7. [SPARC64 (legacy)] \\n8. [Multiprocessor Machines] \\n9. [Related Links] \\n|\\nUbuntu is currently...\"\n  },\n  {\n    \"title\": \"Supported architectures - Ubuntu project documentation\",\n    \"url\": \"https://documentation.ubuntu.com/project/how-ubuntu-is-made/concepts/supported-architectures/\",\n    \"content\": \"Supported architectures - Ubuntu project documentation\\n* [![Logo] \\nUbuntu project\\n] \\n* [documentation.ubuntu.com] \\n* [More resources] \\n* [Discourse] \\n* [Matrix] \\n* [GitHub] \\nContentsMenuExpandLight modeDark modeAuto light/dark, in light modeAuto light/dark, in dark mode[Skip to content] \\n[\\nUbuntu project documentation\\n] \\n[Ubuntu project documentation] \\n* [How Ubuntu is made] \\n* [The Ubuntu Community] \\n* [Community support] \\n* [Matrix] \\n* [Rooms and spaces] \\n* [Room publishing] \\n* [Moderation and...\"\n  },\n  {\n    \"title\": \"Ubuntu release cycle\",\n    \"url\": \"https://ubuntu.com/about/release-cycle\",\n    \"content\": \"Ubuntu release cycle\\n| Ubuntu\\nYour submission was sent successfully![*Close*] \\nThank you for contacting us. A member of our team will be in touch shortly.[*Close*] \\nYou have successfully unsubscribed![*Close*] \\nThank you for signing up for our newsletter!\\nIn these regular emails you will find the latest updates about\\nUbuntu and upcoming events where you can meet our team.[*Close*] \\nYour preferences have been successfully updated.[*Close notification*] \\nPlease try again or[file a bug report.] [*C...\"\n  },\n  {\n    \"title\": \"Introducing architecture variants: amd64v3 now available in Ubuntu ...\",\n    \"url\": \"https://itsfoss.community/t/introducing-architecture-variants-amd64v3-now-available-in-ubuntu-25-10/14988\",\n    \"content\": \"Introducing architecture variants: amd64v3 now available in Ubuntu 25.10 - Ubuntu - It&#39;s FOSS Community\"\n  },\n  {\n    \"title\": \"Ubuntu 25.10 Offers x86-64-v3 Architecture Variant Packages\",\n    \"url\": \"https://www.omgubuntu.co.uk/2025/11/ubuntu-amd64v3-x86-64-v3-support\",\n    \"content\": \"[Skip to content] \\n\\n**Ubuntu has added a new x86-64-v3 ‘architecture variant’ for Ubuntu 25.10, configuring its build infrastructure and package managers to support compiling and installing optimised packages.**\\n\\n_“By making changes to dpkg, apt and Launchpad, we are able to build multiple versions of a package, each for a different level of the x86-64 architecture, meaning we can have packages that specifically target x86-64-v3,”_ Canonical’s Michael Hudson-Doyle [says].\\n\\n> Canonical will offer...\"\n  },\n  {\n    \"title\": \"We're very excited to introduce architecture variants in Ubuntu! In ...\",\n    \"url\": \"https://www.facebook.com/ubuntulinux/posts/were-very-excited-to-introduce-architecture-variants-in-ubuntu-in-ubuntu-2510-yo/2325643569589693/\",\n    \"content\": \"Ubuntu - We’re very excited to introduce architecture...\\n**\\nFacebook\\n[\\nLog In\\n] \\n## Ubuntu&#x27;s Post\\n[\\n] \\n### [**Ubuntu**] \\n[October 30, 2025] ·Shared with Public\\nWe’re very excited to introduce architecture variants in Ubuntu!\\nIn Ubuntu 25.10, you can now opt in to packages optimized for x86-64-v3 architecture.\\nLearn more about getting more out of your processor without compromising compatibility:[https://bit.ly/3J87wbW] \\n[\\n![May be a graphic of text that says &#x27;Canonical Discourse Ubuntu...\"\n  },\n  {\n    \"title\": \"Architectures\",\n    \"url\": \"https://documentation.ubuntu.com/lxd/en/stable-5.21/architectures/\",\n    \"content\": \"Architectures\\n* [![Logo] \\nLXD\\n] \\n* [canonical.com/lxd] \\n* [More resources] \\n* [Install LXD] \\n* [Manage LXD] \\n* [Forum] \\n* [GitHub] \\nContentsMenuExpandLight modeDark modeAuto light/dark, in light modeAuto light/dark, in dark mode[Skip to content] \\n[\\nLXD\\n] \\n[] \\n* [LXD] \\n* [Tutorial] \\n* [How-to guides] \\n* [Getting started] \\n* [Install LXD] \\n* [Initialize LXD] \\n* [Access the UI] \\n* [Access documentation locally] \\n* [LXD server and client] \\n* [Expose LXD to the network] \\n* [Configure the LXD server] ...\"\n  },\n  {\n    \"title\": \"Architectures\",\n    \"url\": \"https://documentation.ubuntu.com/lxd/en/latest/architectures/\",\n    \"content\": \"[Skip to content] \\n\\n[Back to top] \\n\\n[View this page] \\n\\nToggle Light / Dark / Auto color theme\\n\\nToggle table of contents sidebar\\n\\n# Architectures [¶] \\n\\nLXD can run on just about any architecture that is supported by the Linux kernel and by Go.\\n\\nSome entities in LXD are tied to an architecture, for example, the instances, instance snapshots and images.\\n\\nThe following table lists all supported architectures including their unique identifier and the name used to refer to them.\\nThe architecture names...\"\n  },\n  {\n    \"title\": \"CPU compatibility matrix for Ubuntu | Ubuntu\",\n    \"url\": \"https://ubuntu.com/cpu-compatibility\",\n    \"content\": \"CPU compatibility matrix for Ubuntu\\n| Ubuntu\\nYour submission was sent successfully![*Close*] \\nThank you for contacting us. A member of our team will be in touch shortly.[*Close*] \\nYou have successfully unsubscribed![*Close*] \\nThank you for signing up for our newsletter!\\nIn these regular emails you will find the latest updates about\\nUbuntu and upcoming events where you can meet our team.[*Close*] \\nYour preferences have been successfully updated.[*Close notification*] \\nPlease try again or[file a b...\"\n  },\n  {\n    \"title\": \"Supported architectures - Ubuntu documentation\",\n    \"url\": \"https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/reference/architectures/\",\n    \"content\": \"Supported architectures - Ubuntu documentation\\n* [![Logo] \\nUbuntu\\n] \\n* [ubuntu.com] \\n* [More resources] \\n* [Forum] \\n* [GitHub] \\nContentsMenuExpandLight modeDark modeAuto light/dark, in light modeAuto light/dark, in dark mode\\nHide navigation sidebar\\nHide table of contents sidebar\\n[Skip to content] \\nToggle site navigation sidebar\\n**\\n[\\nUbuntu documentation\\n] \\nToggle Light / Dark / Auto color theme\\nToggle table of contents sidebar\\n**\\n[Ubuntu documentation] \\n* [Tutorial] \\nToggle navigation of Tutoria...\"\n  }\n]"
+            }
+          }
+        ],
+        "providerOptions": null
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "name": "webSearch",
+        "description": "Search the web for comprehensive and up-to-date information.\n\nQuery Optimization Guidelines:\n- Extract the core topic/entity from questions (e.g., \"who is Elon Musk\" → \"Elon Musk\", \"what is React\" → \"React\")\n- For comparisons (e.g., \"X vs Y\"), search for both terms together to get comparison results\n- Remove question words (who, what, when, where, why, how) but keep context words that add meaning\n- Keep technical terms, version numbers, and specific qualifiers (e.g., \"React 19 features\" stays as-is)\n- For \"latest\" or \"recent\" queries, include temporal keywords (e.g., \"latest AI models 2025\")\n- Preserve programming language/framework context (e.g., \"error handling in Rust\" → \"Rust error handling\")\n- For debugging queries, keep error messages and stack traces intact\n- Use multiple searches only when topics are completely unrelated, not for comparisons",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      },
+      {
+        "type": "function",
+        "name": "webFetch",
+        "description": "Fetch and extract content from a web url",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      }
+    ],
+    "temperature": 1.0,
+    "max_tokens": 15000,
+    "top_p": 0.95,
+    "top_k": null,
+    "provider_options": {
+      "anthropic": {
+        "thinking": {
+          "budgetTokens": 12000,
+          "type": "enabled"
+        }
+      },
+      "google": {
+        "thinkingConfig": {
+          "includeThoughts": true,
+          "thinkingBudget": 8192
+        }
+      },
+      "moonshot": {
+        "temperature": 1,
+        "thinking": {
+          "type": "enabled"
+        }
+      }
+    },
+    "extra_body": null
+  },
+  "expected_events": [
+    {
+      "type": "usage",
+      "input_tokens": 2916,
+      "output_tokens": 1,
+      "total_tokens": 2917,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "text-start"
+    },
+    {
+      "type": "text-delta",
+      "text": "Ubuntu"
+    },
+    {
+      "type": "usage",
+      "input_tokens": 2916,
+      "output_tokens": 20,
+      "total_tokens": 2936,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "text-delta",
+      "text": " officially supports a variety of architectures, not just x86. While x86 ("
+    },
+    {
+      "type": "usage",
+      "input_tokens": 2916,
+      "output_tokens": 71,
+      "total_tokens": 2987,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "text-delta",
+      "text": "specifically x86-64, also known as `amd64`) is very common, Ubuntu also provides support for other CPU architectures.\n\n#### Currently Supported Architectures for Ubuntu\n\n*   **x86-64 (amd64"
+    },
+    {
+      "type": "usage",
+      "input_tokens": 2916,
+      "output_tokens": 119,
+      "total_tokens": 3035,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "text-delta",
+      "text": ")**: This is the most prevalent architecture for desktop and server computers, and it is widely supported by Ubuntu.\n*   **ARM**: Ubuntu supports various ARM-based systems, which are common in embedded devices, single-board computers ("
+    },
+    {
+      "type": "usage",
+      "input_tokens": 2916,
+      "output_tokens": 168,
+      "total_tokens": 3084,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "text-delta",
+      "text": "like Raspberry Pi), and some servers.\n*   **POWER (OpenPOWER) Servers**: Ubuntu provides support for servers utilizing the OpenPOWER architecture.\n*   **S390X (IBM Mainframe Systems)**: Ubuntu is also"
+    },
+    {
+      "type": "usage",
+      "input_tokens": 2916,
+      "output_tokens": 219,
+      "total_tokens": 3135,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "text-delta",
+      "text": " available for IBM mainframe systems, which use the S390X architecture.\n\n#### Legacy and Previously Supported Architectures\n\nHistorically, Ubuntu has also supported other architectures, though some are no longer actively maintained for newer releases:\n\n*   **x8"
+    },
+    {
+      "type": "usage",
+      "input_tokens": 2916,
+      "output_tokens": 267,
+      "total_tokens": 3183,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "text-delta",
+      "text": "6 (i386)**: This refers to 32-bit x86 processors. While still supported for some older Ubuntu releases, newer versions primarily focus on x86-64.\n*   **PowerPC"
+    },
+    {
+      "type": "usage",
+      "input_tokens": 2916,
+      "output_tokens": 318,
+      "total_tokens": 3234,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "text-delta",
+      "text": " (powerpc)**: Ubuntu previously supported PowerPC-based systems.\n*   **SPARC64 (sparc64)**: Support for SPARC64 architecture was also available in earlier Ubuntu versions.\n\nTherefore, while x86"
+    },
+    {
+      "type": "usage",
+      "input_tokens": 2916,
+      "output_tokens": 366,
+      "total_tokens": 3282,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "text-delta",
+      "text": " is a major platform for Ubuntu, it is not the only one. The image you provided (`starrocks/fe-ubuntu:3.4.4`) would typically be built for the `amd64` (x86-"
+    },
+    {
+      "type": "usage",
+      "input_tokens": 2916,
+      "output_tokens": 391,
+      "total_tokens": 3307,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "text-delta",
+      "text": "64) architecture if it's a standard container for servers, but the Ubuntu operating system itself has broader architectural support."
+    },
+    {
+      "type": "done",
+      "finish_reason": "stop"
+    }
+  ]
+}

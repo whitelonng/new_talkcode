@@ -1,0 +1,12 @@
+# Bun Workspace Configuration
+# https://bun.sh/docs/install/workspaces
+
+[install]
+cache = "~/.bun/install/cache"
+
+lockfile = true
+
+peer = true
+
+[test]
+preload = ["./src/test/bun-test-preload.ts"]

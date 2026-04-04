@@ -1,0 +1,66 @@
+---
+title: Welcome to TalkCody
+description: TalkCody is a free, open-source AI Coding Agent
+icon: Home
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Mail, Github, Bug, X } from 'lucide-react';
+import { CONFIG } from '@/lib/config';
+
+## Why Choose TalkCody?
+
+TalkCody is an **AI coding agent** truly designed the way developers work—**parallel, cost-effective, controllable, and private**. TalkCody gives you:
+- **True Freedom** - Use any AI model (OpenAI, Anthropic, Google, local models) with no vendor lock-in
+- **Ultimate Speed** - Unique four-level parallelism mechanism runs multiple tasks simultaneously
+- **Your Privacy** - Everything runs locally, your code never leaves your machine
+- **Your Wallet** - 9 completely free ways to use, or maximize your existing Claude Pro/ChatGPT Plus/GitHub Copilot subscription
+
+**Built by developers, for developers who value speed, cost, control, and privacy.**
+
+<Cards>
+  <Card title="🚀 Lightning-Fast Development" href="/blog/four-level-parallelism" description="Four-level parallelism runs at project, task, agent, and tool layers simultaneously—complete complex projects in minimal time. Work the way you actually code: in parallel." />
+  <Card title="💰 Maximum Flexibility, Minimum Cost" href="/docs/guides/free-use" description="9 completely free ways to use. Maximize your existing Claude Pro/ChatGPT Plus/GitHub Copilot subscription. Or use any AI model from any provider—OpenAI, Anthropic, Google, or local models. Zero vendor lock-in." />
+  <Card title="🛠️ Professional-Grade Features" description="Multimodal input (text, voice, images), MCP server support, agent and skill marketplace, built-in terminal, and fully customizable workflows. Everything you need in one native app." />
+  <Card title="🔒 Privacy You Can Trust" description="100% local storage—your code never leaves your machine. Work completely offline with Ollama or LM Studio. You own everything. Fully auditable open-source code." />
+</Cards>
+
+## Professional-Grade Features
+
+A complete toolbox for modern developers. Everything you need to code faster, smarter, and more efficiently.
+
+<Cards>
+  <Card title="🤖 Any Model, Any Provider" href="/docs/configuration/api-keys"  description="Switch instantly between OpenAI, Anthropic, Google, or local models. No vendor lock-in. Use the best tool for each task." />
+  <Card title="🎙️ Multimodal Input" href="/docs/features/voice-input"  description="Text, voice, images, and files work together seamlessly. Code naturally with the input method that suits you best." />
+  <Card title="🔌 MCP Server Support" href="/docs/features/mcp-servers"  description="Extend capabilities infinitely through Model Context Protocol. Connect to any tool or service." />
+  <Card title="🛒 Agents & Skills Marketplace"  href="/docs/features/skills" description="Download and share community workflows and specialized agents. Stand on the shoulders of giants." />
+  <Card title="📋 Plan Mode" href="/docs/features/plan-mode" description="Explore, think, plan, decompose, execute, verify—complete task workflow for handling complex projects systematically." />
+  <Card title="💻 Built-in Terminal" href="/docs/features/terminal" description="Execute commands without context switching. Stay in flow state. Get more done." />
+</Cards>
+
+
+## Quick Start
+
+<Cards>
+  <Card title="Quick Start" href="/docs/introduction/quick-start" description="Install TalkCody and start your first AI Coding experience" />
+  <Card title="Client Downloads" href="/docs/introduction/client-downloads" description="Download the latest version for your platform" />
+  <Card title="Configuration" href="/docs/configuration/api-keys" description="Set up API keys and configure AI models" />
+</Cards>
+
+## Community & Support
+
+Build better software faster with TalkCody, together with developers worldwide.
+
+<Cards>
+  <Card icon={<Github />} title="GitHub" href="https://github.com/talkcody/talkcody" description="Contribute to the TalkCody project" />
+  <Card icon={<X />} title="X" href={CONFIG.x} description="Follow us on X" />
+  <Card icon={<Bug />} title="Issue Feedback" href="https://github.com/talkcody/talkcody/issues" description="Submit bugs to help improve TalkCody" />
+  <Card icon={<Mail />} title="Email Contact" href="mailto:kaisenkang@talkcody.com" description="Report TalkCody security vulnerabilities or privacy issues" />
+</Cards>
+
+<Callout type="tip">
+New to AI Coding Agent? Start with the [Quick Start Guide](/docs/introduction/quick-start) and get up and running in minutes.
+</Callout>
+
+

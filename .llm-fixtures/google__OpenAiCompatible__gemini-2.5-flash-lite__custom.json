@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "provider_id": "google",
+  "protocol": "OpenAiCompatible",
+  "model": "gemini-2.5-flash-lite",
+  "endpoint_path": "v1beta/chat/completions",
+  "request": {
+    "method": "POST",
+    "url": "https://generativelanguage.googleapis.com/v1beta/chat/completions",
+    "headers": {
+      "content-type": "application/json",
+      "authorization": "REDACTED"
+    },
+    "body": {
+      "messages": [
+        {
+          "content": "You are an AI assistant that generates concise, descriptive titles for tasks.\n\nUser's message: \"│     Container ID:  containerd://710d4f0549979de25fccfe0799fb2329662e277f98ee58dc3782528741ecba80                                                                                                         │\n│     Image:         starrocks/fe-ubuntu:3.4.4                                                                                                                                                             │\n│     Image ID:      docker.io/starrocks/fe-ubuntu@sha256:832ef5b44f6dd2cb1da456df66bb2b1ff15e7ecfa82d40c9e498d41adcd94eac                                                                                 │\n\nAre all Ubuntu systems X86-based?\"\n\nGenerate a short, clear title (5-10 words) that captures the essence of what the user is asking or discussing.\n\nGuidelines:\n1. Keep it concise (5-10 words maximum)\n2. Use title case (capitalize first letter of main words)\n3. Be specific and descriptive\n4. Avoid generic titles like \"New Chat\" or \"Question\"\n5. Focus on the main topic or intent\n\nExamples:\n- \"Fix Login Bug\"\n- \"Create User Dashboard\"\n- \"Explain React Hooks\"\n- \"Database Schema Design\"\n- \"API Rate Limiting Issue\"\n\nGenerate the title in English.\n\nProvide ONLY the title without any quotes, explanations, or additional formatting.",
+          "role": "user"
+        }
+      ],
+      "model": "gemini-2.5-flash-lite",
+      "stream": true,
+      "stream_options": {
+        "include_usage": true
+      }
+    }
+  },
+  "response": {
+    "type": "stream",
+    "status": 200,
+    "headers": {
+      "expires": "Thu, 05 Feb 2026 06:51:21 GMT",
+      "cache-control": "private",
+      "x-xss-protection": "0",
+      "transfer-encoding": "chunked",
+      "server-timing": "gfet4t7; dur=581",
+      "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+      "accept-ranges": "none",
+      "vary": "Origin,Accept-Encoding",
+      "set-cookie": "NID=528=hUIk-9Isfw9V7qshiiNtHEOEQXaZVJeKnvnXGDjvAsK-pj6qL8WnnDYigcgcw9g3Evbxd8tF7StyH4B3Au7J54c4RDAIjUa0D8d_orGbffX4P5WPLgkBzHQ8wHvqFCvHaLUef7Fzo4Sh5Ffn9NKKbBuEew_pTcvGqndARjR2C9ppWa-Qx0pjiecaf4Ad-Y40DuVyWq4z; expires=Fri, 07-Aug-2026 06:51:20 GMT; path=/; domain=.generativelanguage.googleapis.com; HttpOnly",
+      "x-frame-options": "SAMEORIGIN",
+      "x-content-type-options": "nosniff",
+      "p3p": "CP=\"This is not a P3P policy! See g.co/p3phelp for more info.\"",
+      "content-type": "text/event-stream",
+      "server": "scaffolding on HTTPServer2",
+      "date": "Thu, 05 Feb 2026 06:51:21 GMT"
+    },
+    "sse_events": [
+      {
+        "event": null,
+        "data": "{\"choices\":[{\"delta\":{\"content\":\"Ubuntu Systems\",\"role\":\"assistant\"},\"index\":0}],\"created\":1770274281,\"id\":\"6D2EaYKCPePRz7IPrdGhoQ4\",\"model\":\"gemini-2.5-flash-lite\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":2,\"prompt_tokens\":359,\"total_tokens\":361}}"
+      },
+      {
+        "event": null,
+        "data": "{\"choices\":[{\"delta\":{\"content\":\" X86 Architecture Question\",\"role\":\"assistant\"},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1770274281,\"id\":\"6D2EaYKCPePRz7IPrdGhoQ4\",\"model\":\"gemini-2.5-flash-lite\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":7,\"prompt_tokens\":359,\"total_tokens\":366}}"
+      },
+      {
+        "event": null,
+        "data": "[DONE]"
+      }
+    ]
+  },
+  "test_input": {
+    "model": "gemini-2.5-flash-lite",
+    "messages": [
+      {
+        "role": "user",
+        "content": "You are an AI assistant that generates concise, descriptive titles for tasks.\n\nUser's message: \"│     Container ID:  containerd://710d4f0549979de25fccfe0799fb2329662e277f98ee58dc3782528741ecba80                                                                                                         │\n│     Image:         starrocks/fe-ubuntu:3.4.4                                                                                                                                                             │\n│     Image ID:      docker.io/starrocks/fe-ubuntu@sha256:832ef5b44f6dd2cb1da456df66bb2b1ff15e7ecfa82d40c9e498d41adcd94eac                                                                                 │\n\nAre all Ubuntu systems X86-based?\"\n\nGenerate a short, clear title (5-10 words) that captures the essence of what the user is asking or discussing.\n\nGuidelines:\n1. Keep it concise (5-10 words maximum)\n2. Use title case (capitalize first letter of main words)\n3. Be specific and descriptive\n4. Avoid generic titles like \"New Chat\" or \"Question\"\n5. Focus on the main topic or intent\n\nExamples:\n- \"Fix Login Bug\"\n- \"Create User Dashboard\"\n- \"Explain React Hooks\"\n- \"Database Schema Design\"\n- \"API Rate Limiting Issue\"\n\nGenerate the title in English.\n\nProvide ONLY the title without any quotes, explanations, or additional formatting.",
+        "providerOptions": null
+      }
+    ],
+    "tools": null,
+    "temperature": null,
+    "max_tokens": null,
+    "top_p": null,
+    "top_k": null,
+    "provider_options": null,
+    "extra_body": null
+  },
+  "expected_events": [
+    {
+      "type": "usage",
+      "input_tokens": 359,
+      "output_tokens": 2,
+      "total_tokens": 361,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "text-start"
+    },
+    {
+      "type": "text-delta",
+      "text": "Ubuntu Systems"
+    },
+    {
+      "type": "usage",
+      "input_tokens": 359,
+      "output_tokens": 7,
+      "total_tokens": 366,
+      "cached_input_tokens": null,
+      "cache_creation_input_tokens": null
+    },
+    {
+      "type": "text-delta",
+      "text": " X86 Architecture Question"
+    },
+    {
+      "type": "done",
+      "finish_reason": "stop"
+    }
+  ]
+}

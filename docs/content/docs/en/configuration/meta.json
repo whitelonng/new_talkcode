@@ -1,0 +1,10 @@
+{
+  "title": "Configuration",
+  "icon": "Settings",
+  "defaultOpen": true,
+  "pages": [
+    "api-keys",
+    "ai-models",
+    "shortcut-settings"
+  ]
+}

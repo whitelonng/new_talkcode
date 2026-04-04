@@ -1,0 +1,183 @@
+---
+title: 通过 ChatGPT Plus/Pro 订阅使用 OpenAI 模型
+sidebarTitle: OpenAI Plus
+description: 通过 ChatGPT Plus/Pro 订阅在 TalkCody 中使用 OpenAI 模型
+icon: OpenAI
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+如果您已经订阅了 **ChatGPT Plus**（$20/月）或 **ChatGPT Pro**（$200/月），可以直接在 TalkCody 中使用您的订阅额度，无需额外购买 API。
+
+## 工作原理
+
+TalkCody 使用 OpenAI 官方提供的 **OAuth 认证**，这与 OpenAI 官方 Codex CLI 使用的认证方式完全相同。
+
+通过 OAuth 登录后，TalkCody 可以使用您订阅内包含的模型额度，包括 GPT-5.2，GPT-5.2-Codex 等模型。
+
+## 使用条款与免责声明
+
+<Callout type="warn">
+**重要提示**：使用此功能前，请仔细阅读以下条款。
+</Callout>
+
+此功能专为**个人开发使用**设计，仅限于您自己的 ChatGPT Plus/Pro 订阅。使用此功能即表示您同意：
+
+### 允许的使用方式
+
+- ✅ 个人编码辅助和生产力提升
+- ✅ 遵守 OpenAI 的速率限制和使用政策
+- ✅ 不将访问权限用于商业服务或转售
+- ✅ 遵守 [OpenAI 使用条款](https://openai.com/policies/terms-of-use/) 和 [使用政策](https://openai.com/policies/usage-policies/)
+
+### 禁止的使用方式
+
+- ❌ 商业 API 转售或白标服务
+- ❌ 超出个人使用范围的高并发自动化请求
+- ❌ 使用一个订阅为多用户提供服务
+- ❌ 任何违反 OpenAI 可接受使用政策的行为
+
+<Callout type="info">
+此功能使用 **OpenAI 官方 OAuth 认证**（与官方 Codex CLI 相同的方式）。但用户需自行确保使用方式符合 OpenAI 的服务条款。
+</Callout>
+
+### 免责声明
+
+- 本项目**与 OpenAI 没有任何关联**
+- ChatGPT、GPT、Codex 是 OpenAI 的商标
+- 这是一个独立的开源项目，未经 OpenAI 认可、赞助或关联
+- 违反 OpenAI 使用条款可能导致账户受限
+
+**对于生产环境或商业用途，请通过 [OpenAI Platform API](https://platform.openai.com/) 购买正式的 API 额度。**
+
+---
+
+## 配置步骤
+
+<Steps>
+
+<Step>
+### 打开设置
+
+1. 启动 TalkCody
+2. 点击左侧的 **设置** 图标
+3. 导航到 **API Keys** 页面
+4. 找到 **OpenAI** 部分
+
+</Step>
+
+<Step>
+### OpenAI 登录
+
+在 OpenAI 设置区域，点击 **使用 OpenAI 登录** 按钮。
+
+系统会显示一个授权 URL，并自动在浏览器中打开。
+
+</Step>
+
+<Step>
+### 完成浏览器授权
+
+1. 在打开的浏览器页面中，使用您的 ChatGPT Plus/Pro 账户登录
+2. 查看授权请求的权限范围
+3. 点击 **授权** 按钮同意授权
+
+</Step>
+
+<Step>
+### 等待自动回调
+
+TalkCody 会在本地启动一个临时服务器监听回调。授权成功后：
+
+- **自动模式**：系统自动接收授权码并完成认证
+- **手动模式**：如果自动回调失败，复制浏览器地址栏中的完整 URL 或授权码，粘贴到 TalkCody 的输入框中
+
+<Callout type="tip">
+授权码支持多种格式：完整 URL、`code#state` 格式，或 `code=xxx&state=yyy` 查询字符串。
+</Callout>
+
+</Step>
+
+<Step>
+### 验证连接
+
+授权成功后，您会看到：
+
+- 连接状态显示为 **已连接**
+- 可以开始使用 OpenAI 模型进行对话
+
+</Step>
+
+</Steps>
+
+<Callout type="success">
+OAuth 登录成功后，令牌会自动刷新，无需重复登录。
+</Callout>
+
+---
+
+## 查看使用量
+
+TalkCody 提供了**使用量仪表板**，让您可以实时查看 OpenAI Plus/Pro 订阅的使用情况。
+
+### 访问使用量仪表板
+
+1. 点击左侧导航栏中的 **使用量** 图标
+2. 选择 **OpenAI** 标签页查看 OpenAI 使用情况
+
+### 使用量指标说明
+
+
+![OpenAI 使用量仪表板](https://cdn.talkcody.com/images/openai-usage.png)
+
+
+仪表板会显示以下指标：
+
+#### 5 小时会话使用量
+
+- **显示内容**：过去 5 小时内的 API 使用百分比
+- **重置时间**：显示距离下一次重置的时间
+- **颜色说明**：
+  - 绿色（< 50%）：使用量正常
+  - 黄色（50-80%）：使用量中等
+  - 橙色（80-95%）：使用量较高
+  - 红色（>95%）：使用量接近限额
+
+#### 7 天周使用量
+
+- **显示内容**：过去 7 天内的 API 使用百分比
+- **参考指标**：帮助您了解每周的整体使用情况
+
+#### 信用额度（Credits）
+
+- **余额**：显示您的 API 信用余额
+- **无限额度**：如果您的计划有无限额度，会显示 "无限"
+
+#### 代码审查使用量
+
+- **显示内容**：代码审查功能的使用百分比
+- **功能说明**：显示 OpenAI 用于代码审查功能的额度使用情况
+
+### 刷新使用量
+
+点击右上角的 **刷新** 按钮可以手动更新使用量数据。
+
+---
+
+## 常见问题
+
+### OAuth 认证和 API Key 有什么区别？
+
+| 方式 | 优点 | 缺点 |
+|------|------|------|
+| OAuth（订阅） | 使用现有订阅，无需额外付费 | 仅限个人使用，有速率限制 |
+| API Key | 更高的速率限制，适合商业使用 | 需要单独购买 API 额度 |
+
+### 自动回调失败怎么办？
+
+如果自动回调失败（例如端口被占用），您可以：
+
+1. 复制浏览器地址栏中的完整回调 URL
+2. 粘贴到 TalkCody 的授权码输入框
+3. 系统会自动解析并完成认证

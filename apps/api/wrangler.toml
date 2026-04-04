@@ -1,0 +1,37 @@
+name = "talkcody-marketplace-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Development mode
+workers_dev = true
+
+[vars]
+NODE_ENV = "production"
+
+[observability]
+enabled = true
+head_sampling_rate = 1 # optional. default = 1.
+
+# Cron Triggers
+# Daily cleanup of expired shares at 2 AM UTC
+[triggers]
+crons = ["0 2 * * *"]
+
+# R2 Buckets
+[[r2_buckets]]
+binding = "RELEASES_BUCKET"
+bucket_name = "talkcody"
+
+# Production environment variables (set via Cloudflare Dashboard or wrangler secrets):
+# - DATABASE_URL: Neon PostgreSQL connection string
+# - JWT_SECRET: Secret key for JWT signing
+# - GITHUB_CLIENT_ID: GitHub OAuth app client ID
+# - GITHUB_CLIENT_SECRET: GitHub OAuth app client secret
+# - GOOGLE_CLIENT_ID: Google OAuth app client ID
+# - GOOGLE_CLIENT_SECRET: Google OAuth app client secret
+
+# Routes (configure after setting up custom domain)
+# [[routes]]
+# pattern = "api.talkcody.app/*"
+# zone_name = "talkcody.app"

@@ -1,0 +1,626 @@
+{
+  "version": "2026-03-20T04:13:59.093Z",
+  "models": {
+    "gpt-5.4-nano": {
+      "name": "GPT-5.4 Nano",
+      "imageInput": true,
+      "providers": [
+        "aiGateway",
+        "openai",
+        "openRouter",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "openai": "gpt-5.4-nano",
+        "aiGateway": "openai/gpt-5.4-nano",
+        "openRouter": "openai/gpt-5.4-nano",
+        "zenmux": "openai/gpt-5.4-nano"
+      },
+      "pricing": {
+        "input": "0.0000002",
+        "output": "0.00000125",
+        "cachedInput": "0.00000002"
+      },
+      "context_length": 400000
+    },
+    "gpt-5.4": {
+      "name": "GPT 5.4",
+      "imageInput": true,
+      "providers": [
+        "aiGateway",
+        "openai",
+        "github_copilot",
+        "openRouter",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "openai": "gpt-5.4",
+        "github_copilot": "gpt-5.4",
+        "aiGateway": "openai/gpt-5.4",
+        "openRouter": "openai/gpt-5.4",
+        "zenmux": "openai/gpt-5.4"
+      },
+      "pricing": {
+        "input": "0.0000025",
+        "output": "0.000015",
+        "cachedInput": "0.00000025"
+      },
+      "context_length": 1050000
+    },
+    "gpt-54-mini": {
+      "name": "GPT-5.4 Mini",
+      "imageInput": true,
+      "providers": [
+        "aiGateway",
+        "openai",
+        "github_copilot",
+        "openRouter",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "openai": "gpt-5.4-mini",
+        "aiGateway": "openai/gpt-5.4-mini",
+        "openRouter": "openai/gpt-5.4-mini",
+        "github_copilot": "gpt-5.4-mini",
+        "zenmux": "openai/gpt-5.4-mini"
+      },
+      "pricing": {
+        "input": "0.00000075",
+        "output": "0.0000045",
+        "cachedInput": "0.000000075"
+      },
+      "context_length": 400000
+    },
+    "gpt-5.3-codex": {
+      "name": "GPT-5.3-Codex",
+      "imageInput": true,
+      "providers": [
+        "aiGateway",
+        "openai",
+        "github_copilot",
+        "openRouter",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "openai": "gpt-5.3-codex",
+        "github_copilot": "gpt-5.3-codex",
+        "aiGateway": "openai/gpt-5.3-codex",
+        "openRouter": "openai/gpt-5.3-codex",
+        "zenmux": "openai/gpt-5.3-codex"
+      },
+      "pricing": {
+        "input": "0.00000175",
+        "output": "0.000014",
+        "cachedInput": "0.000000175"
+      },
+      "context_length": 400000
+    },
+    "gpt-5.3-codex-spark": {
+      "name": "GPT-5.3-Codex-Spark",
+      "imageInput": false,
+      "providers": [
+        "openai"
+      ],
+      "providerMappings": {
+        "openai": "gpt-5.3-codex-spark"
+      },
+      "pricing": {
+        "input": "0",
+        "output": "0",
+        "cachedInput": "0"
+      },
+      "context_length": 128000
+    },
+    "gemini-3-flash": {
+      "name": "Gemini 3 Flash",
+      "imageInput": true,
+      "providers": [
+        "google",
+        "aiGateway",
+        "openRouter",
+        "github_copilot",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "google": "gemini-3-flash-preview",
+        "aiGateway": "google/gemini-3-flash",
+        "openRouter": "google/gemini-3-flash-preview",
+        "github_copilot": "gemini-3-flash-preview",
+        "zenmux": "google/gemini-3-flash-preview"
+      },
+      "pricing": {
+        "input": "0.0000005",
+        "output": "0.000003",
+        "cachedInput": "0.00000005"
+      },
+      "context_length": 1048576
+    },
+    "gemini-3.1-pro-preview": {
+      "name": "Gemini 3.1 Pro Preview",
+      "imageInput": true,
+      "providers": [
+        "google",
+        "aiGateway",
+        "github_copilot",
+        "openRouter",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "google": "gemini-3.1-pro-preview",
+        "github_copilot": "gemini-3.1-pro-preview",
+        "aiGateway": "google/gemini-3.1-pro-preview",
+        "openRouter": "google/gemini-3.1-pro-preview",
+        "zenmux": "google/gemini-3.1-pro-preview"
+      },
+      "pricing": {
+        "input": "0.000002",
+        "output": "0.000012",
+        "cachedInput": "0.0000002"
+      },
+      "context_length": 1048576
+    },
+    "gemini-2.5-flash-lite": {
+      "name": "Gemini 2.5 Flash Lite",
+      "imageInput": true,
+      "providers": [
+        "google",
+        "aiGateway",
+        "openRouter",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "google": "gemini-2.5-flash-lite",
+        "aiGateway": "google/gemini-2.5-flash-lite",
+        "openRouter": "google/gemini-2.5-flash-lite",
+        "zenmux": "google/gemini-2.5-flash-lite"
+      },
+      "pricing": {
+        "input": "0.0000001",
+        "output": "0.0000004",
+        "cachedInput": "0.00000001"
+      },
+      "context_length": 1048576
+    },
+    "claude-opus-4.6": {
+      "name": "Claude Opus 4.6",
+      "imageInput": true,
+      "interleaved": true,
+      "providers": [
+        "aiGateway",
+        "anthropic",
+        "github_copilot",
+        "openRouter",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "anthropic": "claude-opus-4-6",
+        "github_copilot": "claude-opus-4.6",
+        "aiGateway": "anthropic/claude-opus-4.6",
+        "openRouter": "anthropic/claude-opus-4.6",
+        "zenmux": "anthropic/claude-opus-4.6"
+      },
+      "pricing": {
+        "input": "0.000005",
+        "output": "0.000025",
+        "cachedInput": "0.0000005",
+        "cacheCreation": "0.00000625"
+      },
+      "context_length": 1000000
+    },
+    "claude-sonnet-4.6": {
+      "name": "Claude Sonnet 4.6",
+      "imageInput": true,
+      "interleaved": true,
+      "providers": [
+        "aiGateway",
+        "anthropic",
+        "github_copilot",
+        "openRouter",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "anthropic": "claude-sonnet-4-6",
+        "aiGateway": "anthropic/claude-sonnet-4-6",
+        "openRouter": "anthropic/claude-sonnet-4-6",
+        "github_copilot": "claude-sonnet-4-6",
+        "zenmux": "anthropic/claude-sonnet-4.6"
+      },
+      "pricing": {
+        "input": "0.000003",
+        "output": "0.000015",
+        "cachedInput": "0.0000003",
+        "cacheCreation": "0.00000375"
+      },
+      "context_length": 1000000
+    },
+    "claude-haiku-4.5": {
+      "name": "Claude Haiku 4.5",
+      "imageInput": true,
+      "interleaved": true,
+      "providers": [
+        "aiGateway",
+        "openRouter",
+        "github_copilot",
+        "anthropic",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "anthropic": "claude-haiku-4-5",
+        "github_copilot": "claude-haiku-4.5",
+        "aiGateway": "anthropic/claude-haiku-4.5",
+        "openRouter": "anthropic/claude-haiku-4.5",
+        "zenmux": "anthropic/claude-haiku-4.5"
+      },
+      "pricing": {
+        "input": "0.000001",
+        "output": "0.000005",
+        "cachedInput": "0.0000001",
+        "cacheCreation": "0.00000125"
+      },
+      "context_length": 200000
+    },
+    "kimi-k2.5": {
+      "name": "Kimi K2.5",
+      "imageInput": true,
+      "videoInput": true,
+      "interleaved": true,
+      "providers": [
+        "aiGateway",
+        "openRouter",
+        "kimi_coding",
+        "alibaba",
+        "moonshot",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "aiGateway": "moonshotai/kimi-k2.5",
+        "openRouter": "moonshotai/kimi-k2.5",
+        "moonshot": "kimi-k2.5",
+        "kimi_coding": "kimi-k2.5",
+        "alibaba": "kimi-k2.5",
+        "zenmux": "moonshotai/kimi-k2.5"
+      },
+      "pricing": {
+        "input": "0.0000006",
+        "output": "0.000003",
+        "cachedInput": "0.0000001"
+      },
+      "context_length": 262144
+    },
+    "deepseek-v3.2": {
+      "name": "Deepseek V3.2",
+      "interleaved": true,
+      "providers": [
+        "deepseek"
+      ],
+      "providerMappings": {
+        "deepseek": "deepseek-reasoner"
+      },
+      "pricing": {
+        "input": "0.00000028",
+        "output": "0.00000042",
+        "cachedInput": "0.000000028"
+      },
+      "context_length": 163840
+    },
+    "qwen3.5-plus": {
+      "name": "Qwen 3.5 Plus",
+      "imageInput": true,
+      "providers": [
+        "alibaba",
+        "openRouter",
+        "aiGateway"
+      ],
+      "providerMappings": {
+        "alibaba": "qwen3.5-plus",
+        "openRouter": "qwen/qwen3.5-plus-02-15",
+        "aiGateway": "alibaba/qwen3.5-plus"
+      },
+      "pricing": {
+        "input": "0.0000004",
+        "output": "0.0000024",
+        "cachedInput": "0.00000004",
+        "cacheCreation": "0.0000005"
+      },
+      "context_length": 1000000
+    },
+    "grok-code-fast-1": {
+      "name": "Grok Code Fast",
+      "providers": [
+        "aiGateway",
+        "openRouter",
+        "github_copilot",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "aiGateway": "xai/grok-code-fast-1",
+        "openRouter": "x-ai/grok-code-fast-1",
+        "github_copilot": "grok-code-fast-1",
+        "zenmux": "x-ai/grok-code-fast-1"
+      },
+      "pricing": {
+        "input": "0.0000002",
+        "output": "0.0000015",
+        "cachedInput": "0.00000002"
+      },
+      "context_length": 256000
+    },
+    "grok-4.1-fast": {
+      "name": "Grok 4.1 Fast",
+      "imageInput": true,
+      "providers": [
+        "aiGateway",
+        "openRouter",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "aiGateway": "xai/grok-4.1-fast-reasoning",
+        "openRouter": "x-ai/grok-4.1-fast",
+        "zenmux": "x-ai/grok-4.1-fast"
+      },
+      "pricing": {
+        "input": "0.0000002",
+        "output": "0.0000005",
+        "cachedInput": "0.00000005"
+      },
+      "context_length": 2000000
+    },
+    "glm-4.7": {
+      "name": "GLM 4.7",
+      "imageInput": true,
+      "interleaved": true,
+      "providers": [
+        "zhipu",
+        "openRouter",
+        "aiGateway",
+        "alibaba",
+        "zai",
+        "ollama",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "zhipu": "glm-4.7",
+        "alibaba": "glm-4.7",
+        "zai": "glm-4.7",
+        "aiGateway": "zai/glm-4.7",
+        "openRouter": "z-ai/glm-4.7",
+        "ollama": "glm-4.7:cloud",
+        "zenmux": "z-ai/glm-4.7"
+      },
+      "pricing": {
+        "input": "0.0000006",
+        "output": "0.0000022"
+      },
+      "context_length": 202752
+    },
+    "glm-5": {
+      "name": "GLM 5",
+      "imageInput": true,
+      "interleaved": true,
+      "providers": [
+        "zhipu",
+        "openRouter",
+        "aiGateway",
+        "zai",
+        "alibaba",
+        "ollama",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "zhipu": "glm-5",
+        "zai": "glm-5",
+        "alibaba": "glm-5",
+        "aiGateway": "zai/glm-5",
+        "openRouter": "z-ai/glm-5",
+        "ollama": "glm-5:cloud",
+        "zenmux": "z-ai/glm-5"
+      },
+      "pricing": {
+        "input": "0.000001",
+        "output": "0.0000032",
+        "cachedInput": "0.0000002"
+      },
+      "context_length": 80000
+    },
+    "MiniMax-M2.7": {
+      "name": "MiniMax M2.7",
+      "imageInput": true,
+      "interleaved": true,
+      "providers": [
+        "MiniMax",
+        "talkcody",
+        "ollama",
+        "alibaba",
+        "aiGateway",
+        "openRouter",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "talkcody": "MiniMax-M2.7",
+        "MiniMax": "MiniMax-M2.7",
+        "alibaba": "MiniMax-M2.7",
+        "ollama": "minimax-m2.7:cloud",
+        "aiGateway": "minimax/minimax-m2.7",
+        "openRouter": "minimax/minimax-m2.7",
+        "zenmux": "minimax/minimax-m2.7"
+      },
+      "pricing": {
+        "input": "0.0000003",
+        "output": "0.0000012",
+        "cachedInput": "0.00000006",
+        "cacheCreation": "0.000000375"
+      },
+      "context_length": 204800
+    },
+    "gemini-2.5-flash-image": {
+      "name": "Nano Banana",
+      "imageInput": true,
+      "imageOutput": true,
+      "providers": [
+        "openRouter",
+        "aiGateway",
+        "google"
+      ],
+      "providerMappings": {
+        "google": "gemini-2.5-flash-image",
+        "aiGateway": "google/gemini-2.5-flash-image",
+        "openRouter": "google/gemini-2.5-flash-image"
+      },
+      "pricing": {
+        "input": "0.0000003",
+        "output": "0.0000025",
+        "cachedInput": "0.00000003"
+      },
+      "context_length": 32768
+    },
+    "gemini-3.1-flash-image-preview": {
+      "name": "Nano Banana 2",
+      "imageInput": true,
+      "imageOutput": true,
+      "providers": [
+        "openRouter",
+        "aiGateway",
+        "google",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "google": "gemini-3.1-flash-image-preview",
+        "aiGateway": "google/gemini-3.1-flash-image-preview",
+        "openRouter": "google/gemini-3.1-flash-image-preview",
+        "zenmux": "google/gemini-3.1-flash-image-preview"
+      },
+      "pricing": {
+        "input": "0.0000005",
+        "output": "0.000003",
+        "cachedInput": "0.00000005"
+      },
+      "context_length": 65536
+    },
+    "gemini-3-pro-image": {
+      "name": "Nano Banana Pro",
+      "imageInput": true,
+      "imageOutput": true,
+      "providers": [
+        "openRouter",
+        "aiGateway",
+        "ollama",
+        "google",
+        "zenmux"
+      ],
+      "providerMappings": {
+        "google": "gemini-3-pro-image-preview",
+        "ollama": "gemini-3-flash-preview:cloud",
+        "aiGateway": "google/gemini-3-pro-image",
+        "zenmux": "google/gemini-3-pro-image-preview",
+        "openRouter": "google/gemini-3-pro-image-preview"
+      },
+      "pricing": {
+        "input": "0.000002",
+        "output": "0.000012",
+        "cachedInput": "0.0000002"
+      },
+      "context_length": 65536
+    },
+    "whisper-1": {
+      "name": "Whisper 1",
+      "audioInput": true,
+      "providers": [
+        "openai"
+      ],
+      "pricing": {
+        "input": "0.006",
+        "output": "0"
+      }
+    },
+    "scribe_v2_realtime": {
+      "name": "Scribe V2 Realtime",
+      "audioInput": true,
+      "providers": [
+        "elevenlabs"
+      ],
+      "pricing": {
+        "input": "0.004",
+        "output": "0"
+      }
+    },
+    "whisper-large-v3-turbo": {
+      "name": "Whisper Large V3 Turbo",
+      "audioInput": true,
+      "providers": [
+        "groq"
+      ],
+      "pricing": {
+        "input": "0",
+        "output": "0"
+      }
+    },
+    "whisper-large-v3": {
+      "name": "Whisper Large V3",
+      "audioInput": true,
+      "providers": [
+        "groq"
+      ],
+      "pricing": {
+        "input": "0",
+        "output": "0"
+      }
+    },
+    "dall-e-3": {
+      "name": "Image DALL-E 3",
+      "imageInput": false,
+      "imageOutput": true,
+      "providers": [
+        "openai"
+      ],
+      "pricing": {
+        "input": "0",
+        "output": "0"
+      }
+    },
+    "doubao-seedream-4-5-251128": {
+      "name": "Image Doubao Seedream",
+      "imageInput": false,
+      "imageOutput": true,
+      "providers": [
+        "volcengine"
+      ],
+      "providerMappings": {
+        "volcengine": "doubao-seedream-4-5-251128"
+      },
+      "pricing": {
+        "input": "0",
+        "output": "0"
+      }
+    },
+    "glm-image": {
+      "name": "Image GLM",
+      "imageInput": false,
+      "imageOutput": true,
+      "providers": [
+        "zhipu"
+      ],
+      "providerMappings": {
+        "zhipu": "glm-image"
+      },
+      "pricing": {
+        "input": "0",
+        "output": "0"
+      }
+    },
+    "qwen-image-max": {
+      "name": "Qwen Image Max",
+      "imageInput": false,
+      "imageOutput": true,
+      "providers": [
+        "alibaba"
+      ],
+      "providerMappings": {
+        "alibaba": "qwen-image-max"
+      },
+      "pricing": {
+        "input": "0",
+        "output": "0"
+      }
+    }
+  }
+}

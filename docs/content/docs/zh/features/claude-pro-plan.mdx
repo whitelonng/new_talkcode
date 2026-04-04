@@ -1,0 +1,172 @@
+---
+title: 通过 Claude Pro/Max 订阅使用 Claude 模型
+sidebarTitle: Claude Pro
+description: 通过 Claude Pro/Max 订阅在 TalkCody 中使用 Claude 模型
+icon: Anthropic
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+<Callout type="error">
+该功能已经废弃！因为有被 Anthropic 封禁账户的风险。
+</Callout>
+
+如果您已经订阅了 **Claude Pro**（$20/月）或 **Claude Max**（$100-200/月），可以直接在 TalkCody 中使用您的订阅额度，无需额外购买 API。
+
+## 工作原理
+
+TalkCody 使用 Anthropic 官方提供的 **OAuth 认证**，这与 Claude 官方客户端（claude.ai、Claude 桌面应用）使用的认证方式完全相同。
+
+通过 OAuth 登录后，TalkCody 可以使用您订阅内包含的模型额度，包括 Claude Sonnet、Claude Opus 等模型。
+
+## 使用条款与免责声明
+
+<Callout type="warn">
+**重要提示**：使用此功能前，请仔细阅读以下条款。
+</Callout>
+
+此功能专为**个人开发使用**设计，仅限于您自己的 Claude Pro/Max 订阅。使用此功能即表示您同意：
+
+### 允许的使用方式
+
+- ✅ 个人编码辅助和生产力提升
+- ✅ 遵守 Anthropic 的速率限制和使用政策
+- ✅ 遵守 [Anthropic 使用政策](https://www.anthropic.com/policies)
+
+### 禁止的使用方式
+
+- ❌ 商业 API 转售或白标服务
+- ❌ 超出个人使用范围的高并发自动化请求
+- ❌ 使用一个订阅为多用户提供服务
+- ❌ 任何违反 Anthropic 可接受使用政策的行为
+
+<Callout type="info">
+此功能使用 **Anthropic 官方 OAuth 认证**（与官方 Claude 客户端相同的方式）。但用户需自行确保使用方式符合 Anthropic 的服务条款。
+</Callout>
+
+### 免责声明
+
+- 本项目**与 Anthropic 没有任何关联**
+- Claude、Claude Pro、Claude Max 是 Anthropic 的商标
+- 这是一个独立的开源项目，未经 Anthropic 认可、赞助或关联
+- 违反 Anthropic 使用条款可能导致账户受限
+
+**对于生产环境或商业用途，请通过 [Anthropic API](https://console.anthropic.com/) 购买正式的 API 额度。**
+
+---
+
+## 配置步骤
+
+<Steps>
+
+<Step>
+### 打开设置
+
+1. 启动 TalkCody
+2. 点击左侧的 **设置** 图标
+3. 导航到 **API Keys** 页面
+4. 找到 **Anthropic (Claude)** 部分
+
+</Step>
+
+<Step>
+### Claude 登录
+
+在 Anthropic 设置区域，点击 **使用 Claude 登录** 按钮。
+
+系统会显示一个授权 URL，并自动在浏览器中打开。
+
+</Step>
+
+<Step>
+### 完成浏览器授权
+
+1. 在打开的浏览器页面中，使用您的 Claude Pro/Max 账户登录
+2. 查看授权请求的权限范围
+3. 点击 **授权** 按钮同意授权
+
+</Step>
+
+<Step>
+### 粘贴授权码
+
+授权成功后，浏览器会显示一个授权码（格式类似 `code#state`）。
+
+1. 复制完整的授权码
+2. 返回 TalkCody
+3. 在弹出的输入框中粘贴授权码
+4. 点击 **确认**
+
+</Step>
+
+<Step>
+### 验证连接
+
+授权成功后，您会看到：
+
+- 连接状态显示为 **已连接**
+- 可以开始使用 Claude 模型进行对话
+
+</Step>
+
+</Steps>
+
+<Callout type="success">
+OAuth 登录成功后，令牌会自动刷新，无需重复登录。
+</Callout>
+
+---
+
+## 查看使用量
+
+TalkCody 提供了**使用量仪表板**，让您可以实时查看 Claude Pro/Max 订阅的使用情况。
+
+### 访问使用量仪表板
+
+1. 点击左侧导航栏中的 **使用量** 图标
+2. 选择 **Claude** 标签页查看 Claude 使用情况
+
+### 使用量指标说明
+
+
+![Claude 使用量仪表板](https://cdn.talkcody.com/images/claude-usage.png)
+
+
+仪表板会显示以下指标：
+
+#### 5 小时会话使用量
+
+- **显示内容**：过去 5 小时内的 API 使用百分比
+- **重置时间**：显示距离下一次重置的时间
+- **颜色说明**：
+  - 绿色（< 50%）：使用量正常
+  - 黄色（50-80%）：使用量中等
+  - 橙色（80-95%）：使用量较高
+  - 红色（>95%）：使用量接近限额
+
+#### 7 天周使用量
+
+- **显示内容**：过去 7 天内的 API 使用百分比
+- **参考指标**：帮助您了解每周的整体使用情况
+
+#### 额外使用量（如有）
+
+- **当前支出**：已使用的额外费用
+- **预算限额**：设置的额外费用上限
+- **进度条**：显示额外费用的使用进度
+
+### 刷新使用量
+
+点击右上角的 **刷新** 按钮可以手动更新使用量数据。
+
+---
+
+## 常见问题
+
+### OAuth 认证和 API Key 有什么区别？
+
+| 方式 | 优点 | 缺点 |
+|------|------|------|
+| OAuth（订阅） | 使用现有订阅，无需额外付费 | 仅限个人使用，有速率限制 |
+| API Key | 更高的速率限制，适合商业使用 | 需要单独购买 API 额度 |

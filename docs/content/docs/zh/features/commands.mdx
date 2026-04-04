@@ -1,0 +1,84 @@
+---
+title: Commands 内置命令
+sidebarTitle: Commands
+description: TalkCody 内置命令以 / 开头，用于触发任务管理与创建流程。
+icon: Command
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## 什么是内置命令
+
+内置命令是 TalkCody 的聊天指令，以 `/` 开头，主要用于任务管理与创建流程（与 Tools 不同，命令不会直接读写文件或执行终端）。
+
+## 什么时候使用
+
+- 需要开始新的任务时，用 `/new`
+- 当前任务上下文过长，需要压缩时，用 `/compact`
+- 项目还没有 AI 规范文件，需要初始化时，用 `/init`
+- 需要创建自定义工具时，用 `/create-tool`
+- 需要创建自定义智能体时，用 `/create-agent`
+- 需要创建自定义技能时，用 `/create-skill`
+
+## 命令清单
+
+| 命令 | 用途 | 什么时候使用 | 示例 |
+|------|------|--------------|------|
+| `/new` | 创建新任务 | 开始一个新的工作上下文 | `/new` |
+| `/compact` | 压缩当前任务上下文 | 任务对话很长、需要清理上下文 | `/compact` |
+| `/init` | 初始化项目规范 | 项目缺少 AGENTS.md 指南时 | `/init` / `/init web application` |
+| `/create-tool` | 创建自定义工具 | 需要新的可复用工具能力时 | `/create-tool` / `/create-tool weather fetcher` |
+| `/create-agent` | 创建自定义智能体 | 需要新的专用智能体时 | `/create-agent` / `/create-agent code reviewer` |
+| `/create-skill` | 创建自定义技能 | 需要新的本地技能时 | `/create-skill` / `/create-skill design system coach` |
+
+## 详细说明
+
+### /new
+
+- **用途**：创建一个新的任务。
+- **何时使用**：需要切换到新的问题或工作流时。
+
+### /compact
+
+- **用途**：手动压缩当前任务上下文。
+- **别名**：`/compress`。
+- **何时使用**：当前任务对话过长、希望减少上下文占用时。
+- **注意**：仅在有“当前任务”时可用。
+
+### /init
+
+- **用途**：初始化项目，并生成 AI 协作指南 `AGENTS.md`。
+- **参数**：可选 `type`（项目类型，如 web、api、mobile 等）。
+- **别名**：`/initialize`。
+- **何时使用**：新项目刚创建或缺少 `AGENTS.md` 时。
+
+### /create-tool
+
+- **用途**：创建并安装一个自定义工具。
+- **参数**：可选 `name`（工具名称或简述）。
+- **别名**：`/new-tool`、`/tool`。
+- **何时使用**：需要扩展新的工具能力时。
+
+### /create-agent
+
+- **用途**：创建并注册一个本地智能体。
+- **参数**：可选 `name`（智能体名称或简述）。
+- **别名**：`/new-agent`、`/agent`。
+- **何时使用**：需要一个专用工作流的智能体时。
+
+### /create-skill
+
+- **用途**：创建一个本地 Skill（`SKILL.md`）。
+- **参数**：可选 `name`（技能名称或简述）。
+- **别名**：`/new-skill`、`/skill`。
+- **何时使用**：需要沉淀可复用的知识与流程时。
+
+## 使用方式
+
+1. 在聊天输入框中输入 `/` 并选择命令
+2. 补充必要参数（如 `/init web application`）
+3. 发送后，系统会启动对应的引导流程
+
+<Callout type="info">
+内置命令用于触发流程或任务管理；需要执行文件与终端操作时，请使用 Tools。
+</Callout>

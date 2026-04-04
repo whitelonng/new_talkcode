@@ -1,0 +1,163 @@
+---
+title: Skills
+description: Skills are pre-configured knowledge and skill packages that provide AI agents with specialized capabilities in specific domains.
+icon: Puzzle
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+## What is a Skill?
+
+![TalkCody Skills](https://cdn.talkcody.com/images/skills.png)
+
+A Skill contains:
+- **System Prompt Snippets**: Behavior instructions injected into the agent
+- **Workflow Rules**: Execution steps for specific tasks
+- **Reference Documentation**: Domain knowledge and best practices
+- **Executable Scripts**: Automation for common tasks
+
+By activating different Skills, agents can quickly acquire specialized capabilities in specific domains.
+
+<Callout type="info">
+TalkCody Skills fully comply with the [Agent Skills Specification](https://agentskills.io) standard.
+</Callout>
+
+## Agent Skills Standard
+
+TalkCody's Skills system is based on the Agent Skills Specification, an open industry standard that defines a universal format for AI agent skills.
+
+### Standard Directory Structure
+
+```
+skill-name/
+├── SKILL.md          # Required: skill definition and description
+├── scripts/          # Optional: executable scripts
+│   ├── setup.py
+│   └── analyze.sh
+├── references/       # Optional: detailed reference documentation
+│   ├── REFERENCE.md
+│   └── api-guide.md
+└── assets/           # Optional: static resources
+    ├── template.json
+    └── diagram.svg
+```
+
+### Interoperability
+
+Because it fully complies with the standard, TalkCody can:
+- ✅ Import Skills from other tools (such as Claude Code Skills)
+- ✅ Export Skills for use in other tools
+- ✅ Share Skill repositories with tools that support this standard
+
+## Use Cases
+
+- **Database Development**: SQL syntax, query optimization, database design
+- **Code Review**: Coding standards, security checks, performance analysis
+- **Documentation Writing**: API docs, technical specs, user guides
+- **Test Development**: Unit testing, integration testing, test strategies
+
+## How to Use
+
+### Activate a Skill
+
+1. Click the **Skills icon** (puzzle icon) in the chat interface
+2. Select the desired Skill from the list
+3. The selected Skill is automatically applied to the current conversation
+
+### Install Skills
+
+#### Install from Marketplace
+
+1. Go to the **Skills page**
+2. Check the "Remote Skills" tab
+3. Click **Install** to download the desired Skill
+
+#### Import from GitHub
+
+TalkCody supports direct import of standard-format Skills from GitHub.
+
+**Import a Single Skill**
+
+1. Click **Import from GitHub** on the Skills page
+2. Enter the GitHub URL of a single Skill directory, for example:
+   ```
+   https://github.com/anthropics/skills/tree/main/skills/canvas-design
+   ```
+3. Click **Scan** to scan
+4. Click **Import** to import after confirmation
+
+**Batch Import Skills**
+
+1. Click **Import from GitHub** on the Skills page
+2. Enter the directory URL containing multiple Skills, for example:
+   ```
+   https://github.com/anthropics/skills/tree/main/skills
+   ```
+3. Click **Scan** to scan all subdirectories
+4. Select the Skills you want to import
+5. Click **Import** to batch import
+
+<Callout type="tip">
+The import feature automatically recognizes directory types:
+- If a directory contains a `SKILL.md` file, it will be imported as a single Skill
+- If a directory contains multiple subdirectories, it will scan all subdirectories and batch import Skills that meet the standard
+</Callout>
+
+### Manage Skills
+
+**View Installed Skills**
+- Go to the **Skills page**
+- Check the "Local Skills" tab
+
+**Create Custom Skill**
+1. Click **Create New Skill**
+2. Fill in name and description
+3. Write system prompt snippet
+4. Add workflow rules (optional)
+5. Save
+
+**Edit Skills**
+- Find the Skill you want to edit in the Local Skills list
+- Click the edit button to modify content
+- Save changes
+
+<Callout type="info">
+Created Skills automatically comply with the Agent Skills Specification standard and can be exported for use in other tools.
+</Callout>
+
+## Relationship with Agents
+
+Differences between Skills and Agents:
+
+| Feature | Skills | Agents |
+|---------|--------|--------|
+| Purpose | Knowledge enhancement | Complete assistant |
+| Configuration | Prompt snippets | Full system prompt |
+| Switching | Can activate multiple simultaneously | Use one at a time |
+| Applicability | Specific domain knowledge | Specific task workflows |
+
+<Callout type="tip">
+An Agent can use multiple Skills simultaneously, gaining specialized capabilities across multiple domains.
+</Callout>
+
+## Best Practices
+
+### Writing Skill Prompts
+
+- Focus on a single domain
+- Provide specific guidance
+- Include example output formats
+- Avoid conflicts with other Skills
+
+### Combined Usage
+
+```
+Scenario: Backend API Development
+
+Activated Skills:
+- REST API Design
+- SQL Query Optimization
+- API Security
+- Error Handling
+```

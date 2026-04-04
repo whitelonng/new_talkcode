@@ -1,0 +1,26 @@
+{
+  "name": "@talkcody/shared",
+  "version": "0.5.0",
+  "type": "module",
+  "description": "Shared types and utilities for TalkCody",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types/index.ts",
+    "./types/agent": "./src/types/agent.ts",
+    "./types/user": "./src/types/user.ts",
+    "./types/marketplace": "./src/types/marketplace.ts",
+    "./types/api": "./src/types/api.ts",
+    "./types/share-tools": "./src/types/share-tools.ts",
+    "./data/models-config": "./src/data/models-config.json",
+    "./utils": "./src/utils/index.ts"
+  },
+  "scripts": {
+    "type-check": "bun run tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "~5.8.3"
+  }
+}

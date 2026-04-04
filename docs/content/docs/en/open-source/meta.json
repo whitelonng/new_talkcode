@@ -1,0 +1,6 @@
+{
+  "title": "Open Source",
+  "icon": "Code",
+  "defaultOpen": true,
+  "pages": ["architecture", "development-setup", "roadmap"]
+}

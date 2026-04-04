@@ -1,0 +1,303 @@
+---
+title: AI Coding Best Practices
+sidebarTitle: Best Practices
+description: TalkCody AI Coding workflows to improve efficiency, reduce costs, and ensure quality
+icon: Sparkles
+---
+
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+This guide focuses on three goals: **efficiency, cost reduction, and quality improvement**. It summarizes TalkCody's key features and practical methods to help you turn AI into deliverable engineering productivity, rather than just an inspiration-based "chat tool".
+
+## AI Programming Trends in 2026
+
+Understanding these trends will help you better grasp the future direction of AI programming:
+
+<Callout type="info">
+### 📈 AI Agent Concurrency Leap
+
+**AI coding Agent concurrency will reach 10-20**: Moving from current single-task linear execution to handling 10-20 parallel tasks simultaneously. AI coding Agents will evolve from "code generators" to **Task orchestrators**, responsible for coordinating multiple subtasks, agents, and tools.
+</Callout>
+
+<Callout type="info">
+### 🌙 New Work Paradigm: Night Coding + Day Review
+
+**Night + Weekend AI Automated Coding**: Leverage non-working hours for AI to batch code, test, and generate documentation.
+
+**Daytime Review, Think, Discuss, and Critical Testing**: Humans focus on high-value activities—code review, architecture decisions, technical discussions, and critical test validation. This paradigm maximizes human time value.
+</Callout>
+
+<Callout type="info">
+### 👤 Career Boundary Restructuring: The Maker Era
+
+**Developer, Product Manager, and Tester roles will gradually merge**: AI Agents can handle coding, requirement analysis, test case generation, and multi-role work.
+
+**Only the Maker profession will remain**: Future engineers won't be single "programmers" or "testers", but **Makers** who can harness AI Agents and manage the full process—understanding technology, products, and delivering results.
+</Callout>
+
+## 1. Model Selection: Always Use the Best
+
+### Core Principle: Time is Your Most Valuable Asset
+
+<Callout type="tip">
+**Always use the most powerful model**.
+
+Your most valuable asset is your time, not API costs. The time saved by choosing a stronger model far exceeds the token fees saved.
+</Callout>
+
+### Recommended Model Configuration
+
+The following models are recommended in TalkCody:
+
+- **Primary Model**: GPT-5.2 Codex
+  - Use [OpenAI Subscription](../features/openai-plus-plan) in TalkCody
+  - Top-tier code understanding and generation capabilities
+  - Suitable for complex reasoning and multi-file refactoring
+
+- **High-Frequency Coding Scenarios**: [Coding Plan](../features/coding-plan) Built-in Models
+  - Optimized for programming
+  - Controllable costs
+  - Stable and reliable performance
+
+### Model Tiering Strategy
+
+- **Main Model**: Complex tasks, architecture design, critical code modifications
+- **Small Model**: Simple format conversions, document generation, basic Q&A
+
+<Callout type="warning">
+Don't sacrifice quality to save costs. One successful task completion is far better than ten failed attempts.
+</Callout>
+
+## 2. Efficiency: Let AI Help You Run Faster
+
+### 1. Use Plan Mode for Complex Tasks
+
+- For multi-file, critical changes, and complex requirements, enable [Plan Mode](../features/plan-mode) to let AI create a plan before execution.
+- Approve the plan before implementation, significantly reducing rework and repeated communication costs.
+
+### 2. Role-Based Collaboration: Agents + Skills
+
+- Use [AI Agents](../features/ai-agents) to split tasks into "roles": code reviewer, test generator, document writer, etc.
+- Use [Skills](../features/skills) to叠加 specific domain capabilities, allowing the same agent to quickly switch between different scenarios.
+- Use Small Model for simple tasks, Main Model for complex reasoning, avoiding "using a sledgehammer to crack a nut".
+
+### 3. Tool-Driven Positioning, Reduce Invalid Context
+
+- Proficiently use [Tools](../features/tools) and [Global Search](../features/search), locate first then read, avoiding "feeding the entire codebase to AI".
+- When latest information is needed, enable [Web Search](../features/web-search) or Coding Plan built-in search to reduce errors and outdated information.
+
+<Callout type="tip">
+The more precise the tool usage, the cleaner the AI's context, resulting in higher inference quality and speed.
+</Callout>
+
+### 4. Parallel Processing: Worktree
+
+- When running multiple tasks in parallel, enable [Worktree](../features/worktree) to let each task execute in an isolated directory, avoiding mutual overwrites.
+- Read-only tasks don't need Worktree, avoiding unnecessary overhead.
+
+### 5. Instant Feedback: LSP + Lint + Terminal
+
+- Enable [LSP](../features/lsp) and [Code Lint](../features/code-lint), using "instant diagnostics" to shorten feedback loops.
+- Use [Terminal Integration](../features/terminal) to quickly run scripts and verify commands, reducing switching costs.
+
+## 3. Cost: Spend Money Where It Matters
+
+### 1. Reuse Subscriptions, Prioritize Existing Quotas
+
+- Existing subscriptions can be directly reused:
+  - [Claude Pro/Max](../features/claude-pro-plan)
+  - [OpenAI Plus/Pro](../features/openai-plus-plan)
+  - [GitHub Copilot](../features/github-copilot)
+
+### 2. Coding Plan for High-Frequency Coding
+
+- [Coding Plan](../features/coding-plan) is a subscription solution for programming scenarios, suitable for high-frequency use with more controllable costs.
+- Once enabled, you can directly use built-in MCP search/image recognition tools, reducing additional API expenses.
+
+### 3. Fully Utilize Free and Low-Cost Solutions
+
+- Refer to the [Free Use Guide](../guides/free-use) to choose suitable free or local model solutions.
+
+### 4. Control Context Costs
+
+- Use `/compact` to compress conversation context, reducing token waste (see [Commands](../features/commands)).
+- Avoid repeatedly reading large files; prioritize search tools for positioning, then read precisely.
+- Understand TalkCody's context compression mechanism; refer to [Context Compression Principles](/en/blog/talkcody-context-compaction).
+
+## 4. Quality: Turn AI into a Deliverable Engineering Process
+
+### 1. Generate AGENTS.md with /init
+
+- `/init` generates the project collaboration specification file `AGENTS.md`, providing stable engineering rules for AI.
+- Agent dynamic prompts also read `AGENTS.md`, significantly improving output consistency.
+- See [Commands](../features/commands) for command details.
+
+### 2. Use Hooks as Quality Gates
+
+Hooks can execute commands during the task lifecycle, implementing CI-like quality interception. The project provides an example script `scripts/hooks/stop-checks.ts`, which sequentially executes `bun run tsc`, `bun run test`, `bun run lint`, and blocks task completion on failure.
+
+Example configuration (project-level `.talkcody/settings.json`):
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun scripts/hooks/stop-checks.ts",
+            "timeout": 600,
+            "description": "Run tsc/test/lint before finishing"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+<Callout type="warning">
+Hooks execute commands locally; only enable them in trusted projects and set appropriate timeouts based on project scale.
+</Callout>
+
+### 3. One-Click AI Code Review
+
+TalkCody supports one-click AI code review, letting AI act as a professional code reviewer:
+
+<Steps>
+<Step>
+### Start Review
+After file changes, TalkCody can automatically trigger agents for in-depth review
+</Step>
+
+<Step>
+### Multi-Dimensional Check
+- **Code Quality**: Detect code smells, complexity, potential bugs
+- **Security**: Identify security vulnerabilities, sensitive information leakage risks
+- **Best Practices**: Evaluate compliance with project coding standards and design patterns
+- **Maintainability**: Check code readability, comment completeness
+</Step>
+
+<Step>
+### Generate Report
+Automatically generate structured review reports, including issue location, severity, and fix suggestions
+</Step>
+
+<Step>
+### One-Click Fix
+Support one-click fix code generation based on review reports
+</Step>
+</Steps>
+
+<Callout type="success">
+AI Code Review transforms code review from "manual time-consuming" to "second-level response", significantly improving code quality and team efficiency.
+</Callout>
+
+### 4. Use LSP + Lint + Tests to Form a Closed Loop
+
+- LSP finds issues first, Lint reinforces standards, tests validate logic; these three form a quality closed loop.
+- For complex changes, recommend pairing with a "Code Review Agent" for secondary verification.
+
+## 5. How to Plan Efficiently
+
+### Open-Ended vs Closed-Ended Questions
+
+<Callout type="warning">
+### ❌ Wrong: Closed-Ended Questions
+
+"Is this solution good?" "Is this written correctly?"
+
+These questions can only get binary answers of "good/not good", "right/wrong", unable to stimulate AI's exploration capabilities.
+</Callout>
+
+<Callout type="success">
+### ✅ Correct: Open-Ended Questions
+
+"What technical solutions might AI have for this requirement? What are their respective pros and cons?"
+
+"What are the possible implementation paths? Help me analyze the applicable scenarios for each approach."
+
+These questions let AI actively explore multiple possibilities, providing comprehensive analysis and comparison.
+</Callout>
+
+### Plan Mode Efficient Questioning Techniques
+
+When using [Plan Mode](../features/plan-mode), it's recommended to:
+
+1. **Describe goals, not paths**
+   - ✅ "We need to implement a file upload feature, supporting breakpoint resume and large file handling"
+   - ❌ "Use WebSocket to implement file upload"
+
+2. **Request multi-solution comparison**
+   - "Please provide 2-3 technical solutions, analyzing their respective tech stacks, complexity, performance, and maintenance costs"
+
+3. **Clarify constraints**
+   - "Considering our team is familiar with TypeScript and needs mobile compatibility, what solutions do you recommend?"
+
+4. **Request risk assessment**
+   - "What risks might each solution have? What pitfalls need special attention?"
+
+<Callout type="tip">
+Open-ended questioning maximizes AI's exploration capabilities, allowing you to obtain more comprehensive and profound solution analysis.
+</Callout>
+
+## Recommended Workflow (Example)
+
+<Steps>
+<Step>
+### 1) Initialize Specifications with /init
+Generate `AGENTS.md`, clarifying project constraints and output requirements.
+</Step>
+
+<Step>
+### 2) Enable Plan Mode for Complex Tasks
+Let AI submit a plan first, then approve and execute.
+</Step>
+
+<Step>
+### 3) Search → Read Carefully → Modify
+Use search tools for positioning first, then precisely read files, avoiding invalid context.
+</Step>
+
+<Step>
+### 4) Role-Based Collaboration
+Switch Agents/Skills, splitting review, testing, documentation into independent subtasks.
+</Step>
+
+<Step>
+### 5) Use Worktree for Parallelism
+Isolate directories when making multi-task changes to avoid conflicts.
+</Step>
+
+<Step>
+### 6) Hooks/Terminal Execute Checks
+Run tsc/test/lint before finishing to ensure deliverable quality.
+</Step>
+</Steps>
+
+## Quick Checklist
+
+- **Model Selection**: Always use the best model + GPT-5.2 Codex as primary + Coding Plan for high-frequency
+- **Efficiency**: Plan Mode planning + precise tool positioning + Worktree parallelism + LSP/Lint instant feedback
+- **Cost**: Subscription reuse + Coding Plan + free solutions + /compact context control
+- **Quality**: /init standardization + Hooks quality gates + AI Code Review + test closed loop
+- **Plan**: Open-ended questions + multi-solution comparison + clear constraints + risk assessment
+
+## Related Reading
+
+- [Plan Mode](../features/plan-mode)
+- [Coding Plan](../features/coding-plan)
+- [AI Agents](../features/ai-agents)
+- [Skills](../features/skills)
+- [Tools](../features/tools)
+- [Global Search](../features/search)
+- [Web Search](../features/web-search)
+- [Git Worktree](../features/worktree)
+- [Code Lint](../features/code-lint)
+- [LSP Language Service](../features/lsp)
+- [Commands Built-in Commands](../features/commands)
+- [Free Use Guide](../guides/free-use)
+- [Context Compression Principles](/en/blog/talkcody-context-compaction)

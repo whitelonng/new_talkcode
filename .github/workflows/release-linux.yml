@@ -1,0 +1,213 @@
+name: Release Linux
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Commit SHA or branch to build (leave empty for current branch)'
+        required: false
+        default: ''
+  push:
+    tags:
+      - 'v*-linux'
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.repository_owner == 'talkcody' && startsWith(github.ref, 'refs/tags/v')
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          # Extract version from tag (e.g., v0.1.8-linux -> 0.1.8)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          VERSION=${VERSION%-linux}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }} (Linux)
+          draft: false
+          prerelease: false
+          body: |
+            ## What's Changed (Linux Release)
+
+            Download packages for all platforms at: https://www.talkcody.com/docs/introduction/client-downloads
+
+  build-linux-test:
+    name: Build Linux AppImage (Manual)
+    if: github.repository_owner == 'talkcody' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            jq \
+            ibus-gtk3 \
+            fcitx5-frontend-gtk3 \
+            protobuf-compiler
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build Tauri app (test build)
+        run: bun run tauri build
+
+      - name: Get AppImage file path
+        id: get_appimage
+        run: |
+          APPIMAGE_PATH=$(find src-tauri/target/release/bundle/appimage -name "*.AppImage" | head -n 1)
+          echo "appimage_path=$APPIMAGE_PATH" >> $GITHUB_OUTPUT
+          echo "appimage_name=$(basename $APPIMAGE_PATH)" >> $GITHUB_OUTPUT
+
+      - name: Upload AppImage as Artifact (test build)
+        uses: actions/upload-artifact@v4
+        with:
+          name: talkcody-linux-${{ github.sha }}
+          path: ${{ steps.get_appimage.outputs.appimage_path }}
+          retention-days: 7
+
+  build-linux-release:
+    name: Build Linux AppImage (Release)
+    needs: create-release
+    if: github.repository_owner == 'talkcody' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            jq \
+            ibus-gtk3 \
+            fcitx5-frontend-gtk3 \
+            protobuf-compiler
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build Tauri app (with updater artifacts)
+        run: |
+          jq '.bundle.createUpdaterArtifacts = true' src-tauri/tauri.conf.json > /tmp/tauri.conf.json
+          TAURI_CONFIG=/tmp/tauri.conf.json bun run tauri build
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+      - name: Setup Node.js for wrangler
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install wrangler
+        run: npm install -g wrangler@3.107.0
+
+      - name: Run release script (Linux)
+        run: |
+          chmod +x .github/scripts/release.sh
+          PLATFORM=linux ARCH=x86_64 ./.github/scripts/release.sh
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          VERSION: ${{ needs.create-release.outputs.version }}
+
+      - name: Get AppImage file path
+        id: get_appimage
+        run: |
+          APPIMAGE_PATH=$(find src-tauri/target/release/bundle/appimage -name "*.AppImage" | head -n 1)
+          echo "appimage_path=$APPIMAGE_PATH" >> $GITHUB_OUTPUT
+          echo "appimage_name=$(basename $APPIMAGE_PATH)" >> $GITHUB_OUTPUT
+
+      - name: Upload AppImage to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.get_appimage.outputs.appimage_path }}
+          asset_name: ${{ steps.get_appimage.outputs.appimage_name }}
+          asset_content_type: application/octet-stream
+
+      - name: Get updater bundle path
+        id: get_bundle
+        run: |
+          BUNDLE_PATH=$(find src-tauri/target/release/bundle/appimage -name "*.tar.gz" -not -name "*.sig" | head -n 1)
+          echo "bundle_path=$BUNDLE_PATH" >> $GITHUB_OUTPUT
+          echo "bundle_name=$(basename $BUNDLE_PATH)" >> $GITHUB_OUTPUT
+
+      - name: Upload updater bundle to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.get_bundle.outputs.bundle_path }}
+          asset_name: ${{ steps.get_bundle.outputs.bundle_name }}
+          asset_content_type: application/gzip

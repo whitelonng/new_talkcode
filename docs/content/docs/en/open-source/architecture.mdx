@@ -1,0 +1,88 @@
+---
+title: Architecture
+description: TalkCody's architecture design and technology stack.
+icon: Blocks
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## Overall Architecture
+
+```
+┌────────────────────────────────────────────────┐
+│                   TalkCody                     │
+├────────────────────────────────────────────────┤
+│                                                │
+│  ┌──────────────────────────────────────────┐  │
+│  │           Frontend (Renderer)            │  │
+│  │  ┌────────────┐    ┌─────────────────┐   │  │
+│  │  │ UI Components│    │   Service Layer │   │  │
+│  │  │ React + TS │───►│    AI SDK       │   │  │
+│  │  │  Tailwind  │    │    Zustand      │   │  │
+│  │  └────────────┘    └─────────────────┘   │  │
+│  └───────────────────────┬──────────────────┘  │
+│                          │ IPC                 │
+│  ┌───────────────────────▼──────────────────┐  │
+│  │           Backend (Main)                 │  │
+│  │           Tauri / Rust                   │  │
+│  │   libsql / File Operations / System API  │  │
+│  └──────────────────────────────────────────┘  │
+│                                                │
+└──────────────┬───────────────────┬─────────────┘
+               │                   │
+               ▼                   ▼
+        ┌───────────┐       ┌───────────┐
+        │  AI APIs  │       │Local Storage│
+        │  OpenAI   │       │  SQLite   │
+        │  Claude   │       │   Files   │
+        └───────────┘       └───────────┘
+```
+
+## Technology Stack
+
+### Frontend Stack
+
+**Core Framework**
+- **React 19**: UI framework
+- **TypeScript**: Type-safe JavaScript
+- **Vite 7**: Build tool and dev server
+
+**Styling**
+- **Tailwind CSS 4**: Utility-first CSS framework
+- **Shadcn UI**: Component library
+- **Lucide Icons**: Icon library
+
+**State Management**
+- **Zustand**: Global state
+
+**Editor**
+- **Monaco Editor**: VS Code's editor core
+
+**AI Integration**
+- **Vercel AI SDK**: Unified AI interface
+
+### Backend Stack
+
+**Framework**
+- **Tauri 2**: Desktop app framework
+- **Rust**: High-performance systems programming language
+
+Core Libraries:
+
+- **libSQL**
+
+   - SQLite-compatible embedded database
+   - Full-text search support
+   - Vector search support
+   - Compatible with server-side Turso database
+
+- **tree-sitter**: Code navigation
+
+## Next Steps
+
+- [Development Setup](/docs/open-source/development-setup) - Build TalkCody
+- [GitHub Repository](https://github.com/talkcody/talkcody)
+
+<Callout type="info">
+Have questions about the architecture? Ask on [GitHub Discussions](https://github.com/talkcody/talkcody/discussions).
+</Callout>

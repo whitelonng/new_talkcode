@@ -1,0 +1,190 @@
+name: Release Windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Commit SHA or branch to build (leave empty for current branch)'
+        required: false
+        default: ''
+  push:
+    tags:
+      - 'v*-windows'
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.repository == 'talkcody/talkcody'
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          # Extract version from tag (e.g., v0.1.8-windows -> 0.1.8)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          VERSION=${VERSION%-windows}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }} (Windows)
+          draft: false
+          prerelease: false
+          body: |
+            ## What's Changed (Windows Release)
+
+            Download packages for all platforms at: https://www.talkcody.com/docs/introduction/client-downloads
+
+  build-windows:
+    name: Build Windows MSI
+    needs: create-release
+    if: always() && github.repository == 'talkcody/talkcody'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+          target: x86_64-pc-windows-msvc
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build frontend
+        run: bun run build
+
+      - name: Install jq and protoc
+        run: |
+          choco install jq -y
+          choco install protoc -y
+
+      - name: Build Tauri app (with updater artifacts)
+        if: github.event_name == 'push'
+        run: |
+          jq '.bundle.createUpdaterArtifacts = true' src-tauri/tauri.conf.json > /tmp/tauri.conf.json.tmp
+          mv /tmp/tauri.conf.json.tmp src-tauri/tauri.conf.json
+          bun run tauri build
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+      - name: Build Tauri app (test build)
+        if: github.event_name == 'workflow_dispatch'
+        run: bun run tauri build
+        shell: bash
+
+      - name: Setup Node.js for wrangler
+        if: github.event_name == 'push'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install wrangler
+        if: github.event_name == 'push'
+        run: npm install -g wrangler
+
+      - name: Run release script (Windows)
+        if: github.event_name == 'push'
+        run: |
+          $env:PLATFORM = "windows"
+          $env:ARCH = "x86_64"
+          $env:VERSION = "${{ needs.create-release.outputs.version }}"
+          $env:TAURI_SIGNING_PRIVATE_KEY = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
+          $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}"
+          $env:CLOUDFLARE_API_TOKEN = "${{ secrets.CLOUDFLARE_API_TOKEN }}"
+          $env:CLOUDFLARE_ACCOUNT_ID = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
+
+          # Convert Windows path to Unix path for bash
+          bash .github/scripts/release.sh
+        shell: pwsh
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Get MSI file path
+        id: get_msi
+        run: |
+          $msiPath = (Get-ChildItem -Path "src-tauri\target\release\bundle\msi" -Name "*.msi" | Select-Object -First 1)
+          if (-not $msiPath) {
+            Write-Error "MSI file not found"
+            exit 1
+          }
+          $msiFullPath = "src-tauri\target\release\bundle\msi\$msiPath"
+          echo "msi_path=$msiFullPath" >> $env:GITHUB_OUTPUT
+          echo "msi_name=$msiPath" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Upload MSI as Artifact (test build)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: talkcody-windows-${{ github.sha }}
+          path: src-tauri/target/release/bundle/msi/*.msi
+          retention-days: 7
+
+      - name: Upload MSI to Release
+        if: github.event_name == 'push'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.get_msi.outputs.msi_path }}
+          asset_name: ${{ steps.get_msi.outputs.msi_name }}
+          asset_content_type: application/octet-stream
+
+      - name: Get updater bundle path
+        if: github.event_name == 'push'
+        id: get_bundle
+        run: |
+          $bundlePath = (Get-ChildItem -Path "src-tauri\target\release\bundle\msi" -Name "*.msi.tar.gz" -not -Name "*.sig" | Select-Object -First 1)
+          if (-not $bundlePath) {
+            Write-Error "Updater bundle not found"
+            exit 1
+          }
+          $bundleFullPath = "src-tauri\target\release\bundle\msi\$bundlePath"
+          echo "bundle_path=$bundleFullPath" >> $env:GITHUB_OUTPUT
+          echo "bundle_name=$bundlePath" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Upload updater bundle to Release
+        if: github.event_name == 'push'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.get_bundle.outputs.bundle_path }}
+          asset_name: ${{ steps.get_bundle.outputs.bundle_name }}
+          asset_content_type: application/gzip

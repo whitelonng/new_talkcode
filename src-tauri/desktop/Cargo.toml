@@ -1,0 +1,72 @@
+[package]
+name = "talkcody-desktop"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "TalkCody Desktop Application (Tauri)"
+license = "MIT"
+
+[[bin]]
+name = "talkcody"
+path = "src/main.rs"
+
+[lib]
+name = "talkcody_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+path = "src/lib.rs"
+
+[build-dependencies]
+tauri-build.workspace = true
+
+[dependencies]
+# Core library
+ talkcody-core = { path = "../core" }
+ talkcody-server = { path = "../server" }
+
+# Tauri
+tauri.workspace = true
+tauri-plugin-opener.workspace = true
+tauri-plugin-log.workspace = true
+tauri-plugin-dialog.workspace = true
+tauri-plugin-fs.workspace = true
+tauri-plugin-shell.workspace = true
+tauri-plugin-deep-link.workspace = true
+tauri-plugin-clipboard.workspace = true
+tauri-plugin-process.workspace = true
+tauri-plugin-os.workspace = true
+tauri-plugin-notification.workspace = true
+tauri-plugin-single-instance.workspace = true
+tauri-plugin-updater.workspace = true
+
+# Async runtime
+tokio.workspace = true
+futures.workspace = true
+
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+
+# Logging
+log.workspace = true
+
+# Utilities
+uuid.workspace = true
+chrono.workspace = true
+dirs.workspace = true
+fix-path-env.workspace = true
+notify.workspace = true
+lazy_static.workspace = true
+
+[target."cfg(target_os = \"windows\")".dependencies]
+windows-sys = { version = "0.59", features = ["Win32_System_Power"] }
+
+[target."cfg(target_os = \"macos\")".dependencies]
+cocoa = "0.25"
+objc = "0.2.7"
+
+[target."cfg(target_os = \"linux\")".dependencies]
+which = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tauri = { workspace = true, features = ["test"] }

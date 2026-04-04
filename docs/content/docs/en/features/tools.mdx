@@ -1,0 +1,98 @@
+---
+title: Tools
+description: Tools are built-in capabilities for AI agents to perform specific actions, such as reading and writing files, searching code, and executing commands.
+icon: Wrench
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## What is a Tool?
+
+![TalkCody Tools](https://cdn.talkcody.com/images/tools.png)
+
+A Tool is a predefined functional module that allows agents to interact with external systems:
+- File system operations
+- Codebase searching
+- Network requests
+- Command execution
+
+Without Tools, agents can only have text conversations. With Tools, agents can truly help you complete tasks.
+
+## Built-in Tool List
+
+### File Operations
+
+| Tool | Function | Description |
+|------|----------|-------------|
+| **Read File** | Read file content | View code, configuration files |
+| **Write File** | Create new files | Generate code, configurations |
+| **Edit File** | Modify existing files | Update code, fix issues |
+
+### Search Tools
+
+| Tool | Function | Description |
+|------|----------|-------------|
+| **Code Search** | Full-text search codebase | Precise code pattern matching |
+| **Glob** | Wildcard file matching | Batch process files |
+
+### Execution Tools
+
+| Tool | Function | Description |
+|------|----------|-------------|
+| **Bash** | Execute terminal commands | Run scripts, install dependencies |
+
+### Network Tools
+| **Web Fetch** | Fetch web page content | Check documentation, APIs |
+| **Web Search** | Search the internet | Find solutions |
+
+### Other Tools
+
+| Tool | Function | Description |
+|------|----------|-------------|
+| **Call Agent** | Call other agents | Collaborate on complex tasks |
+| **Todo Write** | Manage task lists | Track task progress |
+| **Ask User** | Ask user questions | Confirm critical decisions |
+
+## How to Use
+
+### View Current Tools
+
+1. Click the **Tools icon** (wrench icon) in the chat interface
+2. View the list of enabled tools
+3. The number badge shows the enabled count
+
+### Temporarily Adjust Tools
+
+Temporarily enable or disable tools during a conversation:
+
+1. Click the Tools icon to open the panel
+2. Check/uncheck tools
+3. Modifications only apply to the current session
+4. Click **Reset** to restore defaults
+
+<Callout type="warn">
+Temporary modifications are not saved after app restart. After restart, the agent's default tool configuration will be used.
+</Callout>
+
+## Tool Permission Control
+
+### Principle of Least Privilege
+
+When configuring tools for agents, grant only necessary permissions:
+
+```
+Code Reviewer Agent:
+✅ Read File (needs to read code)
+✅ Code Search (needs to search patterns)
+❌ Write File (only reviews, doesn't modify)
+❌ Bash (doesn't need to execute commands)
+```
+
+## Difference from MCP Tools
+
+| Feature | Built-in Tools | MCP Tools |
+|---------|---------------|-----------|
+| Source | Pre-installed in TalkCody | Provided by external servers |
+| Type | General operations | Professional integrations |
+| Configuration | Ready out of the box | Requires server configuration |
+| Extensibility | Fixed functionality | Unlimited extension |

@@ -1,0 +1,95 @@
+---
+title: Share Link
+description: Share your AI conversation tasks with others via link, supporting multiple expiration times and password protection.
+icon: Share
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+## What is a Share Link?
+
+The share link feature allows you to generate a dedicated link for your AI conversation tasks, making it easy to share your work with others. Recipients don't need to install TalkCody or log in to an account - they can view the conversation directly through their browser.
+
+<Callout type="info">
+Share links are suitable for: code reviews, knowledge sharing, teaching demonstrations, team collaboration, and more.
+</Callout>
+
+## Key Features
+
+| Feature | Description |
+|---------|-------------|
+| **No Login Required** | Recipients can view directly in the browser without an account |
+| **Path Privacy Protection** | Automatically converts local file paths (e.g., `/Users/xxx/`) to `~` to protect privacy |
+| **Tool Output Display** | Perfectly displays execution results from tools like readFile, writeFile, editFile, codeSearch |
+| **Password Protection** | Optional password setting to prevent unauthorized access |
+| **Expiration Time** | Supports 1 day, 7 days, 30 days, or never expire |
+
+## How to Use
+
+### Create a Share Link
+
+1. **Open the Share Dialog**
+   
+   In any task conversation, click the **Share Icon** button in the top-right corner of the chat panel.
+
+2. **Configure Share Options**
+   
+   In the popup share dialog, you can set:
+   
+   - **Expiration Time**: Select the link's validity period
+     - 1 day
+     - 7 days
+     - 30 days
+     - Never expire
+   
+   - **Password Protection** (optional): Set an access password for the link
+     - Check "Enable Password Protection"
+     - Enter a password (at least 4 characters)
+
+   <Callout type="warning">
+   Please keep your password safe. When sharing the link, you'll need to share the password with the recipient.
+   </Callout>
+
+3. **Generate and Copy Link**
+   
+   Click **Create Share Link** button, and the system will generate a dedicated link.
+   
+   You can:
+   - Click **Copy Link** to copy the link to your clipboard
+   - Click **Open in Browser** to preview the shared page
+
+### Viewing the Shared Page
+
+Recipients of the share link will see:
+
+- **Conversation Title**: The name of the task
+- **Model Information**: The AI model used
+- **Message List**: Complete conversation content, including user questions, AI responses, and tool execution results
+- **Code Blocks**: Syntax highlighting and copy functionality
+- **Tool Outputs**: File operations, search results, etc. displayed in a friendly format
+
+<Callout type="tip">
+Code blocks have a copy button in the top-right corner - click it to copy the code content.
+</Callout>
+
+## Share Content Notes
+
+### What Will Be Shared
+
+- All messages in the conversation (user and AI)
+- Tool calls used by AI and their output results
+- Code blocks, file paths, search results, etc.
+
+### What Won't Be Shared
+
+- Full local file paths (automatically converted to `~`)
+- Sensitive command outputs (like API keys, Tokens, etc.)
+- Your personal account information
+
+## Best Practices
+
+1. **Sensitive Information**: Check the conversation content before sharing to ensure no sensitive information is leaked
+2. **Password Protection**: For sensitive content, it's recommended to enable password protection
+3. **Reasonable Expiration**: Choose an appropriate expiration time based on the use case
+4. **Timely Cleanup**: Delete share links that are no longer needed

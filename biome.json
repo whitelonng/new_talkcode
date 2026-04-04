@@ -1,0 +1,88 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        "noExplicitAny": "warn",
+        "noControlCharactersInRegex": "off",
+        "noArrayIndexKey": "error",
+        "noAsyncPromiseExecutor": "error",
+        "noAssignInExpressions": "warn"
+      },
+      "correctness": {
+        "noUnusedVariables": "error",
+        "useHookAtTopLevel": "error",
+        "noVoidElementsWithChildren": "error",
+        "useExhaustiveDependencies": "error",
+        "noInnerDeclarations": "warn"
+      },
+      "a11y": {
+        "noNoninteractiveElementToInteractiveRole": "warn",
+        "useKeyWithClickEvents": "warn",
+        "noLabelWithoutControl": "warn",
+        "useButtonType": "warn",
+        "useSemanticElements": "warn",
+        "noStaticElementInteractions": "warn",
+        "noSvgWithoutTitle": "warn"
+      },
+      "complexity": {
+        "noForEach": "warn",
+        "noExcessiveCognitiveComplexity": "off",
+        "noVoid": "warn"
+      },
+      "style": {
+        "noNonNullAssertion": "warn",
+        "useConst": "warn"
+      }
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 100
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "trailingCommas": "es5",
+      "semicolons": "always",
+      "arrowParentheses": "always"
+    }
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "apps/api/src/**/*.ts",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/dist-ssr",
+      "!**/src-tauri",
+      "!**/coverage",
+      "!**/.wrangler",
+      "!**/.next",
+      "!**/.source",
+      "!**/docs",
+      "!apps/api/src/test",
+      "!**/*.test.ts",
+      "!**/*.test.tsx",
+      "!**/test",
+      "!**/*.config.js",
+      "!**/*.config.ts",
+      "!~"
+    ]
+  }
+}

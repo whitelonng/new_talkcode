@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+bun.lockb
+
+# Build output
+dist/
+.output/
+
+# Environment
+.env
+.env.local
+.env.*.local
+.dev.vars
+
+# Drizzle
+.wrangler/
+*.db
+*.db-*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# TypeScript
+*.tsbuildinfo
+src/test/benchmark-results.md

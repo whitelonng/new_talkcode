@@ -1,0 +1,258 @@
+---
+title: TalkCody Free Use Guide
+sidebarTitle: Free Use
+description: Learn how to use various powerful AI models for free in TalkCody
+icon: Gift
+---
+
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+TalkCody is designed to make AI accessible to every developer to enhance efficiency. If you don't want to purchase additional API credits, you can use TalkCody for free through several methods.
+
+## Free Plans Overview
+
+Currently, TalkCody supports the following major free/low-cost options:
+
+| Provider | Type | Advantages | Limitations |
+| :--- | :--- | :--- | :--- |
+| **TalkCody Free** | Completely Free | Built-in zero config, supports high-perf models | Requires GitHub login |
+| **Qwen Code** | Completely Free | Alibaba's Qwen model, strong coding capability | Requires OAuth authentication |
+| **Google AI Studio** | Personal Free Tier | Gemini 2.5 series, ultra-long context | 1500 requests per day limit |
+| **GitHub Copilot** | Subscription Reuse | Reuse existing subscription, no extra cost | Requires a GitHub Copilot subscription |
+| **Ollama** | Local Running | Completely free, offline privacy, unlimited use | Depends on local hardware performance |
+| **Ollama Cloud** | Cloud Free Tier | Access top closed-source models (MiniMax, GLM, etc.) | Daily/Weekly quota limits |
+| **LM Studio** | Local Running | User-friendly UI, OpenAI API compatible | Depends on local hardware performance |
+| **OpenRouter** | Aggregated Free Models | Wide variety, early access to new models | Depends on OpenRouter platform |
+
+---
+
+## 1. TalkCody Free
+
+TalkCody's official free service, designed to lower the barrier to AI entry and let users start immediately.
+
+<Steps>
+<Step>
+### GitHub Login
+To prevent API abuse, using TalkCody Free requires logging in with your GitHub account.
+</Step>
+
+<Step>
+### Select Model
+In the TalkCody model selector, switch to the **TalkCody Free** provider.
+</Step>
+
+<Step>
+### Free access to MiniMax M2.1
+Currently, TalkCody Free provides long-term free access to the **MiniMax M2.1** model. This model has excellent performance in both general conversation and coding tasks.
+</Step>
+</Steps>
+
+---
+
+## 2. Qwen Code
+
+TalkCody supports calling Alibaba's Qwen coding models for free via Qwen Code OAuth.
+
+<Steps>
+<Step>
+### Log in to Qwen Code
+Log in to the Qwen Code client first.
+</Step>
+
+<Step>
+### Enter Qwen Code Token Path
+In TalkCody **Settings** -> **API Keys**, paste the Token path for Qwen Code into the corresponding input field.
+TalkCody automatically detects the Qwen Code client's Token file location on each platform, or you can manually specify the path.
+</Step>
+
+<Step>
+### Configure Models
+In **Model Settings**, switch the primary or secondary model to Qwen3 Coder Plus or Qwen3 Coder Flash to start using it.
+</Step>
+</Steps>
+
+---
+
+## 3. Google AI Studio (Gemini)
+
+Google provides a very generous free tier for developers.
+
+<Callout type="success">
+**Free Tier Details**: According to Google's latest API policy, Gemini 2.5 Flash / Flash Lite models support 15 requests per minute (RPM) and **1500 requests per day (RPD)** in the free tier.
+</Callout>
+
+<Steps>
+<Step>
+### Get API Key
+Visit [Google AI Studio](https://aistudio.google.com/app/apikey) and log in with your Google account.
+</Step>
+
+<Step>
+### Create Key
+Click "Create API key" and copy the generated key.
+</Step>
+
+<Step>
+### Configure in TalkCody
+In TalkCody **Settings** -> **API Keys**, paste the key into the **Google AI** input field.
+</Step>
+</Steps>
+
+---
+
+## 4. GitHub Copilot Subscription Reuse
+
+GitHub Copilot has subscription plans with free quotas, and TalkCody supports reusing these subscriptions to use Copilot models for free.
+
+Please refer to the [GitHub Copilot Guide](../features/github-copilot) for detailed configuration steps.
+
+---
+
+## 5. Ollama (Local LLM)
+
+If you have a computer with decent specifications (16GB+ RAM recommended), you can run models locally.
+
+<Steps>
+<Step>
+### Install Ollama
+Visit [ollama.com](https://ollama.com) to download and install the client for your system.
+</Step>
+
+<Step>
+### Download Models
+Run the following commands in your terminal to download models suitable for coding:
+```bash
+ollama pull qwen2.5-coder
+# Or use a high-performance small model
+ollama pull llama3.2
+```
+</Step>
+
+<Step>
+### Automatic Connection
+As long as the Ollama service is running in the background, TalkCody will automatically detect it. You will see Ollama models in the dropdown menu of **Model Settings**.
+</Step>
+</Steps>
+
+<Callout type="tip">
+The biggest advantages of running models locally are **privacy/security** and being **completely free**.
+</Callout>
+
+---
+
+## 6. Ollama Cloud (Cloud Free Models)
+
+Ollama not only supports local execution but also offers the **Ollama Cloud** service, allowing users to call high-performance cloud models directly through the local Ollama client.
+
+<Callout type="info">
+**Free Quota**: Ollama Cloud provides users with daily and weekly free usage quotas. It is an excellent way to experience top-tier domestic and international models (like MiniMax, GLM, Gemini, etc.) without configuring complex API keys.
+</Callout>
+
+### Supported Models List
+
+Through Ollama Cloud, you can access the following models for free:
+
+- **MiniMax M2.1**: `minimax-m2.1:cloud` (High-performance model)
+- **GLM 4.7**: `glm-4.7:cloud` (Latest model from Zhipu)
+- **Gemini 3 Flash**: `gemini-3-flash-preview:cloud` (Google's high-speed model)
+- **Kimi K2 Thinking**: `kimi-k2-thinking:cloud` (Moonshot's reasoning model)
+
+### Usage Steps
+
+<Steps>
+<Step>
+### Ensure Ollama is Installed
+If you haven't installed it yet, visit [ollama.com](https://ollama.com).
+</Step>
+
+<Step>
+### Register/Login to Ollama Account
+Execute the following command in your terminal to log in (if not already logged in):
+```bash
+ollama login
+```
+</Step>
+
+<Step>
+### Run Cloud Models
+You can directly select models with the `:cloud` suffix in the TalkCody model dropdown menu.
+
+If you encounter a **Model not found** error during use, please run the corresponding command in your terminal once to activate the model:
+```bash
+# Activate MiniMax
+ollama run minimax-m2.1:cloud
+
+# Activate GLM 4.7
+ollama run glm-4.7:cloud
+
+# Activate Gemini 3 Flash
+ollama run gemini-3-flash-preview:cloud
+```
+</Step>
+
+<Step>
+### Use in TalkCody
+As long as the Ollama service is running, TalkCody will automatically sync these cloud models. You can switch to them directly in **Model Settings**.
+</Step>
+</Steps>
+
+---
+
+## 7. LM Studio (Local LLM)
+
+LM Studio is another popular desktop application for running open-source LLMs locally, providing an intuitive interface to discover, download, and run models.
+
+<Steps>
+<Step>
+### Install LM Studio
+Visit [lmstudio.ai](https://lmstudio.ai/) to download and install the client for your system.
+</Step>
+
+<Step>
+### Download and Load Models
+Search for and download the models you need (such as `Qwen2.5-Coder` or `Llama 3.2`) in LM Studio, then click "Load Model" to load it into memory.
+</Step>
+
+<Step>
+### Start Local Server
+Click the **Local Server** icon (double arrow symbol) in the left sidebar of LM Studio, then click **Start Server**. The default port is usually `1234`.
+</Step>
+
+<Step>
+### Configure in TalkCody
+In TalkCody **Settings** -> **API Keys**, enable the **LM Studio** switch. TalkCody will automatically detect the local service running on port `1234`, and you can select the loaded models in **Model Settings**.
+</Step>
+</Steps>
+
+---
+
+## 8. OpenRouter
+
+OpenRouter is a powerful model aggregation platform that not only allows you to access various models through a unified interface but also provides a wealth of free resources.
+
+### Key Advantages
+
+- **Rich Variety of Free Models**: OpenRouter consistently maintains a large number of free models. You can visit their model list and filter for "Free" to see what's currently available.
+- **Early Access to New Models**: Many AI vendors choose to provide limited-time free testing quotas on OpenRouter when launching new models for public beta, making it an excellent way to experience cutting-edge technology.
+
+### Configuration Steps
+
+<Steps>
+<Step>
+### Get API Key
+Visit [OpenRouter](https://openrouter.ai/) to register and generate an API Key.
+</Step>
+
+<Step>
+### Configure in TalkCody
+In TalkCody **Settings** -> **API Keys**, paste the key into the **OpenRouter** input field.
+</Step>
+
+<Step>
+### Discover Free Models
+In the Model Settings, you can search for and add free models provided by OpenRouter (usually with a `:free` suffix).
+</Step>
+</Steps>
+
+---

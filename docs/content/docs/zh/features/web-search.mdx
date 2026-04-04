@@ -1,0 +1,138 @@
+---
+title: 联网搜索
+description: TalkCody 使用网络搜索获取最新信息
+icon: Search
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## 什么是 Web Search？
+
+**Web Search** 是 TalkCody 的网络搜索功能，允许 AI 智能体搜索互联网获取最新信息。这对于查询最新的技术文档、API 参考、编程问题解答等场景非常有用。
+
+TalkCody 支持多种搜索提供商，会自动选择可用的方式进行搜索。
+
+## 搜索提供商及优先级
+
+TalkCody 按以下优先级自动选择搜索提供商：
+
+| 优先级 | 提供商 | 要求 |
+|--------|--------|------|
+| 1 | Tavily Search | 配置 Tavily API Key |
+| 2 | Serper Search | 配置 Serper API Key |
+| 3 | MiniMax Coding Plan | 配置 MiniMax API Key + 开启 Coding Plan |
+| 4 | GLM Coding Plan | 配置智谱 AI API Key + 开启 Coding Plan |
+| 5 | Exa Search（免费） | 无需配置，自动可用 |
+
+<Callout type="info">
+系统会按优先级依次检查，使用第一个可用的搜索提供商。
+</Callout>
+
+## 配置方法
+
+### 方式一：Tavily Search（推荐）
+
+Tavily 是专为 AI 代理设计的搜索 API，提供准确、实时的搜索结果。
+
+<Steps>
+
+<Step>
+### 获取 Tavily API Key
+
+1. 访问 [tavily.com](https://tavily.com)
+2. 点击 "Get API Key" 或 "Sign Up" 注册账户
+3. 完成邮箱验证
+4. 登录后在 Dashboard 的 "API Keys" 部分查看您的密钥
+5. 复制 API 密钥
+</Step>
+
+<Step>
+### 在 TalkCody 中配置
+
+1. 打开 TalkCody
+2. 点击 **设置** 图标
+3. 导航到 **API Keys** 页面
+4. 在 **Tavily** 输入框中粘贴您的 API Key
+5. 点击 **测试密钥** 验证是否有效
+</Step>
+
+</Steps>
+
+<Callout type="success">
+Tavily 提供每月 1000 次免费搜索请求，适合个人开发者使用。
+</Callout>
+
+### 方式二：Serper Search
+
+Serper 提供 Google 搜索 API，返回结构化的搜索结果。
+
+<Steps>
+
+<Step>
+### 获取 Serper API Key
+
+1. 访问 [serper.dev](https://serper.dev)
+2. 注册账户并登录
+3. 在 Dashboard 中获取 API Key
+</Step>
+
+<Step>
+### 在 TalkCody 中配置
+
+1. 打开 **设置** → **API Keys**
+2. 在 **Serper** 输入框中粘贴您的 API Key
+3. 点击 **测试密钥** 验证
+</Step>
+
+</Steps>
+
+<Callout type="success">
+Serper 提供 2500 次免费搜索请求，注册即可获取。
+</Callout>
+
+### 方式三：使用 Coding Plan 内置搜索
+
+如果您已经配置了 MiniMax 或智谱 AI 的 Coding Plan，可以直接使用其内置的网络搜索功能，无需额外的搜索 API Key。
+
+详细配置请参考 [Coding Plan 文档](/zh/docs/features/coding-plan)
+
+### 方式四：Exa 免费搜索（无需配置）
+
+Exa 提供免费的 AI 搜索服务，作为 TalkCody 的默认降级选项。当没有配置其他搜索提供商时，系统会自动使用 Exa 进行搜索。
+
+<Callout type="info">
+Exa 免费搜索无需任何配置，开箱即用。
+</Callout>
+
+**特点**：
+- ✅ 完全免费，无需 API Key
+- ✅ 自动启用，作为最后的降级选项
+
+## 使用方法
+
+配置完成后，在聊天输入框上方的工具栏中，点击 **Tools** 按钮，选择 **web_search** 工具。然后在对话中向 AI 提出需要搜索的问题，AI 会自动使用网络搜索获取最新信息。
+
+```
+用户：帮我搜索 React 19 的新特性
+
+AI：我将搜索最新的 React 19 相关信息。
+[使用 web_search 工具]
+
+根据搜索结果，React 19 的主要新特性包括：
+1. Actions - 简化表单处理
+2. use() hook - 新的资源读取方式
+3. 服务端组件改进
+...
+```
+
+## 常见问题
+
+### 搜索没有返回结果怎么办？
+
+1. 检查是否已配置至少一个搜索提供商的 API Key
+2. 验证 API Key 是否有效
+3. 如果使用 Coding Plan 搜索，确保已开启 **Use Coding Plan** 开关
+4. 检查网络连接是否正常
+
+

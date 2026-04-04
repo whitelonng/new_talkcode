@@ -1,0 +1,6 @@
+{
+  "title": "Introduction",
+  "icon": "BookOpen",
+  "defaultOpen": true,
+  "pages": ["quick-start", "client-downloads"]
+}

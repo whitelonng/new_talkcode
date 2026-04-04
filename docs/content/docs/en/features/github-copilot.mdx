@@ -1,0 +1,233 @@
+---
+title: Use AI Models with GitHub Copilot Subscription
+sidebarTitle: GitHub Copilot
+description: Use AI models with your GitHub Copilot subscription in TalkCody
+icon: Github
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+You can use your **GitHub Copilot** subscription quota directly in TalkCody without purchasing additional API credits.
+
+## How It Works
+
+TalkCody uses the official **Device Code Flow** provided by GitHub for authentication. This is the authentication method recommended by GitHub for desktop apps and CLI tools.
+
+The authentication flow is as follows:
+1. TalkCody obtains a **User Code** and **Verification URI**
+2. Automatically opens your browser to the GitHub device authorization page
+3. You **enter the displayed user code** in your browser and complete authorization
+4. TalkCody polls to obtain the access token and completes authentication
+
+<Callout type="info">
+GitHub Copilot uses the same authentication mechanism as GitHub CLI (gh) and VS Code Copilot.
+</Callout>
+
+## Terms of Use & Disclaimer
+
+<Callout type="warn">
+**Important**: Please read the following terms carefully before using this feature.
+</Callout>
+
+This feature is designed for **personal development use** only, limited to your own GitHub Copilot subscription. By using this feature, you agree to:
+
+### Permitted Uses
+
+- ✅ Personal coding assistance and productivity enhancement
+- ✅ Compliance with GitHub Copilot's rate limits and usage policies
+- ✅ Not using access rights for commercial services or resale
+- ✅ Adherence to [GitHub Copilot Terms of Use](https://docs.github.com/en/copilot/overview-of-github-copilot/about-github-copilot-individual#about-github-copilot-individual) and [Usage Policy](https://docs.github.com/en/site-policy/acceptable-use-policies/github-acceptable-use-policies#6-user-generated-content)
+
+### Prohibited Uses
+
+- ❌ Commercial API resale or white-label services
+- ❌ High-concurrency automated requests beyond personal use
+- ❌ Using one subscription to serve multiple users
+- ❌ Any behavior that violates GitHub's Acceptable Use Policy
+
+### Disclaimer
+
+- This project is **not affiliated with GitHub in any way**
+- GitHub Copilot is a trademark of GitHub
+- This is an independent open-source project, not endorsed, sponsored, or affiliated with GitHub
+- Violation of GitHub's Terms of Service may result in account restrictions
+
+**For production or commercial use, please purchase official API credits through the [GitHub Copilot API](https://docs.github.com/en/copilot/rest-api-copilot).**
+
+---
+
+## Configuration Steps
+
+<Steps>
+
+<Step>
+### Open Settings
+
+1. Launch TalkCody
+2. Click the **Settings** icon on the left
+3. Navigate to the **API Keys** page
+4. Find the **GitHub Copilot** section
+
+</Step>
+
+<Step>
+### Agree to Disclaimer
+
+After clicking the **Sign in with GitHub** button, a disclaimer dialog will appear.
+
+Please read the terms carefully, check the agreement option, and click **Confirm** to continue.
+
+</Step>
+
+<Step>
+### Obtain User Code
+
+The system will automatically request a device code from GitHub. After success, you will see:
+
+- **User Code**: An 8-character code (e.g., `ABCD-1234`)
+- **Verification URI**: GitHub device authorization page
+
+The system will automatically open the verification page in your browser.
+
+<Callout type="tip">
+If the browser doesn't open automatically, you can click the "Re-open Link" button on the interface to open it manually.
+</Callout>
+
+</Step>
+
+<Step>
+### Enter User Code in Browser
+
+1. The browser will automatically open to the GitHub device authorization page (https://github.com/login/device)
+2. In the input field shown on the page, **enter the user code from Step 3**
+3. Click **Continue** or **Authorize** button
+
+</Step>
+
+<Step>
+### Confirm Authorization
+
+1. If you haven't authorized this app before, GitHub will prompt you to confirm authorization
+2. Click the **Authorize** button to grant access to TalkCody
+3. After successful authorization, the browser will display a success message
+
+</Step>
+
+<Step>
+### Wait for Authentication to Complete
+
+Return to TalkCody, the system is polling and waiting for authorization:
+
+- The interface will show "Waiting for authorization..." or "Exchanging authorization code..."
+- After successful authorization, the status will change to **Connected**
+
+<Callout type="warning">
+If you closed the authorization page in your browser, you can click the "Connect" button on the interface to retry polling.
+</Callout>
+
+</Step>
+
+<Step>
+### Enable Copilot Model Features
+
+**This step is very important** - GitHub Copilot may not have all models enabled by default.
+
+1. Open [GitHub Copilot Feature Settings](https://github.com/settings/copilot/features)
+2. Make sure to enable the model options you want to use
+
+![GitHub Copilot Settings](https://cdn.talkcody.com/images/github-copilot-setting.png)
+
+</Step>
+
+<Step>
+### Verify Connection
+
+After successful authorization, you will see:
+
+- Connection status shows as **Connected**
+- You can view available Copilot models in the model selector
+- You can start using GitHub Copilot for conversations
+
+</Step>
+
+</Steps>
+
+<Callout type="success">
+After successful authentication, tokens will refresh automatically, no need to log in repeatedly. However, please note that if you change model permissions in your GitHub settings, you may need to log in again to obtain new model access permissions.
+</Callout>
+
+---
+
+## View Usage
+
+TalkCody provides a **Usage Dashboard** that allows you to monitor your GitHub Copilot subscription usage in real-time.
+
+### Access Usage Dashboard
+
+1. Click the **Usage** icon in the left navigation bar
+2. Select the **GitHub Copilot** tab to view GitHub Copilot usage
+
+### Usage Metrics Explained
+
+
+![GitHub Copilot Usage Dashboard](https://cdn.talkcody.com/images/github-usage.png)
+
+
+The dashboard displays the following metrics:
+
+#### Overall Usage
+
+- **Usage Percentage**: API usage percentage for the current billing cycle
+- **Used Quota**: Specific number of requests already used
+- **Remaining Quota**: Number of remaining available requests
+- **Reset Date**: Date of next quota reset
+
+#### Quota Details
+
+The dashboard displays detailed quota information:
+
+- **Used**: Number of requests used (in orange) and percentage
+- **Remaining**: Number of remaining requests (in green) and percentage
+
+### Refresh Usage
+
+Click the **Refresh** button in the top right corner to manually update usage data.
+
+---
+
+## FAQ
+
+### Why don't I see any available models?
+
+Please check the following:
+
+1. **Confirm model features are enabled**: Visit [GitHub Copilot Feature Settings](https://github.com/settings/copilot/features) and make sure relevant models are enabled
+2. **Confirm subscription status**: Make sure your GitHub account has a valid Copilot subscription
+3. **Re-login**: After changing model settings, you may need to log in again to refresh permissions
+
+### What GitHub Copilot models are supported?
+
+GitHub Copilot supports multiple models, depending on your subscription type and region:
+
+- **Copilot Chat**: Suitable for code conversations and Q&A
+- **Copilot Editing**: Suitable for code completion and editing suggestions
+
+You can view and select available model options in your GitHub settings.
+
+### Can I use this on multiple devices?
+
+GitHub Copilot subscriptions typically support multiple device usage, but:
+
+- **Personal version**: Can be used on multiple devices, but only one active session at a time
+- **Enterprise version**: May have restrictions based on organization policy
+
+Please note that each time you use it on a new device, you need to complete the device code authorization flow.
+
+### What if authentication expires?
+
+If authentication expires (usually after a few hours):
+
+1. TalkCody will automatically try to refresh the token
+2. If automatic refresh fails, you need to complete the device code authorization flow again
+3. Simply click the "Sign in with GitHub" button again

@@ -1,0 +1,52 @@
+---
+title: 客户端下载
+description: 下载适用于您平台的 TalkCody
+icon: Download
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { CONFIG } from '@/lib/config';
+
+# 客户端下载
+
+## macOS
+
+<Cards>
+  <Card title="macOS (Apple Silicon)" description="适用于 M1、M2、M3 和 M4 Mac">
+    **下载**：<a href={CONFIG.downloads['darwin-aarch64']}>talkcody_{CONFIG.version}_aarch64.dmg</a>
+  </Card>
+
+  <Card title="macOS (Intel)" description="适用于基于 Intel 的 Mac">
+    **下载**：<a href={CONFIG.downloads['darwin-x86_64']}>talkcody_{CONFIG.version}_x64.dmg</a>
+  </Card>
+</Cards>
+
+## Windows
+
+<Cards>
+  <Card title="Windows (x64)" description="适用于 64 位 Windows 系统">
+    **下载**：<a href={CONFIG.downloads['windows-x86_64']}>TalkCody_{CONFIG.version}_x64_en-US.msi</a>
+  </Card>
+</Cards>
+
+## Linux
+
+<Cards>
+  <Card title="Linux (x86_64)" description="适用于 64 位 Linux 系统">
+    **下载**：<a href={CONFIG.downloads['linux-x86_64']}>talkcody_{CONFIG.version}_x86_64.AppImage</a>
+  </Card>
+</Cards>
+
+## 从源代码构建
+
+想要自己构建 TalkCody？查看[开发设置](/zh/docs/open-source/development-setup)指南。
+
+## 需要帮助？
+
+- [快速开始指南](/zh/docs/introduction/quick-start) - 开始使用 TalkCody
+- <a href={CONFIG.github.issues}>GitHub Issues</a> - 报告错误或请求功能
+
+<Callout type="success">
+下载后，前往[快速开始指南](/zh/docs/introduction/quick-start)配置 TalkCody 并开始使用 AI 进行编码！
+</Callout>

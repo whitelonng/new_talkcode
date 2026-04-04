@@ -1,0 +1,170 @@
+---
+title: PPT 生成
+description: TalkCody 的专业幻灯片生成功能，将内容转化为精美的演示文稿图片
+icon: Presentation
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## 什么是 PPT 生成器？
+
+**PPT 生成器**是 TalkCody 的专业幻灯片生成智能体，可以将您的内容转化为精美的演示文稿图片。它采用 **阅读优先** 的设计理念，生成的幻灯片适合阅读和分享，而非现场演讲。
+
+## 核心特点
+
+- **阅读友好**：每张幻灯片独立完整，无需口头解释
+- **多种风格**：16 种预设视觉风格可选
+- **完整流程**：从大纲到图片再到 PPTX 文件的完整工作流
+- **双语支持**：支持中英文内容的自动识别和生成
+
+## 使用要求
+
+<Callout type="warning">
+使用 PPT 生成器需要满足以下条件：
+</Callout>
+
+1. **配置图像生成 API Key**（如 OpenAI）- 用于生成幻灯片图片 
+
+参考 [图像生成](./image-generator)
+
+## 快速开始
+
+<Steps>
+
+<Step>
+### 选择智能体
+
+在聊天界面点击左上角智能体选择器，选择 **PPT Generator**。
+</Step>
+
+<Step>
+### 提供内容
+
+向智能体提供您想要转化的内容：
+- 粘贴文章、报告或笔记
+- 描述主题和大纲
+- 上传文档文件
+</Step>
+
+<Step>
+### 确认配置
+
+智能体会引导您确认以下选项：
+- **视觉风格**：推荐最适合内容的预设风格
+- **目标受众**：普通读者、初学者、专业人士或高管
+- **幻灯片数量**：基于内容长度智能推荐
+- **审核选项**：是否在大纲和提示词阶段进行人工审核
+</Step>
+
+<Step>
+### 生成幻灯片
+
+确认配置后，智能体会：
+1. 生成幻灯片大纲
+2. 创建图像生成提示词
+3. 生成所有幻灯片图片
+4. 合并为 PPTX 文件
+
+</Step>
+
+</Steps>
+
+## 视觉风格预设
+
+PPT 生成器提供 16 种精心设计的视觉风格：
+
+| 预设风格 | 特点 | 最佳适用场景 |
+|----------|------|--------------|
+| **blueprint** | 网格 + 冷色调 + 技术感 | 架构设计、系统分析 |
+| **chalkboard** | 有机质感 + 暖色调 + 手写风 | 教育培训、教程 |
+| **corporate** | 简洁 + 专业 + 几何 | 商业提案、投资者演示 |
+| **minimal** | 极简 + 中性 + 几何 | 高管简报、简洁汇报 |
+| **sketch-notes** | 有机 + 暖色 + 手写 | 教育内容、笔记风格 |
+| **watercolor** | 有机 + 暖色 + 人文 | 生活方式、健康 |
+| **dark-atmospheric** | 深色 + 氛围感 | 娱乐、游戏 |
+| **notion** | 简洁 + 中性 + 信息密集 | 产品演示、SaaS |
+| **bold-editorial** | 醒目 + 活力 + 杂志风 | 产品发布、主题演讲 |
+| **editorial-infographic** | 简洁 + 冷色 + 信息图 | 技术解释、研究展示 |
+| **fantasy-animation** | 有机 + 活力 + 手写 | 教育故事、儿童内容 |
+| **intuition-machine** | 简洁 + 冷色 + 技术密集 | 技术文档、学术论文 |
+| **pixel-art** | 像素 + 活力 + 技术 | 游戏、开发者主题 |
+| **scientific** | 简洁 + 冷色 + 技术密集 | 生物、化学、医学 |
+| **vector-illustration** | 简洁 + 活力 + 人文 | 创意、儿童内容 |
+| **vintage** | 纸质 + 暖色 + 编辑风 | 历史、文化遗产 |
+
+### 智能风格推荐
+
+智能体会根据内容关键词自动推荐最合适的风格：
+
+| 内容关键词 | 推荐风格 |
+|------------|----------|
+| tutorial, learn, education, guide | sketch-notes |
+| classroom, teaching, school | chalkboard |
+| architecture, system, data, analysis | blueprint |
+| creative, children, kids | vector-illustration |
+| briefing, academic, research | intuition-machine |
+| executive, minimal, clean | minimal |
+| saas, product, dashboard | notion |
+| investor, quarterly, business | corporate |
+| launch, marketing, keynote | bold-editorial |
+
+## 输出文件结构
+
+生成的文件保存在工作目录下的 `slide-deck/{topic-slug}/` 文件夹中：
+
+```
+slide-deck/{topic-slug}/
+├── source.md              # 原始内容
+├── outline.md             # 幻灯片大纲
+├── prompts/               # 图像生成提示词
+│   ├── 01-slide-cover.md
+│   ├── 02-slide-xxx.md
+│   └── ...
+├── 01-slide-cover.png     # 幻灯片图片
+├── 02-slide-xxx.png
+├── ...
+├── {topic-slug}.pptx      # PowerPoint 文件
+└── {topic-slug}.pdf       # PDF 文件（如生成）
+```
+
+## 高级用法
+
+### 部分工作流
+
+支持指定仅执行部分流程：
+
+| 选项 | 说明 |
+|------|------|
+| `outline-only` | 仅生成大纲（Steps 1-3） |
+| `prompts-only` | 生成到提示词阶段（Steps 1-5） |
+| `images-only` | 仅生成图片（需要已有提示词） |
+| `regenerate N` | 重新生成指定页码的幻灯片 |
+
+## 常见问题
+
+### Skill 安装失败怎么办？
+
+1. 检查网络连接是否正常
+
+### 图片生成很慢怎么办？
+
+- 这是正常现象，每张图片需要 10-30 秒
+- 20 页 PPT 大约需要 5-10 分钟
+- 可以在提示词审核阶段确认后再批量生成
+
+### 如何修改已生成的幻灯片？
+
+1. 直接编辑 `outline.md` 修改内容结构
+2. 编辑 `prompts/` 目录下的文件修改图片风格
+3. 使用 `regenerate N` 重新生成特定页码
+
+### PPTX 文件在哪里？
+
+生成的 PPTX 文件位于：
+```
+{工作目录}/slide-deck/{topic-slug}/{topic-slug}.pptx
+```
+
+您可以在聊天结果中点击下载，或在文件系统中直接打开。
+

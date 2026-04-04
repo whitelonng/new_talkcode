@@ -1,0 +1,92 @@
+---
+title: 全局搜索
+sidebarTitle: 全局搜索
+description: TalkCody 全面的搜索功能指南，包括全局文件搜索、全局内容搜索、文件内搜索和 Chat 历史搜索
+icon: Search
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## 概述
+
+TalkCody 提供了多种搜索方式，帮助您快速定位文件、内容和代码。
+
+![TalkCody 搜索功能](https://cdn.talkcody.com/images/search.png)
+
+## 全局文件搜索
+
+全局文件搜索允许您通过文件名快速定位项目中的文件。
+
+### 打开方式
+
+- 使用快捷键 `Cmd+O` (macOS) / `Ctrl+O` (Windows/Linux)
+
+![TalkCody 全局文件搜索](https://cdn.talkcody.com/images/file-search.png)
+
+### 搜索操作
+
+1. 在搜索框中输入文件名
+2. 搜索结果会实时显示
+3. 使用 `↑` `↓` 箭头键导航结果
+4. 按 `Enter` 键打开选中的文件
+5. 按 `Esc` 键取消搜索
+
+### 功能特性
+
+- **多关键词搜索**：使用空格分隔多个关键词，匹配包含所有关键词的文件。例如：输入 `user auth` 可以找到同时包含 "user" 和 "auth" 的文件
+- **行号跳转**：支持 `文件名:行号` 格式直接跳转到指定行。例如：输入 `test.cpp:82` 会打开文件并跳转到第 82 行
+- **高性能**：使用 Rust 后端进行搜索，支持大型代码库
+
+### 快捷键操作
+
+| 操作 | macOS | Windows/Linux |
+|------|-------|---------------|
+| 打开全局文件搜索 | `Cmd + O` | `Ctrl + O` |
+| 导航搜索结果 | `↑` `↓` | `↑` `↓` |
+| 打开文件 | `Enter` | `Enter` |
+| 取消搜索 | `Esc` | `Esc` |
+
+## 全局内容搜索
+
+全局内容搜索在整个项目的所有文件中查找指定的文本内容。
+
+### 打开方式
+
+- 使用快捷键 `Cmd+G` (macOS) / `Ctrl+G` (Windows/Linux)
+
+![TalkCody 全局内容搜索](https://cdn.talkcody.com/images/content-search.png)
+
+## 文件内搜索
+
+文件内搜索在当前打开的编辑器中查找文本内容，使用 Monaco 编辑器内置的搜索功能。
+
+### 打开方式
+
+- 使用快捷键 `Cmd+F` (macOS) / `Ctrl+F` (Windows/Linux)
+
+### 快捷键操作
+
+| 操作 | macOS | Windows/Linux |
+|------|-------|---------------|
+| 打开文件内搜索 | `Cmd + F` | `Ctrl + F` |
+| 搜索下一个 | `Enter` 或 `F3` | `Enter` 或 `F3` |
+| 搜索上一个 | `Shift + Enter` 或 `Shift + F3` | `Shift + Enter` 或 `Shift + F3` |
+| 关闭搜索 | `Esc` | `Esc` |
+
+<Callout type="info">
+文件内搜索使用 Monaco 编辑器的内置搜索功能，支持正则表达式、大小写敏感、全词匹配等高级选项。
+</Callout>
+
+## Chat 历史搜索
+
+在 Chat 历史面板中，您可以搜索之前的对话记录。
+
+### 打开方式
+
+- 点击 Chat 工具栏上的历史图标打开历史面板
+
+![TalkCody Chat 历史搜索](https://cdn.talkcody.com/images/chat-search.png)
+
+## 相关设置
+
+您可以在设置中自定义搜索相关的快捷键，详见[快捷键设置](../configuration/shortcut-settings)。

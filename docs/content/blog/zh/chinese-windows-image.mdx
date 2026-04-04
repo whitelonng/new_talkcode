@@ -1,0 +1,84 @@
+---
+title: TalkCody 0.1.16 发布：中文支持 + Windows 优化 + 图像生成
+description: TalkCody 0.1.16 版本正式发布，新增中文全面支持、Windows 平台优化、图像生成等多项功能
+author: Kaisen Kang
+date: 2025-12-07
+tags: [更新, Coding Agent, 公告]
+---
+
+今天，TalkCody 发布了 0.1.16 版本更新，带来了多项新功能和改进。
+
+## 全面支持中文
+
+  TalkCody 0.1.16 版本实现了多语言支持，中文用户可获得更好的体验：
+
+- 界面 UI 和操作提示已全面汉化
+- 大模型回复语言自动适配系统语言
+- 语音实时输入语言自动适配系统语言
+- 消息标题自动生成时也会使用系统语言
+
+![TalkCody 支持中文](https://cdn.talkcody.com/images/language.png)
+
+## Windows 平台体验全面优化
+
+- 修复了 WebView 导致的多项兼容性问题
+- 优化了 Bash Tool 在 Windows 平台上的兼容性
+
+## 支持 LM Studio 本地大模型
+
+- 新增 LM Studio Provider，支持接入 LM Studio 本地大模型
+- 目前 TalkCody 已支持通过 LM Studio 和 Ollama 两种方式接入本地大模型，满足不同用户的隐私需求
+
+## 内置 DeepSeek Provider, 支持 DeepSeek V3.2
+
+- 内置 DeepSeek Provider，支持 DeepSeek V3.2 模型接入
+- DeepSeek V3.2 的 Tool Call 能力显著提升，支持多轮工具调用，实测表明其特别适合代码仓库问答场景
+- 针对代码仓库的各类问题，DeepSeek V3.2 大概率都能给出准确答案
+- DeepSeek V3.2 的缺点是响应速度较慢，如果追求速度，MiniMax M2 是更好的选择
+
+## 默认模型改为 GPT 5.1 Codex Max
+
+- GPT 5.1 Codex Max API 近期刚刚开放，TalkCody 已将其设为默认主模型
+- GPT 5.1 Codex Max 与 Claude 模型能力相当，但性价比更高——不仅单价更低，自动 Prompt Cache 还能进一步降低使用成本
+
+## TalkCody 模型使用最佳实践
+
+- **日常开发**：推荐使用 MiniMax M2 和 GLM 4.6 的 Coding Plan 作为主力模型，可覆盖 80% 的日常编程任务，性价比极高
+- **进阶需求**：GPT 5.1 Codex Max 作为补充，可解决 80% 到 90% 的问题
+- **复杂任务**：剩余 10% 的疑难问题，可尝试 Claude Opus 4.5 和 Gemini 2.5 Pro
+- **非编程任务**：OpenRouter 等 Provider 提供大量免费模型，可在 TalkCody 中接入使用；此外，新模型发布初期通常有免费额度，值得尝试
+- **隐私保护**：可通过 LM Studio 或 Ollama 接入本地大模型，数据完全本地化
+
+## 支持 Google Nano Banana Pro Image 生成
+
+TalkCody 0.1.16 新增了 Image Generator Agent，支持通过 Google Nano Banana Pro 模型生成图片，为开发者提供便捷的 AI 图像生成能力。
+
+![TalkCody image ask](https://cdn.talkcody.com/images/image-ask.png)
+
+![TalkCody image Generator](https://cdn.talkcody.com/images/image-result.png)
+
+## TalkCody Roadmap
+
+TalkCody 的整体发展规划分为三个里程碑：
+
+- **里程碑 1：Top AI Coding Agent**
+
+目标：以最低成本、最快速度、最高正确率生成可运行代码
+
+- **里程碑 2：覆盖开发者主流工作流的 AI Agent**
+
+目标：不仅能写代码，还能融入团队日常协作工具链
+
+- **里程碑 3：覆盖独立开发者完整工作流的 AI Agent**
+
+目标：一个人也能像一家公司——从创意想法到产品上线再到自动运营
+
+完整的 Roadmap 请访问 [TalkCody 官方网站](https://www.talkcody.com/docs/open-source/roadmap) 查看。
+
+---
+
+欢迎体验 TalkCody 0.1.16 版本，期待您的反馈和建议！也欢迎参与 TalkCody 的开发和改进，一起打造更强大的 AI Coding Agent！
+
+
+
+

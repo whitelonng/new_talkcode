@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/talkcody/talkcody/discussions
+    about: Ask questions, share ideas, and discuss with the community
+  - name: 📖 Documentation
+    url: https://talkcody.com/docs
+    about: Read the documentation
+  - name: 🔒 Security Issue
+    url: https://github.com/talkcody/talkcody/security/advisories/new
+    about: Report a security vulnerability (please do not create a public issue)

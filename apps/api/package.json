@@ -1,0 +1,39 @@
+{
+  "name": "api",
+  "version": "0.5.0",
+  "type": "module",
+  "description": "TalkCody Agent Marketplace API",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "dev:cloudflare": "wrangler dev",
+    "build": "bun build src/index.ts --outdir ./dist --target bun",
+    "build:cloudflare": "bun build src/index.ts --outdir ./dist --target browser --minify",
+    "start": "bun run src/index.ts",
+    "deploy": "wrangler deploy",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "bun run src/db/migrate.ts",
+    "db:seed": "bun run src/db/seed.ts",
+    "db:studio": "drizzle-kit studio",
+    "db:push": "drizzle-kit push",
+    "test:db:init": "bun run src/test/init-test-db.ts",
+    "test": "bun run src/test/run-tests.ts",
+    "type-check": "bun run tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/oauth-providers": "^0.8.5",
+    "@hono/zod-validator": "^0.4.1",
+    "@libsql/client": "^0.15.15",
+    "@talkcody/shared": "workspace:*",
+    "drizzle-orm": "^0.36.4",
+    "hono": "^4.6.14",
+    "jose": "^5.9.6",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "bun-types": "^1.3.1",
+    "drizzle-kit": "^0.28.1",
+    "typescript": "~5.8.3",
+    "wrangler": "^4.45.0"
+  }
+}

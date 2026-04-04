@@ -1,0 +1,178 @@
+---
+title: MCP 服务器
+description: 通过模型上下文协议(MCP)集成扩展 TalkCody
+icon: Server
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## 什么是 MCP?
+
+![TalkCody MCP 服务器](https://cdn.talkcody.com/images/mcp.png)
+
+**模型上下文协议(MCP)** 是连接 AI 应用程序到外部工具和数据源的开放标准。它允许:
+
+- **自定义工具**: 添加超越内置工具的新功能
+- **外部数据**: 连接到数据库、API 和服务
+- **专业功能**: 集成特定领域的功能
+- **第三方服务**: 使用社区提供的现有 MCP 服务器
+
+<Callout type="info">
+MCP 由 Anthropic 开发,并得到许多 AI 工具和服务的支持。了解更多信息请访问 [modelcontextprotocol.io](https://modelcontextprotocol.io)
+</Callout>
+
+## MCP 工作原理
+
+```
+┌─────────────┐
+│  TalkCody   │
+│   (客户端)  │
+└──────┬──────┘
+       │ MCP 协议
+       ├─────────────────┐
+       │                 │
+┌──────▼──────┐   ┌──────▼──────┐
+│ MCP 服务器  │   │ MCP 服务器  │
+│  (GitHub)   │   │  (数据库)   │
+└─────────────┘   └─────────────┘
+```
+
+1. **TalkCody** 充当 MCP 客户端
+2. **MCP 服务器** 提供工具和资源
+3. **AI 智能体** 可以使用连接的服务器中的工具
+4. **通信** 通过标准 MCP 协议进行
+
+## MCP 服务器类型
+
+### 1. Stdio 服务器
+
+作为本地进程运行,通过 stdin/stdout 通信:
+
+```json
+{
+  "name": "filesystem",
+  "type": "stdio",
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+}
+```
+
+**用于**: 本地工具、文件访问、系统集成
+
+### 2. SSE 服务器
+
+用于实时通信的服务器发送事件:
+
+```json
+{
+  "name": "notifications",
+  "type": "sse",
+  "url": "http://localhost:3000/sse"
+}
+```
+
+**用于**: 实时更新、流式数据、webhooks
+
+### 3. HTTP 服务器
+
+基于标准 HTTP 的 MCP 服务器:
+
+```json
+{
+  "name": "api-service",
+  "type": "http",
+  "url": "https://api.example.com/mcp",
+  "headers": {
+    "Authorization": "Bearer YOUR_TOKEN"
+  }
+}
+```
+
+**用于**: 云服务、远程 API、托管工具
+
+## 安装 MCP 服务器
+
+<Steps>
+
+<Step>
+### 导航到 MCP 服务器视图
+
+1. 打开 TalkCody
+2. 点击侧边栏中的 **MCP 服务器** 标签
+3. 点击 **+ 添加服务器**
+</Step>
+
+<Step>
+### 配置服务器详细信息
+
+**基本信息**:
+- **名称**: 服务器的标识符(例如,"GitHub","Postgres")
+- **类型**: stdio、sse 或 http
+- **描述**: 关于服务器用途的可选注释
+
+**连接设置**:
+- 对于 **stdio**: 命令和参数
+- 对于 **sse**: 服务器 URL
+- 对于 **http**: URL 和可选请求头
+</Step>
+
+<Step>
+### 测试连接
+
+1. 点击 **测试连接**
+2. 验证服务器响应正确
+3. 检查工具是否被发现
+</Step>
+
+<Step>
+### 为智能体启用
+
+1. 保存 MCP 服务器配置
+2. 导航到智能体视图
+3. 编辑智能体
+4. 为该智能体启用 MCP 工具
+</Step>
+
+</Steps>
+
+## 在对话中使用 MCP 工具
+
+一旦配置了 MCP 服务器,AI 智能体就可以使用其工具:
+
+### 示例: GitHub Issue 创建
+
+```
+用户: 为我们刚讨论的登录 bug 创建一个 GitHub issue
+
+AI: 我将在您的仓库中创建一个 issue。
+[使用 GitHub MCP 服务器]
+[创建带标题和描述的 issue]
+
+已创建 issue #123: "修复登录身份验证超时"
+链接: https://github.com/user/repo/issues/123
+```
+
+### 示例: 数据库查询
+
+```
+用户: 显示上周注册的用户
+
+AI: 我将查询数据库以获取最近的用户。
+[使用 PostgreSQL MCP 服务器]
+[执行: SELECT * FROM users WHERE created_at > NOW() - INTERVAL '7 days']
+
+在过去 7 天内找到 47 位注册用户:
+- user1@example.com (2024-10-20)
+- user2@example.com (2024-10-21)
+...
+```
+
+## 资源
+
+- [MCP 官方文档](https://modelcontextprotocol.io/docs)
+- [MCP 服务器目录](https://github.com/modelcontextprotocol/servers)
+
+<Callout type="success">
+MCP 服务器为扩展 TalkCody 解锁了无限潜力。从官方服务器开始,探索自定义集成!
+</Callout>

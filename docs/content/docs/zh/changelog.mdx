@@ -1,0 +1,434 @@
+---
+title: 更新日志
+description: TalkCody 版本发布历史和更新说明
+icon: History
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+TalkCody 的所有重要更新都记录在这里。
+
+## [0.5.0] - 2026-03-28
+
+### 新增
+
+- **新增全局 Memory 系统**：支持全局和项目级别的 Memory 管理，支持基于 Topic 的存储机制
+- **Orchestrator Agent**：新增编排 Agent，负责任务调度和 Agent 协调
+- **ZenMux Provider**：新增 ZenMux 模型提供商支持
+- **并行 Agent 数量提升**：将最大并行子 Agent 数量提升至 20 个，支持更复杂的并行工作流
+
+### 修复
+
+- 修复 Windows 平台路径检查问题
+- 修复 http_proxy 解码错误
+- 修复 code-search tool bug
+
+### 致谢
+
+- 感谢 @bigboss2063 贡献了 Memory 功能
+
+## [0.4.4] - 2026-02-26
+
+### 新增
+
+- **阿里云 Coding Plan 支持**：阿里云 Coding Plan 支持 Qwen 3.5 Plus，GLM-5, Kimi K2.5, Minimax 2.5 模型
+- **新增 Nano Banana 2 模型**
+- **新增 GPT-5.3-Codex API 模型**
+
+### 优化
+
+- **大幅优化 web-fetch tool**
+
+
+## [0.4.3] - 2026-02-20
+
+### 新增
+
+- **新增 Claude Opus 4.6 模型**
+- **新增 GPT-5.3 Codex Spark 模型**
+- **新增 Gemini 3.1 Pro 模型**
+- 以上模型都第一时间热更新，之后的新 Coding 模型也都会第一时间热更新。
+
+### 修复
+
+- 修复主页打开文件时 UI 布局的 bug
+
+## [0.4.2] - 2026-02-16
+
+### 新增
+
+- **PPT 生成 Agent**：利用 AI 一键生成 PPT
+- **多个图片生成模型**：Doubao Seedream, GLM Image, Qwen Image Max
+- **Qwen 3.5 Plus 模型**
+- **Prompt AI 增强**：对 Prompt AI 进行增强，提升生成效果
+
+### 修复
+
+- **修复压缩 Bug**：修复上下文压缩相关的 bug
+- 修复 Windows 兼容性 bug
+
+### 文档
+
+- [PPT 生成器文档](/zh/docs/features/ppt-generator.mdx)
+- [图片生成器文档](/zh/docs/features/image-generator.mdx)
+
+### 致谢
+
+- 感谢 @taiji666 贡献了 Prompt AI 增强功能
+
+## [0.4.1] - 2026-02-11
+
+### 新增
+
+- **视频输入支持**：新增视频输入功能，可以直接根据视频生成前端页面（当前只有 Kimi API 模型支持，下个版本将支持更多模型）
+- **MiniMax M2.5 模型**：新增 MiniMax M2.5 模型支持，并设为默认免费模型
+- **GLM-5 模型**：新增 GLM-5 系列模型
+
+### 改动
+
+- 将 Kimi Coding Plan 作为单独的 Provider
+
+### 修复
+
+- **修复 Issue #50**：修复终端面板相关的 bug
+- **修复 Issue #51**：修复 workspace root 相关的 bug
+- **修复 Issue #52**：修复窗口关闭应用没有完全退出的 bug
+
+
+## [0.4.0] - 2026-02-09
+
+### 新增
+
+- **Telegram 远程控制**：支持 Telegram 远程控制桌面的TalkCody，支持文本，语音，图片消息，支持流式返回消息。
+- **飞书 远程控制**：支持飞书远程控制桌面的TalkCody，支持文本，语音，图片消息，支持流式返回消息。
+- [Telegram 远程控制用户文档](docs/content/docs/zh/features/telegram-remote.mdx)
+- [飞书 远程控制用户文档](docs/content/docs/zh/features/feishu-remote.mdx)
+- **语音转写**：新增 Groq Whisper 语音转写支持，可以免费使用。
+- **模型支持**：新增 OpenRouter 的 Pony Alpha 免费模型。
+- **Explore Agent**：开放 Explore Agent，适合快速了解代码仓库。
+
+### 修复
+
+- 修复自定义 Provider 相关配置与请求问题。
+- 修复输入 Token 状态显示问题。
+- 修复分享页面主题显示问题。
+
+## [0.3.5] - 2026-02-05
+
+### 新增
+
+- 支持 Claude Opus 4.6 模型
+- 支持 GPT 5.3 Codex 模型 （只有 Openai OAuth 方式支持）
+- 支持 关闭 Tracing 功能
+
+### 优化
+
+- **模型搜索优化**：模型搜索支持按照 provider 名称过滤
+
+### 修复
+
+- **修复 Issue #47**：修复 Windows 平台 workspace-root 路径处理的 bug。
+- **修复 Issue #46**：修复 OpenAI OAuth 登录流程中的问题。
+
+## [0.3.4] - 2026-02-04
+
+### 优化
+
+- **用户中止处理**：优化了用户在 Hook 触发前中止操作的处理流程。
+
+### 修复
+
+- **跨平台兼容性修复**：修复了多处跨平台路径分隔符兼容性问题。
+- **设置存储修复**：修复了切换项目时未重置当前任务的问题。
+- **修复 Issue #43 & #44**：自定义模型丢失的 bug。
+- **Gemini & Google AI 修复**：修复了 Gemini 模型 Schema 错误及 Google AI API 400 错误
+- **修复 Issue #45**：GitHub Skill 导入的 bug。
+
+### 致谢
+
+- 感谢 @qingzhongli 修复跨平台路径兼容性问题和设置存储 bug。
+
+## [0.3.3] - 2026-02-02
+
+### 新增
+
+- **LLM Tracing**：新增完整的 LLM 追踪功能，支持记录和查看所有 AI 请求的详细过程、耗时、Token 使用情况以及 Tool 调用细节，方便调试和优化 Prompt。
+- **Kimi Coding Plan Usage**：支持展示 Kimi Coding Pla 的用量统计。
+
+### 优化
+
+- **Rust 后端 LLM 架构重构**：重构了 Rust 端的 LLM 处理逻辑，为支持10到20个 Task 并行处理奠定基础。
+
+### 修复
+
+- 修复窗口状态保存和恢复的 Bug，提升多窗口体验。
+- 修复 Issue #36：优化了特定场景下的 UI 渲染逻辑。
+- 修复 Issue #39：改进了 Bash 工具在某些复杂命令下的执行反馈。
+- 修复 Issue #40: Agents 页面无限刷新的 bug。
+- 修复了 Kimi Coding Plan 的bug。
+
+## [0.3.2] - 2026-01-27
+
+### 新增
+
+- **Ralph Loop (实验版本)**：新增持久化执行模式，支持 AI Agent 自主迭代完成复杂任务。Agent 可以在多次迭代中持续学习，根据执行反馈自我修正，直到满足完成条件
+- **Kimi 2.5 模型支持**：新增对 Kimi 2.5 模型的支持
+
+### 优化
+
+- **Web Fetch 工具优化**：改进网页内容获取能力
+- **Create Agent Agent 优化**：改进创建自定义 Agent 的体验
+
+### 修复
+
+- 修复工具 UI 注册相关 Bug
+- 修复自定义工具 UI 显示 Bug
+- 修复最近项目列表 Bug
+- 修复 LLM 重试机制问题
+- 修复更新日志弹窗视频在 Linux 平台的兼容性问题
+
+## [0.3.1] - 2026-01-25
+
+### 新增
+
+- **Hooks 系统**：新增事件驱动的 Hooks 机制，支持在关键事件（用户提交、工具调用前后、会话开始/结束、停止等）触发自定义脚本，实现操作拦截、参数修改、审计日志等功能
+- **自动代码审查**：支持自动代码审查（Auto Code Review），在文件变更后自动运行 Code Review Agent 进行代码审查
+- **LSP 工具**：新增完整的 LSP（Language Server Protocol）工具，支持跳转定义、查找引用、悬停提示、文档符号、工作区符号、跳转实现、调用层级分析等操作
+- **API 使用量仪表板**：新增 API 使用量可视化页面，展示 Token 使用量、成本、请求数的图表统计，支持按今日/本周/本月筛选
+- **自定义 Plan 和 Code Review 模型**：支持在设置中为 Plan Agent 和 Code Review Agent 分别配置专用模型
+- **Plan 内容直接展示**：在 call-agent-tool-result 中直接展示 Plan 文件内容，无需手动打开文件
+- **Custom Tool 支持 package.json**：Custom Tool 现在支持使用 package.json 定义依赖，自动安装 npm/bun 依赖包，支持任意第三方库
+- 支持自定义 Plan Agent 和 Code Review Agent 的 Model
+
+### 修复
+
+- 修复 AI Pricing Service 和 LSP Tool 的相关 Bug
+- 修复 API Usage Tab 刷新问题
+- 修复 OpenAI 兼容类型的路径处理（自动追加 /v1）
+
+### 致谢
+
+- 感谢 @qingzhongli 修复 OpenAI 兼容类型的路径处理
+- 感谢 @MiaMia-Li 完善 《TalkCody 免费使用指南》文档
+
+## [0.3.0] - 2026-01-19
+
+### 新增
+
+- 支持 Google 登录
+- 新增 create-agent command，一键创建自定义 AI 智能体
+- 新增 create-skill command，一键创建 skill
+- 新增 create-tool command，一键创建自定义工具
+- 新增 compact command, 可以手动提前压缩对话
+- 支持 Mac Keep Awake 功能，防止系统休眠
+- 支持 自动批准 plan 设置
+- 支持 reasoning-effort 设置
+- [commands 文档](/zh/docs/commands)
+
+## [0.2.6] - 2026-01-14
+
+### 新增
+
+- **Agent 兼容Claude Code subagent 定义**：支持从 GitHub 仓库导入和使用 Claude Code subagent 定义的智能体，内置更多优秀的智能体
+
+### 优化
+
+- **任务标题生成优化**：改进任务标题生成逻辑，提升用户体验
+
+### 修复
+
+- 修复 lint 功能在 windows 平台的兼容性问题
+- 修复 MiniMax Usage Cookie 缺失或过期问题
+- 修复 custom tool 刷新的 Bug
+- 修复 中文输入法 enter 直接发送的bug
+
+### 致谢
+
+- 感谢 @qingzhongli Fix lint 功能在 windows 平台的兼容性问题
+
+## [0.2.5] - 2026-01-11
+
+### 新增
+
+- **支持自定义工具（实验版本）**：新增 Custom Tools 和 Custom Tools Playground，支持用户自定义 AI 工具，核心能力是可以自定义 UI。详情参考 [自定义工具](/zh/docs/features/custom-tools)
+- **Edit 自动批准 **：可在设置中开启，不需要等待文件修改时再进行审批
+- 全局文件搜索显示最近打开的文件
+- 多窗口时，将 Project name 作为窗口标题
+
+### 优化
+
+- **UI 渲染性能优化**：优化多任务并行执行时的 UI 渲染性能，提升复杂工作流下的响应速度
+
+### 修复
+
+- **修复文件变更摘要 Bug**：修复 file-changes-summary 组件的显示问题
+- **路径处理兼容**：修复 Windows 和 Unix 路径处理的兼容性问题
+- Fix Mac 的 dock menu 显示 最近 project的 Bug
+
+## [0.2.4] - 2026-01-06
+
+### 新增
+
+- **分享链接**：支持将 AI 对话任务生成专属链接与他人分享，支持多种过期时间和密码保护。详情参考 [TalkCody 分享链接功能](/zh/docs/features/share-link)
+- **MiniMax Usage**：Usage 页面可以查看 MiniMax Coding Plan 用量
+- **免费的Web Search**: 新增免费的 Web Search, 无需额外配置
+
+### 优化
+
+- **Plan Mode 优化**：支持将 Plan 结果保存为文件
+- **全局文件搜索改进**：新增隐藏文件和目录支持，支持路径搜索
+- **glob tool 优化**：支持隐藏文件和目录的搜索
+
+### 修复
+
+- **修复文件外部修改检测问题**：解决文件被外部修改时检测不准确的问题
+- **修复快捷键冲突**：解决 Shift+Esc 和 Cmd+F 快捷键冲突问题
+- **修复 Agent 工具超时问题**：优化 call-agent-tool 的超时处理机制
+
+## [0.2.3] - 2026-01-03
+
+### 新增
+
+- **Usage 使用量页面**：新增使用量统计页面，可查看 Claude 订阅、OpenAI 订阅、GitHub Copilot 订阅、智谱 Coding Plan 的使用情况
+- **免费使用方式扩展**：目前共支持 8 种完全免费的使用方式，详情参考 [TalkCody 免费使用指南](/zh/docs/guides/free-use)
+- **GitHub Skill 导入**：支持一键导入Github 仓库的 Agent Skills
+- **macOS Dock 菜单支持**：支持快速打开最近的项目和新建窗口，提升 macOS 用户的使用体验
+- **Vue 语法高亮支持**：新增 Vue 语法高亮和 LSP 支持，提供更好的 Vue 项目开发体验
+
+### 优化
+
+- **优化 Plan Agent**：改进 Plan Agent 的执行逻辑
+- **Agent Skills Specification 重构**：将 Skills 重构为 Agent Skills Specification，提升智能体的标准化程度
+- **改进超时处理**：优化 call-agent-tool 的超时处理机制
+
+### 修复
+
+- **修复 Linux 中文输入问题**：解决 Linux 平台中文输入法的兼容性问题
+
+## [0.2.2] - 2025-12-30
+
+### 新增
+
+- **页面统一**：将 Explore 页面和 Chat 页面统一，提供更连贯的用户体验
+
+### 优化
+
+- **优化上下文压缩策略**：改进消息过滤和压缩逻辑，更好地支持长任务（Long Run Task）
+- **优化 GPT-5.2 Codex 体验**：优化通过 OpenAI 订阅使用的提示词
+- **优化子 Agent 调用**：改进了调用子 Agent 时的超时处理机制
+
+### 修复
+
+- **修复 GitHub Copilot 图片处理**：解决了 GitHub Copilot provider 处理图片请求时的 Bug
+- **修复编辑器同步**：修复了编辑器无法及时感知外部文件修改的问题
+- **修复 UI 显示**：修复了 Edit File 结果 UI 在处理大文件时 Diff 显示不对的 Bug
+
+## [0.2.1] - 2025-12-27
+
+### 新增
+
+- 新增 Qwen Code 免费提供商，节省您的编码成本
+- 新增 Github Copilot 免费提供商，节省您的编码成本
+
+### 优化
+
+- 优化上下文压缩逻辑，更好地处理长对话
+
+## [0.2.0] - 2025-12-25
+
+### 新增
+
+- **支持 通过 Claude Pro/Max 订阅，在 TalkCody 中使用 Claude 模型**
+- **通过 ChatGPT Plus/Pro 订阅，在 TalkCody 中使用 OpenAI 模型**
+- **LSP 支持**：完整实现语言服务器协议，提供代码导航、代码补全、跳转到定义、查找引用等核心功能，大幅提升代码理解和编辑体验
+- **Exa 免费网页搜索**：新增 Exa 搜索引擎提供商，让网页搜索开箱即用
+- **终端字体自定义**：支持自定义终端字体和字号设置
+- 支持 MiniMax 2.1 模型 （**可以通过 TalkCody Provider 免费使用**）
+- 支持 GLM 4.7 模型 （TalkCody 支持模型热更新，一般最新的优秀 Coding 模型12小时会自动更新）
+
+### 优化
+
+- 优化 write file 和 edit file tool 的结果展示
+- 优化 Prompt Cache，进一步节省成本
+
+### 修复
+
+- 修复 Windows 终端相关 bug
+- 修复模型选择器列表重复显示 bug
+- 修复 write file tool 在某些情况下无法正确写入文件的 bug
+- 修复多窗口下，git status 显示不对的 bug 
+
+## [0.1.20] - 2025-12-19
+
+### 新增
+
+- MiniMax M2.1 内测模型支持，所有用户均可免费体验。模型选择 MiniMax M2.1 Beta，提供商选择 talkcody 即可使用。
+
+### 优化
+
+- 优化 Plan Mode 审批和 Diff Review UI
+
+## [0.1.19] - 2025-12-18
+
+### 新增
+
+- 多 Agent 并行执行（实验版本），支持多个 Agent 同时执行任务
+- 基于 Git Worktree 的 Task 并行执行（实验版本），支持多个 Task 在独立工作目录中并行运行
+- 一键 Git Commit：在文件变更摘要中新增 Commit 按钮，AI 自动生成提交信息
+- 一键 Code Review：在文件变更摘要中新增 Review 按钮，一键调用 Code Review Agent
+
+### 优化
+
+- 优化 MCP 工具选择按钮
+- 优化本地 Agent 加载性能
+- 改进 Edit File 工具
+- 改进 Bash 工具的危险命令检测
+- 优化 Context Compaction 逻辑
+- 优化 AI 请求的重试策略
+
+### 修复
+
+- 修复 Windows 终端的 bug
+- 修复 全局内容搜索空格直接退出的 bug
+
+## [0.1.18] - 2025-12-13
+
+### 新增
+
+- 编辑器代码检查功能 (Editor Lint)，支持实时语法检查和快速修复
+- GPT 5.2 模型支持
+- 新增功能文档：Coding Plan、网页搜索、语音输入、代码检查
+
+### 优化
+
+- 改进网页搜索工具
+- 改进 Web fetch 工具
+
+### 修复
+
+- 修复 Windows PowerShell 终端 bug
+- 修复没有正确获取 bashrc/zshrc 导致环境变量缺失的问题
+
+## [0.1.17] - 2025-12-11
+
+### 新增
+
+- 支持多个会话并行执行, 大幅提升工作流效率
+- 支持自定义 AI 提供商
+- 新增内置 AI 提供商：moonshot
+- 新增内置模型：GLM-4.6 v
+- 新增内置 Minimax Coding Plan MCP，支持网页搜索和图像输入，拥有 Minimax Coding Plan 的用户可以直接使用
+- 新增内置 GLM Coding Plan MCP，支持网页搜索和图像输入，拥有 GLM Coding Plan 的用户可以直接使用
+- 版本更新后，向用户展示更新日志
+
+### 优化
+
+- 优化 Bash 工具输出以提升性能
+- 优化 Github PR 工具输出以提升性能
+- 优化 Context Compaction 逻辑，提升多轮对话性能
+
+### 修复
+
+- 修复 HTTP MCP 服务器请求头配置问题
+- 修复 Stdio MCP 服务器不支持自定义环境变量的问题
+- 修复 多窗口时，数据库提前退出时的问题

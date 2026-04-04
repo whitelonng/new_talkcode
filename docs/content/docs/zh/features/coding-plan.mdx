@@ -1,0 +1,169 @@
+---
+title: Coding Plan
+description: 在 TalkCody 中使用 MiniMax 2、GLM 4.6 和 Kimi 的 Coding Plan 功能
+icon: CodeXml
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## 什么是 Coding Plan？
+
+**Coding Plan** 是专为 AI 编码场景提供的订阅计划，由 MiniMax、智谱 AI 和 Moonshot 提供。 Coding Plan 专为高频编程场景设计，提供高性价比的订阅模式，相比直接按 API 计费，可以节省大量的成本。
+
+TalkCody 支持以下模型的 Coding Plan：
+
+| 模型 | 提供商 |
+|------|--------|
+| MiniMax M2.1 | MiniMax |
+| GLM 4.7 | 智谱 AI |
+| Kimi | Moonshot |
+| 通义千问 (Qwen) | 阿里云 |
+
+<Callout type="info">
+Coding Plan 模式会使用专门的 API 端点，提供针对编程任务优化的响应。
+</Callout>
+
+## 如何设置和开启 Coding Plan
+
+<Steps>
+
+<Step>
+### 获取 API Key
+
+首先，您需要从相应的提供商获取 API Key：
+
+- **MiniMax**: 访问 [MiniMax 开放平台](https://platform.minimaxi.com/docs/coding-plan/intro) 获取 API Key
+- **智谱 AI (GLM)**: 访问 [智谱 AI 开放平台](https://docs.bigmodel.cn/cn/coding-plan/overview) 获取 API Key
+- **Moonshot (Kimi)**: 访问 [Moonshot 开放平台](https://www.kimi.com/coding/docs/) 获取 API Key
+- **阿里云 (通义千问)**: 访问 [阿里云百炼平台](https://dash.console.aliyun.com/model-api) 获取 API Key
+</Step>
+
+<Step>
+### 配置 API Key
+
+1. 打开 TalkCody
+2. 点击 **设置** 图标
+3. 导航到 **API Keys** 页面
+4. 在对应提供商的输入框中填入您的 API Key
+</Step>
+
+<Step>
+### 开启 Coding Plan
+
+在 API Keys 设置页面，每个支持 Coding Plan 的提供商下方都有一个 **Use Coding Plan** 开关：
+
+1. 找到您已配置 API Key 的提供商
+2. 开启 **Use Coding Plan** 开关
+3. 设置会自动保存
+
+</Step>
+
+</Steps>
+
+## 内置 MCP 服务器
+
+TalkCody 内置了 MiniMax 2 和 GLM 4.6 的 MCP 服务器，提供**网络搜索**和**图像识别**功能。
+
+<Callout type="success">
+当您开启 Coding Plan 时，API Key 会自动同步到对应的 MCP 服务器，无需额外配置。
+</Callout>
+
+### MiniMax MCP 服务器
+
+| 服务器名称 | 功能 | 工具名称 |
+|-----------|------|---------|
+| minimax-coding-plan | 网络搜索 | `web_search` |
+
+**网络搜索**：可以搜索最新的技术文档、API 参考和编程问题解答。
+
+### GLM MCP 服务器
+
+| 服务器名称 | 功能 | 工具名称 |
+|-----------|------|---------|
+| glm-coding-plan-search | 网络搜索 | `webSearchPrime` |
+| glm-coding-plan-vision | 图像识别 | 视觉理解工具 |
+
+**网络搜索**：搜索技术资料，获取最新信息。
+
+**图像识别**：可以识别和理解图像内容，适用于：
+- 分析截图中的错误信息
+- 理解 UI 设计稿
+- 解读图表和流程图
+
+### 阿里云 MCP 服务器
+
+| 服务器名称 | 功能 | 工具名称 |
+|-----------|------|---------|
+| qwen-coding-plan | 网络搜索 | `web_search` |
+
+**网络搜索**：可以搜索最新的技术文档、API 参考和编程问题解答。
+
+## 如何使用 MCP 工具
+
+<Steps>
+
+<Step>
+### 确保配置正确
+
+1. 已配置对应提供商的 API Key
+2. 已开启 **Use Coding Plan** 开关
+3. API Key 会自动同步到 MCP 服务器
+</Step>
+
+<Step>
+### 选择 MCP 工具
+
+在聊天输入框上方的工具栏中，点击 **MCP** 按钮，选择需要使用的 MCP 工具：
+
+- `minimax-coding-plan__web_search` (MiniMax 网络搜索)
+- `glm-coding-plan-search__webSearchPrime` (GLM 网络搜索)
+- GLM 图像识别工具
+- `qwen-coding-plan__web_search` (阿里云网络搜索)
+
+选中的工具将在当前对话中生效。
+</Step>
+
+<Step>
+### 开始使用
+
+在对话中，智能体会自动根据需要调用这些工具。
+
+**网络搜索示例**：
+```
+用户：帮我搜索 React 19 的新特性
+
+AI：我将搜索最新的 React 19 相关信息。
+[使用 web_search 工具]
+
+根据搜索结果，React 19 的主要新特性包括：
+1. Actions - 简化表单处理
+2. use() hook - 新的资源读取方式
+3. 服务端组件改进
+...
+```
+
+**图像识别示例**：
+```
+用户：[上传错误截图] 这个错误是什么意思？
+
+AI：我来分析这个截图。
+[使用图像识别工具]
+
+这是一个 TypeScript 类型错误。错误信息显示...
+建议的解决方案：
+1. 检查变量类型声明
+2. 添加类型断言
+...
+```
+</Step>
+
+</Steps>
+
+## 常见问题
+
+### MCP 服务器连接失败怎么办？
+
+1. 检查 API Key 是否正确配置
+2. 确保已开启 Coding Plan 开关
+3. 尝试在 MCP 服务器页面重新测试连接

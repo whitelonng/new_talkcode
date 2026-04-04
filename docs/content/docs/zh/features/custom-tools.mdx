@@ -1,0 +1,675 @@
+---
+title: Custom Tools 自定义工具
+sidebarTitle: 自定义 Tools
+description: Custom Tools 允许您创建自定义功能扩展，以满足特定的业务需求。配合 Tool Playground，您可以快速开发、测试和部署自定义工具。
+icon: Hammer
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+## 什么是 Custom Tool？
+
+Custom Tool（自定义工具）是一种可扩展的功能模块，允许您创建超越内置工具和 MCP 服务器的专业能力。通过自定义工具，您可以：
+
+- **封装业务逻辑**：将复杂的业务流程封装为可复用的工具
+- **集成第三方 API**：连接任何 RESTful API 或 Web 服务
+- **数据处理**：实现特定的数据转换、分析和处理逻辑
+- **自定义 UI 渲染**：为工具结果提供丰富的可视化展示
+
+## Custom Tool vs MCP vs Skills
+
+| 特性 | Custom Tool | MCP 服务器 | Skills |
+|------|-------------|------------|--------|
+| **UI 自定义** | ✅ 完全支持 | ❌ 不支持 | ❌ 不支持 |
+| **细粒度权限控制** | ✅ 声明式权限（fs/net/command） | ⚠️ 服务器级别控制 | ⚠️ 全局开关 |
+| **参数验证** | ✅ Zod schema 严格验证 | ❌ MCP 协议限制 | ❌ 无结构化参数 |
+| **开发语言** | TypeScript/React | 任何语言 | Markdown + 可选脚本 |
+| **执行环境** | 沙箱环境 | 独立进程 | 文件系统 |
+| **运行时编译** | ✅ 支持（Playground） | ❌ 需要重启 | ✅ 热加载 |
+| **分发方式** | 文件复制 | npm/独立安装 | GitHub/市场 |
+| **适用场景** | 需要自定义 UI 和精细控制的工具 | 集成第三方服务和协议 | 提示词和工作流增强 |
+
+<Callout type="info">
+**Custom Tool 的两大核心优势**：
+
+1. **自定义 UI**：通过 `renderToolDoing` 和 `renderToolResult` 函数，您可以为工具创建完全自定义的 UI 组件，包括图表、表格、交互式控件等，让工具执行过程和结果更加直观。
+
+2. **细粒度控制**：使用 Zod schema 进行严格的参数验证，声明式权限系统（fs/net/command）确保工具只能访问必要的资源，提供更高的安全性和可控性。
+</Callout>
+
+## 工具目录结构
+
+TalkCody 支持从多个目录加载自定义工具，系统会按照优先级扫描以下位置：
+
+| 优先级 | 目录位置 | 说明 |
+|--------|----------|------|
+| 1 | 自定义目录 `.talkcody/tools` | 用户在设置中指定的自定义目录 |
+| 2 | 工作区 `.talkcody/tools` | 当前项目根目录下的工具目录 |
+| 3 | 用户目录 `~/.talkcody/tools` | 用户主目录下的工具目录 |
+
+<Callout type="info">
+同名工具会按照优先级保留最高优先级的版本（自定义目录 > 工作区 > 用户目录）。
+</Callout>
+
+### 目录结构示例
+
+```
+~/.talkcody/
+└── tools/
+    ├── weather.tsx          # 天气查询工具
+    ├── stock-price.tsx      # 股票价格工具
+    └── database-query.tsx   # 数据库查询工具
+
+workspace/
+├── .talkcody/
+│   └── tools/
+│       └── project-search.tsx    # 项目专用搜索工具
+└── src/
+```
+
+### 工具文件要求
+
+- 文件扩展名：`.ts` 或 `.tsx`
+- 文件必须导出 `default` 对象作为工具定义
+- 文件名即为工具名称（不含扩展名）
+
+### 带 package.json 的自定义工具（Packaged Tool）
+
+除了单文件 `xxx-tool.tsx`，TalkCody 也支持目录形式的自定义工具，用于引入额外依赖。
+
+#### 目录结构
+
+```
+~/.talkcody/tools/
+└── my-packaged-tool/
+    ├── package.json
+    ├── bun.lockb           # 或 package-lock.json（二选一）
+    ├── tool.tsx            # 默认入口
+    └── node_modules/       # 安装后生成
+```
+
+#### 必要条件
+
+- 目录下必须有 `package.json`
+- 必须提供锁文件：`bun.lockb` 或 `package-lock.json`
+- `package.json` 里只允许 `dependencies`
+- `scripts` 会被拒绝（禁止执行）
+- 入口文件默认是 `tool.tsx`，可在 `package.json` 中指定
+
+#### package.json 示例
+
+```json
+{
+  "name": "my-packaged-tool",
+  "version": "1.0.0",
+  "dependencies": {
+    "zod": "^3.23.0",
+    "lodash": "^4.17.21"
+  },
+  "talkcody": {
+    "toolEntry": "tool.tsx"
+  }
+}
+```
+
+#### 安装与运行说明
+
+- TalkCody 会在加载工具时自动执行依赖安装
+- 安装命令会**强制锁文件**并**忽略 scripts**（安全策略）
+- 每个工具目录有独立的 `node_modules`，互不影响
+
+## 创建自定义工具
+
+### 基础结构
+
+每个自定义工具文件需要包含以下核心部分：
+
+```tsx
+import React from 'react';
+import { toolHelper } from '@/lib/custom-tool-sdk';
+import { z } from 'zod';
+
+// 1. 定义参数模式（使用 Zod）
+const inputSchema = z.object({
+  message: z.string().min(1, '消息不能为空'),
+  count: z.number().default(1),
+});
+
+// 2. 定义工具执行函数
+async function executeTool(params: { message: string; count: number }) {
+  // 执行具体的业务逻辑
+  return {
+    success: true,
+    result: `${params.message} x ${params.count}`,
+  };
+}
+
+// 3. 可选：定义执行中 UI
+function renderDoing(params: { message: string }) {
+  return <div>正在处理: {params.message}</div>;
+}
+
+// 4. 可选：定义结果渲染 UI
+function renderResult(result: { result: string }) {
+  return <div>结果: {result.result}</div>;
+}
+
+// 5. 导出工具定义
+export default toolHelper({
+  name: 'my_custom_tool',
+  description: '这是一个自定义工具的描述',
+  inputSchema: inputSchema,
+  execute: executeTool,
+  ui: {
+    Doing: renderDoing,
+    Result: renderResult,
+  },
+});
+```
+
+### 使用 toolHelper
+
+`toolHelper` 是自定义工具的辅助函数，用于规范化工具定义：
+
+```tsx
+import { toolHelper } from '@/lib/custom-tool-sdk';
+import { z } from 'zod';
+
+export default toolHelper({
+  // 工具名称（必填）
+  name: 'my_tool',
+  
+  // 工具描述（必填）
+  description: {
+    en: 'This is an English description',
+    zh: '这是中文描述',
+  },
+  
+  // 参数模式（必填）
+  args: z.object({
+    param1: z.string(),
+    param2: z.number(),
+  }),
+  
+  // 执行函数（必填）
+  async execute(params, context) {
+    // params: 根据 args 模式解析后的参数
+    // context: 执行上下文（包含 taskId, toolId）
+    
+    return { /* 结果对象 */ };
+  },
+  
+  // UI 渲染（可选）
+  ui: {
+    // 执行中状态显示
+    Doing: (params) => <div>...</div>,
+    
+    // 结果渲染
+    Result: (result, params, context) => <div>...</div>,
+  },
+  
+  // 权限声明（可选）
+  permissions: ['net'],  // 'fs' | 'net' | 'command'
+});
+```
+
+### 参数模式定义
+
+使用 Zod 定义参数验证和类型：
+
+```tsx
+import { z } from 'zod';
+
+const inputSchema = z.object({
+  // 必填字符串
+  name: z.string().min(1),
+  
+  // 可选字符串
+  description: z.string().optional(),
+  
+  // 带默认值的字段
+  count: z.number().default(10),
+  
+  // 枚举类型
+  status: z.enum(['pending', 'completed', 'failed']),
+  
+  // 复杂对象
+  config: z.object({
+    enabled: z.boolean(),
+    timeout: z.number(),
+  }),
+  
+  // 数组
+  tags: z.array(z.string()),
+});
+```
+
+### 执行函数
+
+```tsx
+async execute(params, context) {
+  // params: 验证后的参数对象
+  // context: { taskId: string, toolId: string }
+  
+  // 返回结果可以是任意对象
+  return {
+    success: true,
+    data: { /* ... */ },
+    message: '操作成功',
+  };
+  
+  // 或者返回错误
+  return {
+    success: false,
+    error: '错误信息',
+  };
+}
+```
+
+### UI 渲染
+
+#### 执行中状态（Doing）
+
+```tsx
+renderToolDoing(params) {
+  // params: 当前执行参数
+  return (
+    <div className="flex items-center gap-2">
+      <Loader2 className="w-4 h-4 animate-spin" />
+      <span>正在处理 {params.name}...</span>
+    </div>
+  );
+}
+```
+
+#### 结果渲染（Result）
+
+```tsx
+renderToolResult(result, params, context) {
+  // result: execute 函数返回的结果
+  // params: 原始参数
+  // context: { toolName: string }
+  
+  if (!result.success) {
+    return <div className="text-red-500">{result.error}</div>;
+  }
+  
+  return (
+    <div>
+      <h3 className="font-semibold">结果</h3>
+      <pre>{JSON.stringify(result.data, null, 2)}</pre>
+    </div>
+  );
+}
+```
+
+<Callout type="warn">
+UI 渲染函数必须返回有效的 React Node，包括字符串、数字、数组或 JSX 元素。
+</Callout>
+
+## Tool Playground
+
+Tool Playground（工具测试场）是内置的开发和测试环境，让您可以快速创建、调试和验证自定义工具。
+
+### 打开 Tool Playground
+
+1. 在左侧导航栏中点击 **工具测试场** 图标
+2. 或使用快捷键 `Cmd/Ctrl + Shift + P` 然后搜索 "Tool Playground"
+
+### 主要功能
+
+<Tabs items={["代码编辑器", "参数面板", "结果面板", "历史记录"]}>
+<Tab value="代码编辑器">
+**Monaco 代码编辑器** 支持：
+- TypeScript/TSX 语法高亮
+- 自动补全（基于项目类型定义）
+- 实时编译反馈
+- 导入路径智能提示
+
+</Tab>
+
+<Tab value="参数面板">
+**参数配置面板** 提供：
+- 基于 Zod schema 自动生成输入表单
+- 参数类型检测和验证
+- 参数预设保存/加载
+- 默认值和可选标记显示
+
+</Tab>
+
+<Tab value="结果面板">
+**结果展示面板** 包含：
+- 原始 JSON 输出
+- 自定义 UI 渲染视图
+- 执行日志
+- 结果复制/下载
+
+</Tab>
+
+<Tab value="历史记录">
+**执行历史** 功能：
+- 自动记录每次执行
+- 查看历史参数和结果
+- 快速重放历史执行
+- 搜索和筛选历史记录
+
+</Tab>
+</Tabs>
+
+### 内置模板
+
+Tool Playground 提供了多个预设模板，帮助您快速开始：
+
+#### Basic Tool（基础工具）
+
+适合简单的输入/输出处理：
+
+```tsx
+import React from 'react';
+import { toolHelper } from '@/lib/custom-tool-sdk';
+import { z } from 'zod';
+
+const inputSchema = z.object({
+  message: z.string().min(1, 'message is required'),
+});
+
+export default toolHelper({
+  name: 'basic_tool',
+  description: 'A basic tool example',
+  inputSchema: inputSchema,
+  async execute(params) {
+    return {
+      success: true,
+      message: `Hello, ${params.message}!`,
+    };
+  },
+  renderToolDoing(params) {
+    return <div>Processing: {params.message}</div>;
+  },
+  renderToolResult(result, params) {
+    return <div>{result.message}</div>;
+  },
+});
+```
+
+#### Network Tool（网络工具）
+
+适合 API 调用和数据获取：
+
+```tsx
+import React from 'react';
+import { toolHelper } from '@/lib/custom-tool-sdk';
+import { simpleFetch } from '@/lib/tauri-fetch';
+import { z } from 'zod';
+
+const inputSchema = z.object({
+  url: z.string().url(),
+  method: z.enum(['GET', 'POST']).default('GET'),
+  headers: z.record(z.string()).optional(),
+  body: z.string().optional(),
+});
+
+export default toolHelper({
+  name: 'network_tool',
+  description: 'Fetch data from a URL',
+  args: inputSchema,
+  permissions: ['net'],
+  async execute(params) {
+    const response = await simpleFetch(params.url, {
+      method: params.method,
+      headers: params.headers,
+      body: params.body,
+    });
+    
+    return { success: true, data: await response.json() };
+  },
+  renderToolDoing(params) {
+    return <div>Fetching {params.method} {params.url}...</div>;
+  },
+  renderToolResult(result) {
+    return <pre>{JSON.stringify(result.data, null, 2)}</pre>;
+  },
+});
+```
+
+### Playground 设置
+
+点击右上角 **设置** 图标可以配置：
+
+| 设置项 | 说明 | 默认值 |
+|--------|------|--------|
+| **Timeout** | 最大执行时间（毫秒） | 30000ms |
+| **Mock Mode** | 模拟网络请求返回测试数据 | 关闭 |
+
+### 安装自定义工具
+
+完成工具开发和测试后，您可以直接在 Tool Playground 中安装自定义工具：
+
+1. 确保工具已成功编译（状态显示为 `ready`）
+2. 点击右上角 **安装** 按钮
+3. 工具将自动保存到以下目录之一：
+   - 工作区 `.talkcody/tools/` 目录（如果有工作区）
+   - 用户目录 `~/.talkcody/tools/`（无工作区时）
+4. 工具保存后会自动刷新并立即可用
+
+<Callout type="success">
+安装成功后，您可以在 **Agents 设置** 中找到并启用这个自定义工具，供 AI 智能体使用。
+</Callout>
+
+### 保存工具到文件
+
+完成工具开发后，您也可以：
+
+1. 点击 **保存** 按钮
+2. 选择保存位置（工作区 `.talkcody/tools` 目录）
+3. 工具将自动被系统加载
+
+## SDK 参考
+
+### 可用导入
+
+```tsx
+// 主 SDK 导入
+import { toolHelper } from '@/lib/custom-tool-sdk';
+
+// 类型定义
+import type { CustomToolDefinition, CustomToolPermission, CustomToolUI } from '@/lib/custom-tool-sdk';
+```
+
+### 支持的依赖
+
+Custom Tool 支持以下内置依赖：
+
+| 包名 | 用途 |
+|------|------|
+| `react` | UI 组件构建 |
+| `zod` | 参数模式定义和验证 |
+| `recharts` | 数据可视化图表 |
+| `@/lib/tauri-fetch` | 网络请求（需 `net` 权限） |
+| `@/lib/*` | 项目内部模块 |
+
+<Callout type="info">
+不支持动态导入外部 npm 包。所有依赖必须使用裸模块指定符（bare specifiers）。
+</Callout>
+
+### 权限系统
+
+Custom Tool 支持以下权限：
+
+| 权限 | 功能 | 所需依赖 |
+|------|------|----------|
+| `fs` | 文件系统读写 | `@tauri-apps/plugin-fs` |
+| `net` | 网络请求 | `@/lib/tauri-fetch` |
+| `command` | 执行系统命令 | `bash` 工具 |
+
+在工具定义中声明权限：
+
+```tsx
+export default toolHelper({
+  name: 'my_tool',
+  description: 'Tool with permissions',
+  permissions: ['net', 'fs'],  // 声明所需权限
+  // ...
+});
+```
+
+<Callout type="warn">
+Tool Playground 中权限会自动授予以便于开发。在实际使用时，系统会根据权限配置决定是否允许执行。
+</Callout>
+
+## 完整示例
+
+### 天气查询工具
+
+```tsx
+import React from 'react';
+import { toolHelper } from '@/lib/custom-tool-sdk';
+import { simpleFetch } from '@/lib/tauri-fetch';
+import { z } from 'zod';
+
+const inputSchema = z.object({
+  city: z.string().min(1, '城市名称不能为空'),
+  unit: z.enum(['celsius', 'fahrenheit']).default('celsius'),
+});
+
+interface WeatherResult {
+  temperature: number;
+  humidity: number;
+  description: string;
+  city: string;
+}
+
+export default toolHelper({
+  name: 'weather_query',
+  description: '查询指定城市的天气信息',
+  inputSchema: inputSchema,
+  permissions: ['net'],
+  async execute(params): Promise<{ success: true; data: WeatherResult } | { success: false; error: string }> {
+    try {
+      const response = await simpleFetch(
+        `https://api.example.com/weather?city=${params.city}`,
+        { method: 'GET' }
+      );
+      
+      const data = await response.json();
+      
+      return {
+        success: true,
+        data: {
+          city: params.city,
+          temperature: params.unit === 'fahrenheit' ? data.temp_f : data.temp_c,
+          humidity: data.humidity,
+          description: data.condition.text,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '获取天气失败',
+      };
+    }
+  },
+  renderToolDoing(params) {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="animate-pulse">正在查询 {params.city} 的天气...</span>
+      </div>
+    );
+  },
+  renderToolResult(result) {
+    if (!result.success) {
+      return (
+        <div className="p-3 bg-red-50 text-red-600 rounded">
+          ❌ {result.error}
+        </div>
+      );
+    }
+    
+    const weather = result.data;
+    return (
+      <div className="space-y-2">
+        <div className="text-lg font-semibold">{weather.city} 天气</div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-2 bg-blue-50 rounded">
+            <div className="text-sm text-blue-600">温度</div>
+            <div className="text-xl">{weather.temperature}°</div>
+          </div>
+          <div className="p-2 bg-green-50 rounded">
+            <div className="text-sm text-green-600">湿度</div>
+            <div className="text-xl">{weather.humidity}%</div>
+          </div>
+        </div>
+        <div className="text-sm text-gray-600">{weather.description}</div>
+      </div>
+    );
+  },
+});
+```
+
+## 最佳实践
+
+### 1. 错误处理
+
+始终在 `execute` 函数中处理可能的错误：
+
+```tsx
+async execute(params) {
+  try {
+    // 业务逻辑
+    return { success: true, data: result };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '未知错误',
+    };
+  }
+}
+```
+
+### 2. 参数验证
+
+使用 Zod 进行严格的参数验证：
+
+```tsx
+const inputSchema = z.object({
+  // 添加描述帮助 AI 理解
+  query: z.string().min(1).describe('搜索查询关键词'),
+  limit: z.number().min(1).max(100).default(10).describe('结果数量限制'),
+});
+```
+
+## 常见问题
+
+### Q: 工具加载失败怎么办？
+
+1. 检查工具文件是否导出 `default`
+2. 验证 Zod schema 语法是否正确
+3. 查看设置中的错误日志
+4. 在 Tool Playground 中测试工具代码
+
+### Q: 如何调试自定义工具？
+
+推荐使用 Tool Playground 进行调试：
+1. 将工具代码复制到 Playground
+2. 设置参数并执行
+3. 查看结果面板的日志输出
+4. 使用 `console.log` 输出调试信息
+
+### Q: 工具更新后需要重启吗？
+
+不需要。工具文件保存后会自动重新加载。如果工具未更新，请尝试：
+1. 点击设置中的"刷新工具"
+2. 检查工具目录路径是否正确
+
+### Q: 如何分享自定义工具？
+
+目前支持以下分享方式：
+1. **文件分享**：直接将 `.tsx` 文件分享给他人，放置到对应目录即可使用
+2. **项目集成**：将工具放在项目的 `.talkcody/tools` 目录中，随项目版本控制
+
+## 相关文档
+
+- [Tools 内置工具](/docs/zh/features/tools)
+- [MCP 服务器](/docs/zh/features/mcp-servers)
+- [AI Agents 智能体](/docs/zh/features/ai-agents)

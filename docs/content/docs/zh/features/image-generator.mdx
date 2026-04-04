@@ -1,0 +1,148 @@
+---
+title: 图片生成
+description: TalkCody 的 AI 图片生成功能，根据文本描述创建高质量图像
+icon: Image
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## 什么是图片生成？
+
+**图片生成**是 TalkCody 的 AI 图像生成功能，可以根据您的文本描述创建高质量的图像。无论是概念图、插画、产品原型还是创意图片，AI 都能帮您快速生成。
+
+## 支持的图像生成模型
+
+TalkCody 支持以下图像生成模型（Image Output）：
+
+| 模型 | 提供商 | 特点 |
+|------|--------|------|
+| **DALL-E 3** | OpenAI | 高质量、细节丰富，创意图像生成 |
+| **Nano Banana** (Gemini 2.5 Flash Image) | Google / OpenRouter / AI Gateway | Google 最新图像生成模型，快速高效 |
+| **Nano Banana Pro** (Gemini 3 Pro Image) | Google / OpenRouter / AI Gateway / Ollama | Google 专业级图像生成，最高质量 |
+| **Doubao Seedream** | VolcEngine (火山引擎) | 字节豆包系列，中文场景优化 |
+| **GLM Image** | Zhipu AI (智谱 AI) | 智谱 GLM 系列，中文理解优秀 |
+| **Qwen Image Max** | Alibaba (阿里云) | 通义万相，专业级图像生成 |
+
+<Callout type="info">
+需要在 [API 密钥配置](/zh/docs/configuration/api-keys) 中配置相应提供商的 API Key 才能使用对应的图像生成模型。
+</Callout>
+
+## 配置方法
+
+### 配置 API 密钥
+
+不同图像生成模型需要配置相应提供商的 API Key：
+
+| 模型 | 需要配置的 API Key |
+|------|------------------|
+| DALL-E 3 | OpenAI |
+| Nano Banana / Nano Banana Pro | Google AI / OpenRouter / Vercel AI Gateway |
+| Doubao Seedream | VolcEngine (火山引擎) |
+| GLM Image | Zhipu AI (智谱 AI) |
+| Qwen Image Max | Alibaba Qwen (阿里云) |
+
+详细配置步骤请参考 [API 密钥管理](/zh/docs/configuration/api-keys)。
+
+## 使用方法
+
+### 通过智能体使用
+
+1. 在聊天界面点击左上角智能体选择器
+2. 选择 **Image Generator** 智能体
+3. 描述您想要的图片内容
+4. AI 会自动生成图像
+
+### 作为子智能体调用
+
+在其他智能体的对话中，可以调用 Image Generator 来生成图片：
+
+```
+用户：帮我创建一个关于机器学习的封面图
+
+AI：我来调用图片生成智能体为您创建封面图。
+[调用 Image Generator 智能体]
+```
+
+### 直接调用工具
+
+在支持 Tools 的智能体中，可以直接启用 **imageGeneration** 工具：
+
+1. 点击输入框上方的 **Tools** 图标
+2. 勾选 **imageGeneration** 工具
+3. 在对话中要求生成图片
+
+## 图像规格参数
+
+### 尺寸选项
+
+| 尺寸 | 比例 | 适用场景 |
+|------|------|----------|
+| 1024x1024 | 1:1 | 方形图片、社交媒体头像 |
+| 1792x1024 | 16:9 | 横向图片、PPT 封面、宽屏显示 |
+| 1024x1792 | 9:16 | 竖向图片、手机壁纸、故事图 |
+
+<Callout type="tip">
+生成 PPT 时推荐使用 **1792x1024** 尺寸，这是 16:9 的标准比例。
+</Callout>
+
+### 质量选项
+
+- **Standard** - 标准质量，生成速度更快，成本更低
+- **HD / High** - 高清质量，细节更丰富，适合专业用途
+
+### 生成数量
+
+支持同时生成 1-4 张图片，方便您选择最满意的结果。
+
+## 提示词技巧
+
+### 有效的提示词结构
+
+```
+[主体描述] + [环境/背景] + [风格/艺术效果] + [光线/氛围] + [技术规格]
+```
+
+### 示例
+
+**简单提示词**：
+> 一只猫在草地上
+
+**优化后的提示词**：
+> 一只橘色的虎斑猫，坐在阳光明媚的绿色草地上，周围有野花，写实风格，柔和的午后光线，高清细节，8K 质量
+
+### 推荐添加的描述元素
+
+| 元素 | 示例 |
+|------|------|
+| 艺术风格 | 写实风格、卡通、水彩、油画、素描 |
+| 光线氛围 | 柔和光线、逆光、暖色调、冷色调、金色时刻 |
+| 色彩方案 | 鲜艳色彩、柔和色调、单色、高对比度 |
+| 质量描述 | 高清、8K、细节丰富、专业摄影 |
+
+## 生成的图片保存位置
+
+生成的图片会自动保存在应用数据目录中：
+
+```
+~/Library/Application Support/com.talkcody/images/
+```
+
+每张图片都有唯一标识，可在聊天记录中查看和下载。
+
+## 常见问题
+
+### 图片生成失败怎么办？
+
+1. 检查 API Key 是否有效且余额充足
+2. 确认当前模型支持图像生成
+3. 检查网络连接是否正常
+4. 尝试简化提示词，避免敏感内容
+
+### 如何获得更好的生成效果？
+
+- 使用详细、具体的描述
+- 明确指定艺术风格和光线条件
+- 参考上述提示词技巧优化描述
+- 使用高清质量选项获取更精细的结果
+

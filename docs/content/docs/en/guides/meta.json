@@ -1,0 +1,6 @@
+{
+  "title": "Guides",
+  "icon": "Lightbulb",
+  "defaultOpen": true,
+  "pages": ["free-use", "ai-coding-best-practices"]
+}

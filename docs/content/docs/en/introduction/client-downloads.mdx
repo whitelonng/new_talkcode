@@ -1,0 +1,52 @@
+---
+title: Client Downloads
+description: Download TalkCody for your platform
+icon: Download
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { CONFIG } from '@/lib/config';
+
+# Client Downloads
+
+## macOS
+
+<Cards>
+  <Card title="macOS (Apple Silicon)" description="For M1, M2, M3, and M4 Macs">
+    **Download**: <a href={CONFIG.downloads['darwin-aarch64']}>talkcody_{CONFIG.version}_aarch64.dmg</a>
+  </Card>
+
+  <Card title="macOS (Intel)" description="For Intel-based Macs">
+    **Download**: <a href={CONFIG.downloads['darwin-x86_64']}>talkcody_{CONFIG.version}_x64.dmg</a>
+  </Card>
+</Cards>
+
+## Windows
+
+<Cards>
+  <Card title="Windows (x64)" description="For 64-bit Windows systems">
+    **Download**: <a href={CONFIG.downloads['windows-x86_64']}>TalkCody_{CONFIG.version}_x64_en-US.msi</a>
+  </Card>
+</Cards>
+
+## Linux
+
+<Cards>
+  <Card title="Linux (x86_64)" description="For 64-bit Linux systems">
+    **Download**: <a href={CONFIG.downloads['linux-x86_64']}>talkcody_{CONFIG.version}_x86_64.AppImage</a>
+  </Card>
+</Cards>
+
+## Build from Source
+
+Want to build TalkCody yourself? Check out the [Development Setup](/docs/open-source/development-setup) guide.
+
+## Need Help?
+
+- [Quick Start Guide](/docs/introduction/quick-start) - Get started with TalkCody
+- <a href={CONFIG.github.issues}>GitHub Issues</a> - Report bugs or request features
+
+<Callout type="success">
+After downloading, head to the [Quick Start Guide](/docs/introduction/quick-start) to configure TalkCody and start coding with AI!
+</Callout>

@@ -1,0 +1,419 @@
+---
+title: API Key Management
+sidebarTitle: API Keys
+description: Configure API keys for AI providers to enable TalkCody's AI features
+icon: Key
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## API Keys
+
+![API Keys Configuration](https://cdn.talkcody.com/images/api-keys.png)
+
+TalkCody supports multiple AI providers, each requiring their own API key:
+
+- **OpenAI** - GPT models
+- **Anthropic** - Claude models
+- **Google** - Gemini models
+- **Groq** - Groq models
+- **OpenRouter** - Gateway supporting 500+ models
+- **Vercel AI Gateway** - Gateway supporting 100+ models
+- **VolcEngine** - VolcEngine Doubao models
+- **Alibaba Qwen** - Qwen models
+- **Zhipu AI** - GLM models
+- **Z.AI** - GLM models (International)
+- **MiniMax** - MiniMax models
+- **DeepSeek** - DeepSeek models
+- **Moonshot** - Kimi models
+- **Ollama** - Local models (no key needed)
+- **LM Studio** - Local models (no key needed)
+
+<Callout type="success">
+TalkCody supports any third-party provider compatible with OpenAI or Anthropic APIs. Simply enter the corresponding API key and optional custom Base URL.
+</Callout>
+
+<Callout type="info">
+You need at least one API key configured to use TalkCody. Multiple keys allow you to use different models and providers.
+</Callout>
+
+<Callout type="tip">
+Don't have an API key? Try OpenRouter or Vercel AI Gateway, which provide access to hundreds of models through a single API key, including some free models.
+</Callout>
+
+<Callout type="tip">
+To use the free Web Search Tool, configure your Tavily API key first. Tavily provides 1000 free search requests per month.
+</Callout>
+
+<Callout type="tip">
+To use the free voice input feature, configure your Eleven Labs API key first. Eleven Labs provides 10,000 characters of free voice synthesis per month.
+</Callout>
+
+## Adding API Keys
+
+<Steps>
+
+<Step>
+### Open Settings
+
+1. Open the Settings page
+2. Navigate to the **API Keys** section
+</Step>
+
+<Step>
+### Enter Provider API Key
+
+1. Paste your API key in the input field
+2. For OpenAI and Anthropic compatible providers, enter the base URL (if needed)
+</Step>
+
+<Step>
+### Test Connection
+
+1. Click **Test Key** to verify it works
+2. Check that the connection succeeds
+</Step>
+
+</Steps>
+
+## Getting API Keys
+
+### Vercel AI Gateway
+
+Multi-model AI Gateway that provides access to multiple AI provider models through a single interface.
+
+**Steps to obtain:**
+1. Visit [Vercel AI Gateway](https://vercel.com/docs/ai-gateway/getting-started#set-up-your-api-key)
+2. Sign in or register with your Vercel account
+3. Create a new project in the Dashboard
+4. Go to project settings and find AI Gateway configuration
+5. Generate a Gateway API Key
+6. Copy the key and paste it into TalkCody's Vercel AI Gateway field
+
+### OpenRouter
+
+OpenRouter API Gateway that aggregates multiple AI providers, providing access to 100+ models through a single API.
+
+**Steps to obtain:**
+1. Visit [openrouter.ai](https://openrouter.ai/settings/keys)
+2. Click "Sign In" in the top right corner to login or register
+3. After logging in, click your avatar to enter account settings
+4. Select "Keys" from the left menu
+5. Click "Create Key" to create a new key
+6. Name your key (e.g., "TalkCody") and click confirm
+7. Copy the generated key (format: `sk-or-v1-...`)
+8. Paste it into TalkCody's OpenRouter field
+
+<Callout type="tip">
+OpenRouter offers some free models (like DeepSeek Chat), suitable for testing and light usage.
+</Callout>
+
+### OpenAI
+
+Official OpenAI API, providing advanced language models like GPT-4 and GPT-4 Turbo.
+
+**Steps to obtain:**
+1. Visit [platform.openai.com](https://platform.openai.com/api-keys)
+2. Click "Sign up" to register or "Log in" to sign in
+3. Complete account verification (may require phone number)
+4. After logging in, click your avatar in the top right → "API keys"
+5. Click "Create new secret key"
+6. Name your key and click "Create secret key"
+7. **Copy the key immediately** (format: `sk-...`, cannot be viewed again after closing)
+8. Paste it into TalkCody's OpenAI field
+
+<Callout type="warn">
+New accounts typically have $5 free credit. Ensure your account has sufficient balance or a payment method attached before use.
+</Callout>
+
+**Custom Base URL**: If using a proxy server or OpenAI-compatible third-party service (like MiniMax), enter the corresponding endpoint address in the "Custom Base URL" field.
+
+### Anthropic
+
+Official Anthropic Claude API, providing Claude 3.5 Sonnet, Opus, Haiku and other models.
+
+**Steps to obtain:**
+1. Visit [console.anthropic.com](https://console.anthropic.com/settings/keys)
+2. Click "Sign up" to register a new account
+3. Complete email verification and account setup
+4. After logging in, enter the Console Dashboard
+5. Click "API Keys" in the left menu
+6. Click the "Create Key" button
+7. Enter a key name and confirm creation
+8. Copy the generated key (format: `sk-ant-...`)
+9. Paste it into TalkCody's Anthropic field
+
+**Custom Base URL**: If you need to use a proxy server, you can configure a custom endpoint in the "Custom Base URL" field.
+
+### Google AI
+
+Google AI Studio's Gemini series models, supporting text and multimodal capabilities.
+
+**Steps to obtain:**
+1. Visit [aistudio.google.com](https://aistudio.google.com/api-keys)
+2. Sign in with your Google account
+3. Agree to the terms of service
+4. Click "Get API key" in the left menu
+5. Click "Create API key in new project" or select an existing project
+6. Copy the generated key (format: `AIza...`)
+7. Paste it into TalkCody's Google AI field
+
+<Callout type="info">
+Google AI offers generous free quota: 15 requests per minute, 1500 requests per day, no credit card required.
+</Callout>
+
+### Groq
+
+Groq provides fast inference APIs for LLMs.
+
+**Steps to obtain:**
+1. Visit [console.groq.com](https://console.groq.com/keys)
+2. Sign in or register a Groq account
+3. In the Console, open the API Keys page and click "Create API Key"
+4. Name the key and confirm
+5. Copy the generated key (format: `gsk_...`)
+6. Paste it into TalkCody's Groq field
+
+<Callout type="tip">
+Groq speech-to-text is currently free to use.
+</Callout>
+
+### MiniMax
+
+MiniMax's large language model service, supporting text generation and conversation capabilities.
+
+**Steps to obtain:**
+1. Visit [platform.minimaxi.com](https://platform.minimaxi.com)
+2. Click register or login in the top right corner
+3. Complete account registration and verification
+4. After logging in, enter the user center
+5. In the left menu, select "Basic Information" → "Interface Key"
+6. Or directly visit the [Interface Key page](https://platform.minimaxi.com/user-center/basic-information/interface-key)
+7. Click "Create Key" or view existing keys
+8. Copy the API Key
+9. Paste it into TalkCody's MiniMax field
+
+<Callout type="info">
+MiniMax offers free trial credits. New users receive a certain number of free API calls after registration.
+</Callout>
+
+### Zhipu AI
+
+Zhipu AI's GLM series models, including GLM-4 and other Chinese-optimized models.
+
+**Steps to obtain:**
+1. Visit [open.bigmodel.cn](https://open.bigmodel.cn)
+2. Click "Register" to create an account (supports phone number registration)
+3. Complete identity verification (may be required)
+4. After logging in, enter the console
+5. Go to the "API Key Management" page
+6. Click "Create API Key"
+7. Copy the generated key
+8. Paste it into TalkCody's Zhipu AI field
+
+### Ollama
+
+Locally running open-source models, completely offline, privacy-focused.
+
+**Configuration steps:**
+1. Visit [ollama.com](https://ollama.com) to download and install Ollama
+2. Open terminal and download a model:
+   ```bash
+   ollama pull llama2
+   # or other models like codellama, mistral, etc.
+   ```
+3. Ensure Ollama service is running
+4. TalkCody will automatically detect local Ollama
+5. No API key needed, directly select Ollama models in model settings
+
+<Callout type="tip">
+Ollama is completely free and supports offline use, but requires sufficient local computing resources (8GB+ RAM recommended).
+</Callout>
+
+### DeepSeek
+
+DeepSeek's high-performance large language models, offering powerful code generation and reasoning capabilities at highly competitive prices.
+
+**Steps to obtain:**
+1. Visit [platform.deepseek.com](https://platform.deepseek.com)
+2. Click "Sign Up" or "Login" in the top right corner
+3. Complete email verification and account setup
+4. After logging in, enter the console
+5. Select "API Keys" from the left menu
+6. Click "Create new API key"
+7. Name your key and confirm
+8. Copy the generated key (format: `sk-...`)
+9. Paste it into TalkCody's DeepSeek field
+
+<Callout type="info">
+DeepSeek offers highly competitive pricing. The DeepSeek-V3 model performs close to GPT-4 but costs only 1/10 of the price. New users receive free credits upon registration.
+</Callout>
+
+<Callout type="tip">
+DeepSeek's DeepSeek-R1 model is designed for complex reasoning tasks, excelling in mathematics, code, and logical reasoning.
+</Callout>
+
+### Moonshot
+
+Moonshot's Kimi large language model, featuring ultra-long context windows, supporting long document processing and complex conversations.
+
+**Steps to obtain:**
+1. Visit [platform.moonshot.cn](https://platform.moonshot.cn)
+2. Click "Login" or "Register" in the top right corner
+3. Complete registration and verification with phone number
+4. After logging in, enter the console
+5. Select "API Key Management" from the left menu
+6. Click "New" to create a new key
+7. Name your key and confirm
+8. Copy the generated key (format: `sk-...`)
+9. Paste it into TalkCody's Moonshot field
+
+<Callout type="info">
+Moonshot offers up to 128K context window, especially suitable for processing long documents. New users receive free credits upon registration.
+</Callout>
+
+<Callout type="tip">
+Moonshot supports TalkCody's Coding Plan feature. You can select Moonshot models in Agent configuration for code planning.
+</Callout>
+
+### VolcEngine
+
+VolcEngine is ByteDance's cloud service platform, providing Doubao (豆包) series large language models with powerful Chinese language understanding and generation capabilities.
+
+**Steps to obtain:**
+1. Visit [console.volcengine.com](https://console.volcengine.com)
+2. Click "Login" or "Register" in the top right corner to create an account
+3. Complete identity verification (enterprise or individual)
+4. After logging in, enter the console
+5. Search for "Ark" in the top search bar or visit the [Ark Platform](https://console.volcengine.com/ark)
+6. Select "API Key Management" from the left menu
+7. Click "Create API Key"
+8. Name your key and select permission scope
+9. Copy the generated key
+10. Paste it into TalkCody's VolcEngine field
+
+<Callout type="info">
+VolcEngine Ark Platform offers multiple model versions including Doubao-pro and Doubao-lite. New users receive free trial credits upon registration.
+</Callout>
+
+<Callout type="tip">
+Before using VolcEngine, you need to create an inference endpoint in the Ark Platform's "Online Inference" section. After obtaining the endpoint ID, you can use it in TalkCody.
+</Callout>
+
+### Alibaba Qwen
+
+Alibaba Cloud's Qwen (通义千问) series large language models, optimized for Chinese language scenarios with powerful text understanding and generation capabilities.
+
+**Steps to obtain:**
+1. Visit [dashscope.aliyun.com](https://dashscope.aliyun.com)
+2. Click "Login" in the top right corner to sign in with your Alibaba Cloud account
+3. Complete identity verification (if not already done)
+4. After logging in, enter the console
+5. Select "API-KEY Management" from the left menu
+6. Click "Create New API-KEY"
+7. Name your key and select the business space
+8. Copy the generated key (format: `sk-...`)
+9. Paste it into TalkCody's Alibaba Qwen field
+
+<Callout type="info">
+Alibaba Cloud Bailian Platform offers generous free quotas. New users can receive millions of free token credits, sufficient for daily development and testing.
+</Callout>
+
+<Callout type="tip">
+Qwen supports TalkCody's Coding Plan feature. You can select Qwen models in Agent configuration for code planning.
+</Callout>
+
+### LM Studio
+
+LM Studio is a desktop application that lets you run open-source large language models locally, providing a graphical interface to manage and run models.
+
+**Configuration steps:**
+1. Visit [lmstudio.ai](https://lmstudio.ai) to download and install LM Studio
+2. Open the LM Studio application
+3. Search and download your desired model in the "Discover" tab
+4. After download completes, go to the "Developer" tab
+5. Click "Start Server" to start the local server
+6. Server runs by default at `http://localhost:1234`
+7. No API key needed in TalkCody, simply select LM Studio models
+
+<Callout type="tip">
+LM Studio is completely free and supports offline use, providing a friendly graphical interface to manage local models. Supports Apple Silicon acceleration and NVIDIA GPU acceleration.
+</Callout>
+
+<Callout type="info">
+LM Studio supports GGUF format models and can download many open-source models from Hugging Face, such as Llama, Mistral, Phi, and more.
+</Callout>
+
+### Tavily
+
+Search API designed specifically for AI agents and large language models, providing accurate, real-time web search results.
+
+**Steps to obtain:**
+1. Visit [tavily.com](https://tavily.com)
+2. Click "Get API Key" or "Sign Up"
+3. Register with your email
+4. Complete email verification
+5. After logging in, enter the Dashboard
+6. View your key in the "API Keys" section
+7. Copy the API key
+8. Paste it into TalkCody's Tavily field
+
+<Callout type="info">
+Tavily offers 1000 free search requests per month, suitable for individual developers.
+</Callout>
+
+### Eleven Labs
+
+Leading AI voice synthesis platform, providing high-quality text-to-speech and voice cloning features.
+
+**Steps to obtain:**
+1. Visit [elevenlabs.io](https://elevenlabs.io)
+2. Click "Sign Up" in the top right corner
+3. Register with Google account or email
+4. Complete account creation and verification
+5. After logging in, click your avatar in the top right
+6. Select "Profile + API key"
+7. Click the eye icon in the API Key section to view the key
+8. Copy the API key (format: long string of numbers and letters)
+9. Paste it into TalkCody's Eleven Labs field
+
+<Callout type="tip">
+Eleven Labs free tier provides 10,000 characters of voice synthesis per month, usable for TalkCody's voice features.
+</Callout>
+
+### Serper
+
+Google Search API service that provides fast and accurate web search results, designed for AI applications and automation.
+
+**Steps to obtain:**
+1. Visit [serper.dev](https://serper.dev)
+2. Click "Get API Key" or "Sign Up"
+3. Register with your email or Google account
+4. Complete email verification
+5. After logging in, enter the Dashboard
+6. View your API key in the dashboard
+7. Copy the API key
+8. Paste it into TalkCody's Serper field
+
+### Z.AI
+
+Z.AI provides advanced language models from the GLM family, including high-performance models like GLM-4.7.
+
+**Steps to obtain:**
+1. Visit [z.ai/model-api](https://z.ai/model-api)
+2. Click "Sign Up" to register an account or "Login" to sign in
+3. Complete email verification and account setup
+4. After logging in, enter the console
+5. Select "API Keys" from the left menu
+6. Click "Create API Key"
+7. Copy the generated key
+8. Paste it into TalkCody's Z.AI field
+
+<Callout type="tip">
+TalkCody supports Z.AI's Coding Plan feature.
+</Callout>
+
+<Callout type="success">
+Once you've configured your API keys, you're ready to start using TalkCody's AI features!
+</Callout>
