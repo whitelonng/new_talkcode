@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
 import { Loader2, Sparkles } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,13 +21,18 @@ export function GitCommitBox() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const hasStagedChanges = (gitStatus?.staged.length ?? 0) > 0;
-  const isCommitDisabled = isCommitting || !commitMessage.trim() || !hasStagedChanges;
+  const hasAnyChanges = (gitStatus?.changesCount ?? 0) > 0;
+  const isCommitDisabled = isCommitting || !commitMessage.trim() || !hasAnyChanges;
 
   const handleCommit = useCallback(async () => {
-    if (!repositoryPath || !commitMessage.trim() || !hasStagedChanges) return;
+    if (!repositoryPath || !commitMessage.trim() || !hasAnyChanges) return;
 
     setIsCommitting(true);
     try {
+      // If nothing is staged, auto-stage all changes first
+      if (!hasStagedChanges) {
+        await gitService.stageFiles(repositoryPath, ['.']);
+      }
       await gitService.commitStaged(repositoryPath, commitMessage.trim());
       toast.success(t.GitPanel.commitSuccess);
       setCommitMessage('');
@@ -38,7 +43,7 @@ export function GitCommitBox() {
     } finally {
       setIsCommitting(false);
     }
-  }, [repositoryPath, commitMessage, hasStagedChanges, refreshStatus, t]);
+  }, [repositoryPath, commitMessage, hasAnyChanges, hasStagedChanges, refreshStatus, t]);
 
   const handleGenerateMessage = useCallback(async () => {
     if (!repositoryPath) return;
@@ -78,12 +83,7 @@ export function GitCommitBox() {
         rows={3}
       />
       <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          className="flex-1"
-          disabled={isCommitDisabled}
-          onClick={handleCommit}
-        >
+        <Button size="sm" className="flex-1" disabled={isCommitDisabled} onClick={handleCommit}>
           {isCommitting ? (
             <>
               <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />

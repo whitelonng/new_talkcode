@@ -1,10 +1,11 @@
-import { Folder, ListTodo, Plus, Search } from 'lucide-react';
+import { Folder, GitBranch, ListTodo, Plus, Search } from 'lucide-react';
 import type React from 'react';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { EmptyRepositoryState } from '@/components/empty-repository-state';
 import { FileTree } from '@/components/file-tree';
 import { FileTreeHeader } from '@/components/file-tree-header';
+import { GitPanel } from '@/components/git/git-panel';
 import { TaskList } from '@/components/task-list';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -183,13 +184,20 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                     onSidebarViewChange(value as SidebarView);
                   }}
                 >
-                  <TabsList className="grid w-full grid-cols-2 h-7 bg-muted/50 p-0.5">
+                  <TabsList className="grid w-full grid-cols-3 h-7 bg-muted/50 p-0.5">
                     <TabsTrigger
                       value={SidebarView.FILES}
                       className="h-6 gap-1.5 px-2.5 text-[11px] data-[state=active]:shadow-none"
                     >
                       <Folder className="h-3.5 w-3.5" />
                       {t.Sidebar.files}
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value={SidebarView.GIT}
+                      className="h-6 gap-1.5 px-2.5 text-[11px] data-[state=active]:shadow-none"
+                    >
+                      <GitBranch className="h-3.5 w-3.5" />
+                      {t.Sidebar.git}
                     </TabsTrigger>
                     <TabsTrigger
                       value={SidebarView.TASKS}
@@ -227,6 +235,18 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                     onToggleExpansion={onToggleExpansion}
                   />
                 )}
+              </div>
+            )}
+
+            {hasRepository && (
+              <div
+                className={
+                  sidebarView === SidebarView.GIT
+                    ? 'flex flex-1 flex-col overflow-hidden'
+                    : 'hidden'
+                }
+              >
+                <GitPanel />
               </div>
             )}
 

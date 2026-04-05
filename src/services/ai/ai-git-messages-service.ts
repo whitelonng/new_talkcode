@@ -14,7 +14,7 @@ class AIGitMessagesService {
         return null;
       }
 
-      const model = await modelTypeService.resolveModelType(ModelType.SMALL);
+      const model = await modelTypeService.resolveModelType(ModelType.MESSAGE_COMPACTION);
 
       const result = await llmClient.generateCommitMessage({
         ...context,
