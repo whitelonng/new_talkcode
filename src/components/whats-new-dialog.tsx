@@ -30,8 +30,8 @@ interface WhatsNewDialogProps {
   onForceOpenChange?: (open: boolean) => void;
 }
 
-const DOCS_BASE_URL = 'https://www.talkcody.com';
-const ALLOWED_MARKDOWN_HOSTS = new Set(['talkcody.com', 'www.talkcody.com']);
+const DOCS_BASE_URL = 'https://github.com/whitelonng/Talkcody';
+const ALLOWED_MARKDOWN_HOSTS = new Set(['github.com', 'www.github.com']);
 
 type MarkdownSegment =
   | { type: 'text'; value: string; start: number }
@@ -347,7 +347,7 @@ export function WhatsNewDialog({ forceOpen, onForceOpenChange }: WhatsNewDialogP
 
   const handleViewFullChangelog = async () => {
     try {
-      await shellOpen('https://talkcody.com/docs/changelog');
+      await shellOpen('https://github.com/whitelonng/Talkcody/releases');
     } catch (error) {
       logger.error('Failed to open full changelog:', error);
     }
