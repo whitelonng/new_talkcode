@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { create } from 'zustand';
 import { logger } from '@/lib/logger';
 import { gitService } from '@/services/git-service';
@@ -354,11 +355,10 @@ export const useGitStore = create<GitStore>((set, get) => ({
       set({ isStaging: false });
       await get().refreshStatus();
     } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Failed to stage files';
       logger.error('Failed to stage selected files:', error);
-      set({
-        error: error instanceof Error ? error.message : 'Failed to stage files',
-        isStaging: false,
-      });
+      toast.error(msg);
+      set({ error: msg, isStaging: false });
     }
   },
 
@@ -378,11 +378,10 @@ export const useGitStore = create<GitStore>((set, get) => ({
       set({ isStaging: false });
       await get().refreshStatus();
     } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Failed to unstage files';
       logger.error('Failed to unstage selected files:', error);
-      set({
-        error: error instanceof Error ? error.message : 'Failed to unstage files',
-        isStaging: false,
-      });
+      toast.error(msg);
+      set({ error: msg, isStaging: false });
     }
   },
 
@@ -402,11 +401,10 @@ export const useGitStore = create<GitStore>((set, get) => ({
       set({ isStaging: false });
       await get().refreshStatus();
     } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Failed to stage all files';
       logger.error('Failed to stage all files:', error);
-      set({
-        error: error instanceof Error ? error.message : 'Failed to stage all files',
-        isStaging: false,
-      });
+      toast.error(msg);
+      set({ error: msg, isStaging: false });
     }
   },
 
@@ -426,11 +424,10 @@ export const useGitStore = create<GitStore>((set, get) => ({
       set({ isStaging: false });
       await get().refreshStatus();
     } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Failed to unstage all files';
       logger.error('Failed to unstage all files:', error);
-      set({
-        error: error instanceof Error ? error.message : 'Failed to unstage all files',
-        isStaging: false,
-      });
+      toast.error(msg);
+      set({ error: msg, isStaging: false });
     }
   },
 
@@ -449,14 +446,14 @@ export const useGitStore = create<GitStore>((set, get) => ({
     try {
       await gitService.commitStaged(repositoryPath, commitMessage.trim());
       logger.info('Successfully committed staged changes');
+      toast.success('Changes committed successfully');
       set({ isCommitting: false, commitMessage: '' });
       await get().refreshStatus();
     } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Failed to commit';
       logger.error('Failed to commit:', error);
-      set({
-        error: error instanceof Error ? error.message : 'Failed to commit',
-        isCommitting: false,
-      });
+      toast.error(msg);
+      set({ error: msg, isCommitting: false });
     }
   },
 
@@ -470,14 +467,14 @@ export const useGitStore = create<GitStore>((set, get) => ({
     try {
       await gitService.push(repositoryPath);
       logger.info('Successfully pushed to remote');
+      toast.success('Pushed to remote successfully');
       set({ isPushing: false });
       await get().refreshStatus();
     } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Failed to push';
       logger.error('Failed to push:', error);
-      set({
-        error: error instanceof Error ? error.message : 'Failed to push',
-        isPushing: false,
-      });
+      toast.error(msg);
+      set({ error: msg, isPushing: false });
     }
   },
 
@@ -491,14 +488,14 @@ export const useGitStore = create<GitStore>((set, get) => ({
     try {
       await gitService.pull(repositoryPath);
       logger.info('Successfully pulled from remote');
+      toast.success('Pulled from remote successfully');
       set({ isPulling: false });
       await get().refreshStatus();
     } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Failed to pull';
       logger.error('Failed to pull:', error);
-      set({
-        error: error instanceof Error ? error.message : 'Failed to pull',
-        isPulling: false,
-      });
+      toast.error(msg);
+      set({ error: msg, isPulling: false });
     }
   },
 }));
