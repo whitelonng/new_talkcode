@@ -11,6 +11,13 @@ vi.mock('sonner', () => ({
   },
 }));
 
+// Mock settings store to avoid Tauri/DB deps in tests
+vi.mock('@/stores/settings-store', () => ({
+  useSettingsStore: (selector: (s: { language: string; setLanguage: () => void }) => unknown) =>
+    selector({ language: 'en', setLanguage: () => {} }),
+  DEFAULT_PROJECT: 'default',
+}));
+
 // JSDOM does not implement scrollIntoView
 beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn();
