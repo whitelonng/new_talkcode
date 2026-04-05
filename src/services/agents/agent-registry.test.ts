@@ -244,7 +244,7 @@ describe('Agent Registry - Auto-load Behavior', () => {
     // Should find the planner agent (system agent loaded from code)
     expect(agent).toBeDefined();
     expect(agent?.id).toBe('planner');
-    expect(agent?.name).toBe('Code Planner');
+    expect(agent?.name).toBe('开发总控');
   });
 
   it('should auto-load create-tool agent', async () => {
@@ -287,7 +287,7 @@ describe('Agent Registry - Auto-load Behavior', () => {
 
     expect(agent).toBeDefined();
     expect(agent?.id).toBe('orchestrator');
-    expect(agent?.name).toBe('Orchestrator');
+    expect(agent?.name).toBe('流程编排');
     expect(agent?.canBeSubagent).toBe(false);
     expect(Object.keys(agent?.tools || {})).toEqual(
       expect.arrayContaining(['callAgent', 'todoWrite', 'askUserQuestions'])
@@ -315,7 +315,7 @@ describe('Agent Registry - Auto-load Behavior', () => {
     // Should find the planner agent with resolved tools
     expect(agent).toBeDefined();
     expect(agent?.id).toBe('planner');
-    expect(agent?.name).toBe('Code Planner');
+    expect(agent?.name).toBe('开发总控');
     expect(agent?.tools).toBeDefined();
   });
 

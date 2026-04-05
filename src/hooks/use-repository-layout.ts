@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
+import { useBrowserStore } from '@/stores/browser-store';
 import { useGitStore } from '@/stores/git-store';
 import { useLintStore } from '@/stores/lint-store';
 import { useProjectStore } from '@/stores/project-store';
 import { DEFAULT_PROJECT, useSettingsStore } from '@/stores/settings-store';
 import { useTaskStore } from '@/stores/task-store';
 import { useTerminalStore } from '@/stores/terminal-store';
-import { useBrowserStore } from '@/stores/browser-store';
 import { useRepositoryStore } from '@/stores/window-scoped-repository-store';
 import { useWorktreeStore } from '@/stores/worktree-store';
 

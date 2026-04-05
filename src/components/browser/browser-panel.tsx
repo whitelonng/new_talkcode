@@ -151,7 +151,7 @@ function buildPickerScript(): string {
   }
 
   function buildSummary(el) {
-    var text = (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 200);
+    var text = (el.textContent || '').replace(/s+/g, ' ').trim().slice(0, 200);
     var classes = Array.from(el.classList).filter(Boolean).join(' ');
     var inlineStyle = el.getAttribute('style') || '';
     var selector = getSelector(el);
@@ -453,7 +453,9 @@ export function BrowserPanel({
       // Reload URL-based iframe
       const iframe = iframeRef.current;
       if (iframe.src) {
-        iframe.src = iframe.src;
+        const currentSrc = iframe.src;
+        iframe.src = '';
+        iframe.src = currentSrc;
       }
     }
   };
@@ -495,12 +497,7 @@ export function BrowserPanel({
           </Button>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={handleRefresh}
-              >
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleRefresh}>
                 <RefreshCw className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>

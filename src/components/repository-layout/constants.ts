@@ -1,5 +1,5 @@
-import { DEFAULT_PROJECT } from '@/stores/settings-store';
 import type { UtilityTab } from '@/stores/browser-store';
+import { DEFAULT_PROJECT } from '@/stores/settings-store';
 import { SidebarView } from '@/types/navigation';
 import type { FullscreenPanel } from './types';
 
