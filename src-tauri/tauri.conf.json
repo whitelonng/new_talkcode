@@ -53,7 +53,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDI2QUNGM0RFMTc1OTlGM0MKUldROG4xa1gzdk9zSnRsZXorcytkdy9Eb3dCY0xQeUl3SUZPT3BPNGlMcDNGanhoUm5Fd3pIOVMK",
       "endpoints": [
-        "https://api.talkcody.com/api/updates/{{target}}/{{arch}}/{{current_version}}"
+        "https://github.com/whitelonng/Talkcody/releases/latest/download/latest.json"
       ]
     }
   },
