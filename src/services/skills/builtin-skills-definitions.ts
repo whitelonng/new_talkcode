@@ -50,10 +50,10 @@ It provides intelligent code generation, analysis, and conversation capabilities
 - Visit the [TalkCody Documentation](https://www.talkcody.com/docs)
 
 ### Github Repository
-- Explore the source code and contribute: [TalkCody GitHub](https://github.com/whitelonng/new_talkcode)
+- Explore the source code and contribute: [TalkCody GitHub](https://github.com/whitelonng/Talkcody)
 
 ### Report Issues
-- Report bugs or request features: [TalkCody Issues](https://github.com/whitelonng/new_talkcode/issues)
+- Report bugs or request features: [TalkCody Issues](https://github.com/whitelonng/Talkcody/issues)
 
 `,
 

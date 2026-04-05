@@ -168,7 +168,7 @@ export function AboutSettings() {
             <h4 className="text-sm font-medium">{t.Settings.about.resources}</h4>
             <div className="space-y-1">
               <a
-                href="https://github.com/whitelonng/new_talkcode"
+                href="https://github.com/whitelonng/Talkcody"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block text-xs text-muted-foreground hover:text-primary"

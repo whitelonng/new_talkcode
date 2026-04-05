@@ -194,7 +194,7 @@ export function Footer({ lang }: { lang: string }) {
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>{t.builtWith}</span>
             <a
-              href="https://github.com/whitelonng/new_talkcode"
+              href="https://github.com/whitelonng/Talkcody"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground transition-colors"

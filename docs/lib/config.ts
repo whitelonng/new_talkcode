@@ -3,10 +3,10 @@ export const CONFIG = {
   releaseDate: '2026-03-28',
 
   github: {
-    repo: 'https://github.com/whitelonng/new_talkcode',
-    releases: 'https://github.com/whitelonng/new_talkcode/releases',
-    issues: 'https://github.com/whitelonng/new_talkcode/issues',
-    discussions: 'https://github.com/whitelonng/new_talkcode/discussions',
+    repo: 'https://github.com/whitelonng/Talkcody',
+    releases: 'https://github.com/whitelonng/Talkcody/releases',
+    issues: 'https://github.com/whitelonng/Talkcody/issues',
+    discussions: 'https://github.com/whitelonng/Talkcody/discussions',
   },
 
   downloads: {

@@ -113,7 +113,7 @@ export function DownloadCtaSection({ lang }: { lang: string }) {
               )}
             >
               <a
-                href="https://github.com/whitelonng/new_talkcode"
+                href="https://github.com/whitelonng/Talkcody"
                 target="_blank"
                 rel="noopener noreferrer"
               >

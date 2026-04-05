@@ -24,7 +24,7 @@ Return JSON with the following structure:
   "version": "0.2.0",
   "notes": "Bug fixes and new features",
   "pub_date": "2025-01-15T10:00:00Z",
-  "url": "https://github.com/whitelonng/new_talkcode/releases/download/v0.2.0/talkcody_0.2.0_aarch64.app.tar.gz",
+  "url": "https://github.com/whitelonng/Talkcody/releases/download/v0.2.0/talkcody_0.2.0_aarch64.app.tar.gz",
   "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUldROG4xa1gzdk9zSnRsZXorcytkdy9Eb3dCY0xQeUl3SUZPT3BPNGlMcDNGanhoUm5Fd3pIOVMK..."
 }
 ```

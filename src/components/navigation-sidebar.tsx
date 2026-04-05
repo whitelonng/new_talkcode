@@ -76,7 +76,7 @@ export function NavigationSidebar({ activeView, onViewChange }: NavigationSideba
   };
 
   const handleGitHubClick = () => {
-    open('https://github.com/whitelonng/new_talkcode');
+    open('https://github.com/whitelonng/Talkcody');
   };
 
   const bottomNavigationItems = [

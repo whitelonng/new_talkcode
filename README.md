@@ -4,7 +4,7 @@
 
 **免费开源的 AI 编码助手**
 
-[![GitHub release](https://img.shields.io/github/v/release/whitelonng/new_talkcode)](https://github.com/whitelonng/new_talkcode/releases)
+[![GitHub release](https://img.shields.io/github/v/release/whitelonng/Talkcody)](https://github.com/whitelonng/Talkcody/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
@@ -153,9 +153,9 @@ TalkCody 采用 React 19 + TypeScript 前端，以及 Tauri 2 + Rust 后端的�
 
 ## 社区
 
-- **仓库**：[GitHub Repository](https://github.com/whitelonng/new_talkcode)
-- **问题反馈**：[GitHub Issues](https://github.com/whitelonng/new_talkcode/issues)
-- **交流讨论**：[GitHub Discussions](https://github.com/whitelonng/new_talkcode/discussions)
+- **仓库**：[GitHub Repository](https://github.com/whitelonng/Talkcody)
+- **问题反馈**：[GitHub Issues](https://github.com/whitelonng/Talkcody/issues)
+- **交流讨论**：[GitHub Discussions](https://github.com/whitelonng/Talkcody/discussions)
 
 ## 许可证
 
