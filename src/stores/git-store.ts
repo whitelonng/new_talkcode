@@ -25,6 +25,27 @@ interface GitStore {
   setLineChanges: (filePath: string, changes: LineChange[]) => void;
   clearLineChangesCache: () => void;
   clearState: () => void;
+
+  // Git Panel State
+  selectedFiles: Set<string>;
+  commitMessage: string;
+  isStaging: boolean;
+  isCommitting: boolean;
+  isPushing: boolean;
+  isPulling: boolean;
+
+  // Git Panel Actions
+  toggleFileSelection: (filePath: string) => void;
+  selectAllFiles: (files: string[]) => void;
+  clearSelection: () => void;
+  setCommitMessage: (message: string) => void;
+  stageSelected: () => Promise<void>;
+  unstageSelected: () => Promise<void>;
+  stageAll: () => Promise<void>;
+  unstageAll: () => Promise<void>;
+  commitStaged: () => Promise<void>;
+  push: () => Promise<void>;
+  pull: () => Promise<void>;
 }
 
 // Track in-flight requests to prevent duplicate fetches
@@ -276,6 +297,208 @@ export const useGitStore = create<GitStore>((set, get) => ({
       isLoading: false,
       error: null,
       lastRefresh: null,
+      selectedFiles: new Set(),
+      commitMessage: '',
+      isStaging: false,
+      isCommitting: false,
+      isPushing: false,
+      isPulling: false,
     });
+  },
+
+  // Git Panel Initial State
+  selectedFiles: new Set(),
+  commitMessage: '',
+  isStaging: false,
+  isCommitting: false,
+  isPushing: false,
+  isPulling: false,
+
+  // Git Panel Actions
+  toggleFileSelection: (filePath: string) => {
+    const { selectedFiles } = get();
+    const next = new Set(selectedFiles);
+    if (next.has(filePath)) {
+      next.delete(filePath);
+    } else {
+      next.add(filePath);
+    }
+    set({ selectedFiles: next });
+  },
+
+  selectAllFiles: (files: string[]) => {
+    set({ selectedFiles: new Set(files) });
+  },
+
+  clearSelection: () => {
+    set({ selectedFiles: new Set() });
+  },
+
+  setCommitMessage: (message: string) => {
+    set({ commitMessage: message });
+  },
+
+  stageSelected: async () => {
+    const { repositoryPath, isGitRepository, selectedFiles } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    const files = Array.from(selectedFiles);
+    if (files.length === 0) return;
+
+    logger.info(`Staging ${files.length} selected files`);
+    set({ isStaging: true, error: null });
+
+    try {
+      await gitService.stageFiles(repositoryPath, files);
+      logger.info('Successfully staged selected files');
+      set({ isStaging: false });
+      await get().refreshStatus();
+    } catch (error) {
+      logger.error('Failed to stage selected files:', error);
+      set({
+        error: error instanceof Error ? error.message : 'Failed to stage files',
+        isStaging: false,
+      });
+    }
+  },
+
+  unstageSelected: async () => {
+    const { repositoryPath, isGitRepository, selectedFiles } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    const files = Array.from(selectedFiles);
+    if (files.length === 0) return;
+
+    logger.info(`Unstaging ${files.length} selected files`);
+    set({ isStaging: true, error: null });
+
+    try {
+      await gitService.unstageFiles(repositoryPath, files);
+      logger.info('Successfully unstaged selected files');
+      set({ isStaging: false });
+      await get().refreshStatus();
+    } catch (error) {
+      logger.error('Failed to unstage selected files:', error);
+      set({
+        error: error instanceof Error ? error.message : 'Failed to unstage files',
+        isStaging: false,
+      });
+    }
+  },
+
+  stageAll: async () => {
+    const { repositoryPath, isGitRepository, fileStatuses } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    const files = Object.keys(fileStatuses);
+    if (files.length === 0) return;
+
+    logger.info(`Staging all ${files.length} files`);
+    set({ isStaging: true, error: null });
+
+    try {
+      await gitService.stageFiles(repositoryPath, files);
+      logger.info('Successfully staged all files');
+      set({ isStaging: false });
+      await get().refreshStatus();
+    } catch (error) {
+      logger.error('Failed to stage all files:', error);
+      set({
+        error: error instanceof Error ? error.message : 'Failed to stage all files',
+        isStaging: false,
+      });
+    }
+  },
+
+  unstageAll: async () => {
+    const { repositoryPath, isGitRepository, fileStatuses } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    const files = Object.keys(fileStatuses);
+    if (files.length === 0) return;
+
+    logger.info(`Unstaging all ${files.length} files`);
+    set({ isStaging: true, error: null });
+
+    try {
+      await gitService.unstageFiles(repositoryPath, files);
+      logger.info('Successfully unstaged all files');
+      set({ isStaging: false });
+      await get().refreshStatus();
+    } catch (error) {
+      logger.error('Failed to unstage all files:', error);
+      set({
+        error: error instanceof Error ? error.message : 'Failed to unstage all files',
+        isStaging: false,
+      });
+    }
+  },
+
+  commitStaged: async () => {
+    const { repositoryPath, isGitRepository, commitMessage } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    if (!commitMessage.trim()) {
+      set({ error: 'Commit message cannot be empty' });
+      return;
+    }
+
+    logger.info('Committing staged changes');
+    set({ isCommitting: true, error: null });
+
+    try {
+      await gitService.commitStaged(repositoryPath, commitMessage.trim());
+      logger.info('Successfully committed staged changes');
+      set({ isCommitting: false, commitMessage: '' });
+      await get().refreshStatus();
+    } catch (error) {
+      logger.error('Failed to commit:', error);
+      set({
+        error: error instanceof Error ? error.message : 'Failed to commit',
+        isCommitting: false,
+      });
+    }
+  },
+
+  push: async () => {
+    const { repositoryPath, isGitRepository } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    logger.info('Pushing to remote');
+    set({ isPushing: true, error: null });
+
+    try {
+      await gitService.push(repositoryPath);
+      logger.info('Successfully pushed to remote');
+      set({ isPushing: false });
+      await get().refreshStatus();
+    } catch (error) {
+      logger.error('Failed to push:', error);
+      set({
+        error: error instanceof Error ? error.message : 'Failed to push',
+        isPushing: false,
+      });
+    }
+  },
+
+  pull: async () => {
+    const { repositoryPath, isGitRepository } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    logger.info('Pulling from remote');
+    set({ isPulling: true, error: null });
+
+    try {
+      await gitService.pull(repositoryPath);
+      logger.info('Successfully pulled from remote');
+      set({ isPulling: false });
+      await get().refreshStatus();
+    } catch (error) {
+      logger.error('Failed to pull:', error);
+      set({
+        error: error instanceof Error ? error.message : 'Failed to pull',
+        isPulling: false,
+      });
+    }
   },
 }));
