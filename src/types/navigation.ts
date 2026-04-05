@@ -14,6 +14,7 @@ export enum NavigationView {
 
 export enum SidebarView {
   FILES = 'files',
+  GIT = 'git',
   TASKS = 'tasks',
 }
 

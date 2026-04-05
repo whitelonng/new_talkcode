@@ -50,6 +50,41 @@ export class GitService {
   async getRawDiffText(repoPath: string): Promise<string> {
     return invoke<string>('git_get_raw_diff_text', { repoPath });
   }
+
+  /**
+   * Stages specified files for commit
+   */
+  async stageFiles(repoPath: string, files: string[]): Promise<string> {
+    return invoke<string>('git_stage_files', { repoPath, files });
+  }
+
+  /**
+   * Unstages specified files from the staging area
+   */
+  async unstageFiles(repoPath: string, files: string[]): Promise<string> {
+    return invoke<string>('git_unstage_files', { repoPath, files });
+  }
+
+  /**
+   * Commits all currently staged changes with the given message
+   */
+  async commitStaged(repoPath: string, message: string): Promise<string> {
+    return invoke<string>('git_commit_staged', { repoPath, message });
+  }
+
+  /**
+   * Pushes local commits to the remote repository
+   */
+  async push(repoPath: string): Promise<string> {
+    return invoke<string>('git_push', { repoPath });
+  }
+
+  /**
+   * Pulls latest changes from the remote repository
+   */
+  async pull(repoPath: string): Promise<string> {
+    return invoke<string>('git_pull', { repoPath });
+  }
 }
 
 // Export a singleton instance

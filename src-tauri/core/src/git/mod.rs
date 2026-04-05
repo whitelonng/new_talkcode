@@ -211,3 +211,92 @@ pub async fn git_sync_worktree_from_main(
 pub async fn git_abort_rebase(worktree_path: String) -> Result<(), String> {
     worktree::abort_rebase(&worktree_path)
 }
+
+// ============================================================================
+// Git Stage / Commit / Push / Pull Commands
+// ============================================================================
+
+/// Stage files in a repository (git add)
+#[tauri::command]
+pub async fn git_stage_files(repo_path: String, files: Vec<String>) -> Result<String, String> {
+    let mut cmd = crate::shell_utils::new_command("git");
+    cmd.arg("add").args(&files).current_dir(&repo_path);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("Failed to execute git add: {}", e))?;
+
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
+/// Unstage files in a repository (git reset HEAD)
+#[tauri::command]
+pub async fn git_unstage_files(repo_path: String, files: Vec<String>) -> Result<String, String> {
+    let mut cmd = crate::shell_utils::new_command("git");
+    cmd.arg("reset")
+        .arg("HEAD")
+        .args(&files)
+        .current_dir(&repo_path);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("Failed to execute git reset HEAD: {}", e))?;
+
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
+/// Commit staged changes with a message (git commit -m)
+#[tauri::command]
+pub async fn git_commit_staged(repo_path: String, message: String) -> Result<String, String> {
+    let output = crate::shell_utils::new_command("git")
+        .args(["commit", "-m", &message])
+        .current_dir(&repo_path)
+        .output()
+        .map_err(|e| format!("Failed to execute git commit: {}", e))?;
+
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
+/// Push commits to remote (git push)
+#[tauri::command]
+pub async fn git_push(repo_path: String) -> Result<String, String> {
+    let output = crate::shell_utils::new_command("git")
+        .arg("push")
+        .current_dir(&repo_path)
+        .output()
+        .map_err(|e| format!("Failed to execute git push: {}", e))?;
+
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
+/// Pull changes from remote (git pull)
+#[tauri::command]
+pub async fn git_pull(repo_path: String) -> Result<String, String> {
+    let output = crate::shell_utils::new_command("git")
+        .arg("pull")
+        .current_dir(&repo_path)
+        .output()
+        .map_err(|e| format!("Failed to execute git pull: {}", e))?;
+
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}

@@ -910,6 +910,51 @@ export interface LocaleDefinition {
     mergeTooltip: string;
   };
 
+  GitPanel: {
+    title: string;
+    branch: string;
+    noBranch: string;
+    changes: string;
+    stagedChanges: string;
+    untrackedFiles: string;
+    conflictedFiles: string;
+    noChanges: string;
+    commitMessage: string;
+    commitMessagePlaceholder: string;
+    commit: string;
+    committing: string;
+    push: string;
+    pushing: string;
+    pull: string;
+    pulling: string;
+    refresh: string;
+    refreshing: string;
+    stageSelected: string;
+    unstageSelected: string;
+    stageAll: string;
+    unstageAll: string;
+    staging: string;
+    noFilesSelected: string;
+    noStagedChanges: string;
+    emptyCommitMessage: string;
+    commitSuccess: string;
+    pushSuccess: string;
+    pullSuccess: string;
+    stageSuccess: string;
+    unstageSuccess: string;
+    commitFailed: string;
+    pushFailed: string;
+    pullFailed: string;
+    stageFailed: string;
+    unstageFailed: string;
+    notGitRepo: string;
+    generateCommitMessage: string;
+    generatingMessage: string;
+    ahead: string;
+    behind: string;
+    upToDate: string;
+  };
+
   Skills: {
     title: string;
     system: string;
@@ -1192,6 +1237,7 @@ export interface LocaleDefinition {
   Sidebar: {
     files: string;
     tasks: string;
+    git: string;
     filesTab: string;
     tasksTab: string;
     toggleView: string;
