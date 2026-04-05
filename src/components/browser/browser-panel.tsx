@@ -1,4 +1,4 @@
-import { Globe, Loader2, MousePointerClick, RefreshCw } from 'lucide-react';
+import { Globe, MousePointerClick, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -15,43 +15,17 @@ interface BrowserPanelProps {
   onClose?: () => void;
 }
 
-type PickerMessage =
-  | {
-      type: 'talkcody-style-picked';
-      payload: {
-        summary: string;
-        selector?: string;
-        tag?: string;
-      };
-    }
-  | {
-      type: 'talkcody-picker-debug';
-      payload: {
-        status: 'ready' | 'active' | 'inactive' | 'hover' | 'picked' | 'error';
-        selector?: string;
-        tag?: string;
-        note?: string;
-      };
-    };
+const PICKER_MSG_TYPE = 'talkcody-picker';
 
 function isHtmlLikeFile(filePath: string | null): boolean {
-  if (!filePath) {
-    return false;
-  }
-
+  if (!filePath) return false;
   return /\.(html?|svg)$/i.test(filePath);
 }
 
 function normalizeUrl(value: string): string {
   const trimmed = value.trim();
-  if (!trimmed) {
-    return '';
-  }
-
-  if (/^https?:\/\//i.test(trimmed)) {
-    return trimmed;
-  }
-
+  if (!trimmed) return '';
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
   return `http://${trimmed}`;
 }
 
@@ -68,349 +42,250 @@ function escapeHtml(value: string): string {
   return value.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
 }
 
-function buildPickerInjection(): string {
+/**
+ * Build the picker script that runs INSIDE the iframe.
+ * Communicates with parent via postMessage — no cross-origin issues.
+ */
+function buildPickerScript(): string {
   return `
-    <style>
-      html[data-talkcody-picker='active'],
-      html[data-talkcody-picker='active'] * {
-        cursor: crosshair !important;
-      }
+<script data-talkcody-picker-runtime="true">
+(function() {
+  var OVERLAY_ID = 'talkcody-style-picker-overlay';
+  var HIGHLIGHT_ID = 'talkcody-style-picker-highlight';
+  var LABEL_ID = 'talkcody-style-picker-label';
+  var active = false;
+  var highlightedEl = null;
 
+  function isPickerEl(el) {
+    return el && (el.id === OVERLAY_ID || el.id === HIGHLIGHT_ID || el.id === LABEL_ID);
+  }
+
+  function ensureOverlay() {
+    var h = document.getElementById(HIGHLIGHT_ID);
+    if (h) return h;
+    var overlay = document.createElement('div');
+    overlay.id = OVERLAY_ID;
+    overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483647;';
+    var highlight = document.createElement('div');
+    highlight.id = HIGHLIGHT_ID;
+    highlight.style.cssText = 'position:fixed;border:1.5px dashed rgba(99,102,241,0.8);background:rgba(99,102,241,0.06);border-radius:2px;pointer-events:none;z-index:2147483647;display:none;transition:top .05s,left .05s,width .05s,height .05s;';
+    var label = document.createElement('div');
+    label.id = LABEL_ID;
+    label.style.cssText = 'position:absolute;top:-20px;left:-1px;padding:1px 6px;font-size:10px;font-family:ui-monospace,monospace;line-height:16px;color:#fff;background:rgba(99,102,241,0.85);border-radius:2px 2px 0 0;white-space:nowrap;pointer-events:none;';
+    highlight.appendChild(label);
+    overlay.appendChild(highlight);
+    document.body.appendChild(overlay);
+    return highlight;
+  }
+
+  function clearHighlight() {
+    var h = document.getElementById(HIGHLIGHT_ID);
+    if (h) h.style.display = 'none';
+    highlightedEl = null;
+  }
+
+  function resolveTarget(e) {
+    var vw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0, 1);
+    var vh = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0, 1);
+    var x = Math.min(Math.max(e.clientX, 1), vw - 1);
+    var y = Math.min(Math.max(e.clientY, 1), vh - 1);
+    var target = document.elementFromPoint(x, y);
+    if (!target) return null;
+    if (isPickerEl(target)) return highlightedEl;
+    if (target === document.documentElement || target === document.body) {
+      var stack = document.elementsFromPoint ? document.elementsFromPoint(x, y) : [];
+      for (var i = 0; i < stack.length; i++) {
+        var el = stack[i];
+        if (el === document.documentElement || el === document.body) continue;
+        if (isPickerEl(el)) continue;
+        return el;
+      }
+      return null;
+    }
+    return target;
+  }
+
+  function updateHighlight(el) {
+    var h = ensureOverlay();
+    if (!el) { clearHighlight(); return; }
+    if (isPickerEl(el)) return;
+    var rect = el.getBoundingClientRect();
+    var vw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0, 1);
+    var vh = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0, 1);
+    if (rect.width <= 0 && rect.height <= 0) { clearHighlight(); return; }
+    if (rect.width >= vw * 0.85 && rect.height >= vh * 0.85) { clearHighlight(); return; }
+    highlightedEl = el;
+    h.style.display = 'block';
+    h.style.left = rect.left + 'px';
+    h.style.top = rect.top + 'px';
+    h.style.width = rect.width + 'px';
+    h.style.height = rect.height + 'px';
+    var lbl = document.getElementById(LABEL_ID);
+    if (lbl) {
+      var tag = el.tagName.toLowerCase();
+      var cls = Array.from(el.classList).filter(Boolean).slice(0, 2).join('.');
+      lbl.textContent = cls ? tag + '.' + cls : tag;
+    }
+  }
+
+  function getSelector(el) {
+    if (el.id) return '#' + el.id;
+    var parts = [];
+    var cur = el;
+    var depth = 0;
+    while (cur && depth < 4) {
+      var part = cur.tagName.toLowerCase();
+      var cn = Array.from(cur.classList).filter(Boolean).slice(0, 2);
+      if (cn.length > 0) part += '.' + cn.join('.');
+      var parent = cur.parentElement;
+      if (parent) {
+        var tag = cur.tagName;
+        var sibs = Array.from(parent.children).filter(function(c) { return c.tagName === tag; });
+        if (sibs.length > 1) part += ':nth-of-type(' + (sibs.indexOf(cur) + 1) + ')';
+      }
+      parts.unshift(part);
+      cur = cur.parentElement;
+      depth++;
+    }
+    return parts.join(' > ');
+  }
+
+  function buildSummary(el) {
+    var text = (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 200);
+    var classes = Array.from(el.classList).filter(Boolean).join(' ');
+    var inlineStyle = el.getAttribute('style') || '';
+    var selector = getSelector(el);
+    var id = el.id || '';
+    var href = el.getAttribute('href') || '';
+    var src = el.getAttribute('src') || '';
+    var alt = el.getAttribute('alt') || '';
+    var title = el.getAttribute('title') || '';
+    var name = el.getAttribute('name') || '';
+    var role = el.getAttribute('role') || '';
+    var ariaLabel = el.getAttribute('aria-label') || '';
+    var placeholder = el.getAttribute('placeholder') || '';
+    return [
+      'selector: ' + selector,
+      'tag: ' + el.tagName.toLowerCase(),
+      'id: ' + (id || '(none)'),
+      'classes: ' + (classes || '(none)'),
+      'text: ' + (text || '(empty)'),
+      'href: ' + (href || '(none)'),
+      'src: ' + (src || '(none)'),
+      'alt: ' + (alt || '(none)'),
+      'title: ' + (title || '(none)'),
+      'name: ' + (name || '(none)'),
+      'role: ' + (role || '(none)'),
+      'aria-label: ' + (ariaLabel || '(none)'),
+      'placeholder: ' + (placeholder || '(none)'),
+      'inline style: ' + (inlineStyle || '(none)')
+    ].join('\\n');
+  }
+
+  // --- Event handlers ---
+
+  document.addEventListener('mousemove', function(e) {
+    if (!active) return;
+    var target = resolveTarget(e);
+    updateHighlight(target);
+  }, false);
+
+  document.addEventListener('mouseleave', function() {
+    clearHighlight();
+  }, false);
+
+  document.addEventListener('scroll', function() {
+    if (!active || !highlightedEl) return;
+    updateHighlight(highlightedEl);
+  }, false);
+
+  document.addEventListener('click', function(e) {
+    if (!active) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation && e.stopImmediatePropagation();
+    var el = resolveTarget(e);
+    if (!el) return;
+    active = false;
+    document.documentElement.style.cursor = '';
+    var summary = buildSummary(el);
+    clearHighlight();
+    window.parent.postMessage({
+      type: '${PICKER_MSG_TYPE}',
+      action: 'picked',
+      summary: summary,
+      selector: getSelector(el),
+      tag: el.tagName.toLowerCase()
+    }, '*');
+  }, true);
+
+  // Also block mousedown/pointerdown to prevent drag and link activation
+  document.addEventListener('mousedown', function(e) {
+    if (!active) return;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+  document.addEventListener('pointerdown', function(e) {
+    if (!active) return;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+
+  // Listen for messages from parent to activate/deactivate
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== '${PICKER_MSG_TYPE}') return;
+    if (e.data.action === 'activate') {
+      active = true;
+      document.documentElement.style.cursor = 'crosshair';
+    } else if (e.data.action === 'deactivate') {
+      active = false;
+      document.documentElement.style.cursor = '';
+      clearHighlight();
+    }
+  }, false);
+})();
+</script>`;
+}
+
+function buildPickerStyles(): string {
+  return `
+    <style data-talkcody-picker-styles="true">
       #talkcody-style-picker-overlay {
         position: fixed;
         inset: 0;
         pointer-events: none;
         z-index: 2147483647;
       }
-
       #talkcody-style-picker-highlight {
         position: fixed;
-        border: 2px solid #3b82f6;
-        background: rgba(59, 130, 246, 0.12);
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85) inset;
+        border: 1.5px dashed rgba(99, 102, 241, 0.8);
+        background: rgba(99, 102, 241, 0.06);
+        border-radius: 2px;
         pointer-events: none;
         z-index: 2147483647;
         display: none;
       }
+      #talkcody-style-picker-label {
+        position: absolute;
+        top: -20px;
+        left: -1px;
+        padding: 1px 6px;
+        font-size: 10px;
+        font-family: ui-monospace, monospace;
+        line-height: 16px;
+        color: #fff;
+        background: rgba(99, 102, 241, 0.85);
+        border-radius: 2px 2px 0 0;
+        white-space: nowrap;
+        pointer-events: none;
+      }
     </style>
-    <script>
-      (function () {
-        var PICKER_ATTR = 'data-talkcody-picker';
-        var highlight = null;
-        var highlightedElement = null;
-
-        function ensureOverlay() {
-          if (!document.body) {
-            return;
-          }
-
-          if (document.getElementById('talkcody-style-picker-overlay')) {
-            highlight = document.getElementById('talkcody-style-picker-highlight');
-            return;
-          }
-
-          var overlay = document.createElement('div');
-          overlay.id = 'talkcody-style-picker-overlay';
-
-          highlight = document.createElement('div');
-          highlight.id = 'talkcody-style-picker-highlight';
-          overlay.appendChild(highlight);
-          document.body.appendChild(overlay);
-        }
-
-        function isPickerActive() {
-          return document.documentElement.getAttribute(PICKER_ATTR) === 'active';
-        }
-
-        function clearHighlight() {
-          highlightedElement = null;
-          if (highlight) {
-            highlight.style.display = 'none';
-          }
-        }
-
-        function updateHighlight(element) {
-          ensureOverlay();
-
-          if (!highlight || !(element instanceof Element)) {
-            clearHighlight();
-            return;
-          }
-
-          if (
-            element.id === 'talkcody-style-picker-overlay' ||
-            element.id === 'talkcody-style-picker-highlight'
-          ) {
-            return;
-          }
-
-          var rect = element.getBoundingClientRect();
-          if (rect.width <= 0 && rect.height <= 0) {
-            clearHighlight();
-            return;
-          }
-
-          highlightedElement = element;
-          highlight.style.display = 'block';
-          highlight.style.left = rect.left + 'px';
-          highlight.style.top = rect.top + 'px';
-          highlight.style.width = rect.width + 'px';
-          highlight.style.height = rect.height + 'px';
-
-          window.parent.postMessage(
-            {
-              type: 'talkcody-picker-debug',
-              payload: {
-                status: 'hover',
-                selector: getSelector(element),
-                tag: element.tagName.toLowerCase(),
-                note: 'Hover target updated',
-              },
-            },
-            '*'
-          );
-        }
-
-        function getTargetElement(event) {
-          var pointTarget = document.elementFromPoint(event.clientX, event.clientY);
-          if (pointTarget instanceof Element) {
-            if (
-              pointTarget.id === 'talkcody-style-picker-overlay' ||
-              pointTarget.id === 'talkcody-style-picker-highlight'
-            ) {
-              return highlightedElement;
-            }
-
-            return pointTarget;
-          }
-
-          if (event.target instanceof Element) {
-            return event.target;
-          }
-
-          if (event.target && event.target.parentElement) {
-            return event.target.parentElement;
-          }
-
-          return null;
-        }
-
-        function getSelector(element) {
-          if (!element || !element.tagName) {
-            return '';
-          }
-
-          if (element.id) {
-            return '#' + element.id;
-          }
-
-          var parts = [];
-          var current = element;
-          var depth = 0;
-
-          while (current && current.nodeType === Node.ELEMENT_NODE && depth < 4) {
-            var part = current.tagName.toLowerCase();
-            var classNames = Array.from(current.classList || []).filter(Boolean).slice(0, 2);
-            if (classNames.length > 0) {
-              part += '.' + classNames.join('.');
-            }
-
-            var parent = current.parentElement;
-            if (parent) {
-              var siblings = Array.from(parent.children).filter(function (child) {
-                return child.tagName === current.tagName;
-              });
-              if (siblings.length > 1) {
-                part += ':nth-of-type(' + (siblings.indexOf(current) + 1) + ')';
-              }
-            }
-
-            parts.unshift(part);
-            current = current.parentElement;
-            depth += 1;
-          }
-
-          return parts.join(' > ');
-        }
-
-        function collectStyles(element) {
-          var computed = window.getComputedStyle(element);
-          var importantStyles = {
-            color: computed.color,
-            backgroundColor: computed.backgroundColor,
-            fontSize: computed.fontSize,
-            fontWeight: computed.fontWeight,
-            lineHeight: computed.lineHeight,
-            display: computed.display,
-            position: computed.position,
-            margin: computed.margin,
-            padding: computed.padding,
-            border: computed.border,
-            borderRadius: computed.borderRadius,
-            width: computed.width,
-            height: computed.height,
-            boxShadow: computed.boxShadow,
-            opacity: computed.opacity,
-          };
-
-          return Object.entries(importantStyles)
-            .map(function (_ref) {
-              var key = _ref[0];
-              var val = _ref[1];
-              return '- ' + key + ': ' + val;
-            })
-            .join('\n');
-        }
-
-        function createSummary(element) {
-          var text = (element.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 200);
-          var classNames = Array.from(element.classList || []).filter(Boolean).join(' ');
-          var inlineStyle = element.getAttribute('style') || '';
-          var selector = getSelector(element);
-
-          return {
-            selector: selector,
-            summary: [
-              'Please help me precisely update this element style:',
-              '',
-              'selector: ' + selector,
-              'tag: ' + element.tagName.toLowerCase(),
-              'classes: ' + (classNames || '(none)'),
-              'text: ' + (text || '(empty)'),
-              'inline style: ' + (inlineStyle || '(none)'),
-              'computed styles:',
-              collectStyles(element),
-            ].join('\n'),
-          };
-        }
-
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', ensureOverlay, { once: true });
-        } else {
-          ensureOverlay();
-        }
-
-        window.parent.postMessage(
-          {
-            type: 'talkcody-picker-debug',
-            payload: {
-              status: 'ready',
-              note: 'Picker script injected',
-            },
-          },
-          '*'
-        );
-
-        document.addEventListener(
-          'mousemove',
-          function (event) {
-            if (!isPickerActive()) {
-              return;
-            }
-
-            updateHighlight(getTargetElement(event));
-          },
-          true
-        );
-
-        window.addEventListener(
-          'scroll',
-          function () {
-            if (!isPickerActive() || !highlightedElement) {
-              return;
-            }
-
-            updateHighlight(highlightedElement);
-          },
-          true
-        );
-
-        document.addEventListener(
-          'click',
-          function (event) {
-            if (!isPickerActive()) {
-              return;
-            }
-
-            var element = getTargetElement(event);
-            if (!(element instanceof Element)) {
-              return;
-            }
-
-            event.preventDefault();
-            event.stopPropagation();
-            if (typeof event.stopImmediatePropagation === 'function') {
-              event.stopImmediatePropagation();
-            }
-
-            var summary = createSummary(element);
-            clearHighlight();
-            document.documentElement.setAttribute(PICKER_ATTR, 'inactive');
-
-            window.parent.postMessage(
-              {
-                type: 'talkcody-picker-debug',
-                payload: {
-                  status: 'picked',
-                  selector: summary.selector,
-                  tag: element.tagName.toLowerCase(),
-                  note: 'Element clicked and payload generated',
-                },
-              },
-              '*'
-            );
-
-            window.parent.postMessage(
-              {
-                type: 'talkcody-style-picked',
-                payload: {
-                  summary: summary.summary,
-                  selector: summary.selector,
-                  tag: element.tagName.toLowerCase(),
-                },
-              },
-              '*'
-            );
-          },
-          true
-        );
-
-        window.addEventListener('message', function (event) {
-          if (!event.data || typeof event.data !== 'object') {
-            return;
-          }
-
-          if (event.data.type === 'talkcody-picker-toggle') {
-            document.documentElement.setAttribute(
-              PICKER_ATTR,
-              event.data.payload && event.data.payload.active ? 'active' : 'inactive'
-            );
-
-            window.parent.postMessage(
-              {
-                type: 'talkcody-picker-debug',
-                payload: {
-                  status: event.data.payload && event.data.payload.active ? 'active' : 'inactive',
-                  note: event.data.payload && event.data.payload.active
-                    ? 'Picker activated in preview'
-                    : 'Picker deactivated in preview',
-                },
-              },
-              '*'
-            );
-
-            if (!(event.data.payload && event.data.payload.active)) {
-              clearHighlight();
-            }
-          }
-        });
-      })();
-    </script>
   `;
 }
 
 function buildHtmlDocument(rawHtml: string, baseUrl?: string): string {
-  const pickerInjection = buildPickerInjection();
+  const pickerStyles = buildPickerStyles();
+  const pickerScript = buildPickerScript();
   const baseTag = baseUrl ? `<base href="${escapeHtml(baseUrl)}" />` : '';
   const headInjection = `
     <meta charset="utf-8" />
@@ -430,7 +305,7 @@ function buildHtmlDocument(rawHtml: string, baseUrl?: string): string {
       }
       img, video { max-width: 100%; height: auto; }
     </style>
-    ${pickerInjection}
+    ${pickerStyles}
   `;
 
   if (/<!doctype\s+html>/i.test(rawHtml) || /<html\b/i.test(rawHtml)) {
@@ -442,23 +317,24 @@ function buildHtmlDocument(rawHtml: string, baseUrl?: string): string {
       html = html.replace(/<html\b[^>]*>/i, (match) => `${match}<head>${headInjection}</head>`);
     }
 
-    if (/<html\b/i.test(html)) {
-      return html.replace(
-        /<html\b([^>]*)>/i,
-        `<html$1 data-talkcody-picker="inactive">`
-      );
+    // Inject script before </body> or at end
+    if (/<\/body>/i.test(html)) {
+      html = html.replace(/<\/body>/i, `${pickerScript}</body>`);
+    } else {
+      html += pickerScript;
     }
 
     return html;
   }
 
   return `<!doctype html>
-<html data-talkcody-picker="inactive">
+<html>
   <head>
     ${headInjection}
   </head>
   <body>
     ${rawHtml}
+    ${pickerScript}
   </body>
 </html>`;
 }
@@ -491,14 +367,8 @@ function buildFilePreviewDocument(
   currentContent: string | null,
   currentFilePath: string | null
 ): string | null {
-  if (!currentFilePath || !currentContent) {
-    return null;
-  }
-
-  if (isHtmlLikeFile(currentFilePath)) {
-    return buildHtmlDocument(currentContent);
-  }
-
+  if (!currentFilePath || !currentContent) return null;
+  if (isHtmlLikeFile(currentFilePath)) return buildHtmlDocument(currentContent);
   return buildTextPreviewDocument(currentContent);
 }
 
@@ -512,226 +382,95 @@ export function BrowserPanel({
 }: BrowserPanelProps) {
   const t = useTranslation();
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const isPickerActiveRef = useRef(false);
   const [addressInput, setAddressInput] = useState(currentUrl);
   const [isPickerActive, setIsPickerActive] = useState(false);
-  const [pickerDebugStatus, setPickerDebugStatus] = useState<
-    'idle' | 'ready' | 'active' | 'inactive' | 'hover' | 'picked' | 'error'
-  >('idle');
-  const [pickerDebugSelector, setPickerDebugSelector] = useState('');
-  const [pickerDebugTag, setPickerDebugTag] = useState('');
-  const [pickerDebugNote, setPickerDebugNote] = useState('');
-  const [pickerLastSummary, setPickerLastSummary] = useState('');
-  const [localhostPreviewHtml, setLocalhostPreviewHtml] = useState<string | null>(null);
-  const [isLoadingLocalhostPreview, setIsLoadingLocalhostPreview] = useState(false);
-  const [localhostPreviewFailed, setLocalhostPreviewFailed] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     setAddressInput(currentUrl);
   }, [currentUrl]);
 
-  useEffect(() => {
-    isPickerActiveRef.current = isPickerActive;
-  }, [isPickerActive]);
-
-  const postPickerToggle = useCallback((active: boolean) => {
-    const contentWindow = iframeRef.current?.contentWindow;
-    if (!contentWindow) {
-      return false;
-    }
-
-    contentWindow.postMessage(
-      {
-        type: 'talkcody-picker-toggle',
-        payload: { active },
-      },
-      '*'
-    );
-
-    return true;
+  // Send activate/deactivate message to iframe
+  const sendPickerMessage = useCallback((action: 'activate' | 'deactivate') => {
+    const iframe = iframeRef.current;
+    if (!iframe?.contentWindow) return;
+    iframe.contentWindow.postMessage({ type: PICKER_MSG_TYPE, action }, '*');
   }, []);
 
+  // Listen for postMessage from iframe
   useEffect(() => {
-    if (!isPickerActive) {
-      return;
-    }
-
-    const timer = window.setInterval(() => {
-      postPickerToggle(true);
-    }, 250);
-
-    return () => window.clearInterval(timer);
-  }, [isPickerActive, postPickerToggle]);
-
-  useEffect(() => {
-    const handleMessage = async (event: MessageEvent<PickerMessage>) => {
-      if (event.source !== iframeRef.current?.contentWindow) {
-        return;
-      }
-
-      if (event.data?.type === 'talkcody-picker-debug') {
-        setPickerDebugStatus(event.data.payload.status);
-        setPickerDebugSelector(event.data.payload.selector || '');
-        setPickerDebugTag(event.data.payload.tag || '');
-        setPickerDebugNote(event.data.payload.note || '');
-        return;
-      }
-
-      if (event.data?.type !== 'talkcody-style-picked') {
-        return;
-      }
-
-      setIsPickerActive(false);
-      setPickerDebugStatus('picked');
-      setPickerDebugSelector(event.data.payload.selector || '');
-      setPickerDebugTag(event.data.payload.tag || '');
-      setPickerDebugNote('Style captured and copying to clipboard');
-      setPickerLastSummary(event.data.payload.summary);
-
-      try {
-        await navigator.clipboard.writeText(event.data.payload.summary);
-        toast.success(t.RepositoryLayout.stylePickerCopied);
-      } catch {
-        setPickerDebugStatus('error');
-        setPickerDebugNote('Clipboard write failed');
-        toast.error(t.RepositoryLayout.stylePickerCopyFailed);
+    const handleMessage = async (event: MessageEvent) => {
+      if (!event.data || event.data.type !== PICKER_MSG_TYPE) return;
+      if (event.data.action === 'picked') {
+        setIsPickerActive(false);
+        try {
+          await navigator.clipboard.writeText(event.data.summary);
+          toast.success(t.RepositoryLayout.stylePickerCopied);
+        } catch {
+          toast.error(t.RepositoryLayout.stylePickerCopyFailed);
+        }
       }
     };
-
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [t]);
 
+  // Sync picker state to iframe when toggled
   useEffect(() => {
-    if (sourceType === 'file') {
-      return;
-    }
+    sendPickerMessage(isPickerActive ? 'activate' : 'deactivate');
+  }, [isPickerActive, sendPickerMessage]);
 
-    if (sourceType === 'url' && isLocalhostUrl(currentUrl)) {
-      return;
-    }
-
-    isPickerActiveRef.current = false;
+  // Reset picker when source changes
+  useEffect(() => {
+    if (sourceType === 'file') return;
+    if (sourceType === 'url' && isLocalhostUrl(currentUrl)) return;
     setIsPickerActive(false);
-    setPickerDebugStatus('idle');
-    setPickerDebugSelector('');
-    setPickerDebugTag('');
-    setPickerDebugNote('');
-  }, [sourceType, currentFilePath, currentUrl]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadLocalhostPreview = async () => {
-      if (sourceType !== 'url' || !currentUrl || !isLocalhostUrl(currentUrl)) {
-        setLocalhostPreviewHtml(null);
-        setLocalhostPreviewFailed(false);
-        setIsLoadingLocalhostPreview(false);
-        return;
-      }
-
-      setIsLoadingLocalhostPreview(true);
-      setLocalhostPreviewFailed(false);
-
-      try {
-        const response = await fetch(currentUrl, {
-          method: 'GET',
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const html = await response.text();
-        if (!cancelled) {
-          setLocalhostPreviewHtml(html);
-          setLocalhostPreviewFailed(false);
-        }
-      } catch {
-        if (!cancelled) {
-          setLocalhostPreviewHtml(null);
-          setLocalhostPreviewFailed(true);
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoadingLocalhostPreview(false);
-        }
-      }
-    };
-
-    void loadLocalhostPreview();
-
-    return () => {
-      cancelled = true;
-    };
   }, [sourceType, currentUrl]);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      postPickerToggle(isPickerActive);
-    }, 60);
-    return () => window.clearTimeout(timer);
-  }, [isPickerActive, localhostPreviewHtml, currentFilePath, currentContent, postPickerToggle]);
 
   const isLocalhostPreview = sourceType === 'url' && !!currentUrl && isLocalhostUrl(currentUrl);
   const canUsePicker =
     (sourceType === 'file' && isHtmlLikeFile(currentFilePath) && !!currentContent) ||
-    (isLocalhostPreview && !!localhostPreviewHtml);
+    isLocalhostPreview;
 
   const filePreviewDocument = useMemo(
     () => buildFilePreviewDocument(currentContent, currentFilePath),
     [currentContent, currentFilePath]
   );
 
-  const localhostPreviewDocument = useMemo(() => {
-    if (!isLocalhostPreview || !localhostPreviewHtml) {
-      return null;
-    }
-
-    return buildHtmlDocument(localhostPreviewHtml, currentUrl);
-  }, [currentUrl, isLocalhostPreview, localhostPreviewHtml]);
-
   const sourceLabel = currentFilePath || currentUrl || t.RepositoryLayout.browserEmptyState;
 
   const handleSubmit = () => {
     const normalizedUrl = normalizeUrl(addressInput);
-    if (!normalizedUrl) {
-      return;
-    }
+    if (!normalizedUrl) return;
     onOpenUrl(normalizedUrl);
+  };
+
+  const handleRefresh = () => {
+    if (sourceType === 'file') {
+      // Force iframe re-render for file previews
+      setRefreshKey((k) => k + 1);
+    } else if (sourceType === 'url' && iframeRef.current) {
+      // Reload URL-based iframe
+      const iframe = iframeRef.current;
+      if (iframe.src) {
+        iframe.src = iframe.src;
+      }
+    }
   };
 
   const handleTogglePicker = () => {
     if (!canUsePicker) {
       toast.info(t.RepositoryLayout.stylePickerUrlLimited);
-      setPickerDebugStatus('error');
-      setPickerDebugNote('Picker unavailable for current preview mode');
       return;
     }
-
-    setIsPickerActive((prev) => {
-      const next = !prev;
-      isPickerActiveRef.current = next;
-      setPickerDebugStatus(next ? 'active' : 'ready');
-      setPickerDebugNote(
-        next ? 'Inspector mode enabled, move cursor into preview to highlight elements' : 'Picker manually disabled'
-      );
-      window.setTimeout(() => {
-        postPickerToggle(next);
-      }, 0);
-      return next;
-    });
+    setIsPickerActive((prev) => !prev);
   };
 
   const handleIframeLoad = () => {
-    window.setTimeout(() => {
-      postPickerToggle(isPickerActiveRef.current);
-      if (isPickerActiveRef.current) {
-        setPickerDebugStatus('active');
-        setPickerDebugNote('Inspector mode ready, move cursor into preview to inspect elements');
-      }
-    }, 80);
+    // Re-sync picker state after iframe loads
+    if (isPickerActive) {
+      sendPickerMessage('activate');
+    }
   };
 
   return (
@@ -760,8 +499,7 @@ export function BrowserPanel({
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8"
-                onClick={handleSubmit}
-                disabled={!addressInput.trim()}
+                onClick={handleRefresh}
               >
                 <RefreshCw className="h-3.5 w-3.5" />
               </Button>
@@ -784,29 +522,14 @@ export function BrowserPanel({
               : t.RepositoryLayout.stylePickerIdle}
           </div>
         </div>
-        <div className="rounded-md border bg-background/80 px-2 py-2 text-[11px] text-muted-foreground">
-          <div className="font-medium text-foreground">Picker debug</div>
-          <div className="mt-1 grid gap-1">
-            <div>Status: {pickerDebugStatus}</div>
-            <div className="truncate">Selector: {pickerDebugSelector || '-'}</div>
-            <div>Tag: {pickerDebugTag || '-'}</div>
-            <div className="truncate">Note: {pickerDebugNote || '-'}</div>
-            <div>Last copy: {pickerLastSummary ? 'ready' : '-'}</div>
-          </div>
-        </div>
       </div>
 
       <div className="relative flex-1 overflow-hidden bg-muted/10">
-        {isLoadingLocalhostPreview ? (
-          <div className="flex h-full items-center justify-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>{t.RepositoryLayout.localhostPreviewLoading}</span>
-          </div>
-        ) : localhostPreviewDocument ? (
+        {isLocalhostPreview ? (
           <iframe
             ref={iframeRef}
             className="h-full w-full bg-white"
-            srcDoc={localhostPreviewDocument}
+            src={currentUrl}
             title="Project browser localhost preview"
             onLoad={handleIframeLoad}
           />
@@ -819,6 +542,7 @@ export function BrowserPanel({
           />
         ) : filePreviewDocument ? (
           <iframe
+            key={refreshKey}
             ref={iframeRef}
             className="h-full w-full bg-white"
             srcDoc={filePreviewDocument}
@@ -839,9 +563,9 @@ export function BrowserPanel({
           </div>
         )}
 
-        {localhostPreviewFailed && (
-          <div className="pointer-events-none absolute top-3 left-3 z-10 rounded-md border bg-background/95 px-3 py-2 text-xs shadow-sm">
-            {t.RepositoryLayout.localhostPreviewLoadFailed}
+        {isPickerActive && (
+          <div className="absolute top-2 left-1/2 z-10 -translate-x-1/2 rounded-md bg-indigo-500/90 px-3 py-1 text-xs text-white shadow-md">
+            {t.RepositoryLayout.stylePickerActiveHint}
           </div>
         )}
 

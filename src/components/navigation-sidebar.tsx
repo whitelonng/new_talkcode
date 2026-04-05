@@ -1,4 +1,3 @@
-import { SiX } from '@icons-pack/react-simple-icons';
 import { open } from '@tauri-apps/plugin-shell';
 import {
   Activity,
@@ -25,8 +24,6 @@ interface NavigationSidebarProps {
   activeView: NavigationView;
   onViewChange: (view: NavigationView) => void;
 }
-
-const SHOW_OFFICIAL_GITHUB_LINK = false;
 
 export function NavigationSidebar({ activeView, onViewChange }: NavigationSidebarProps) {
   const { t } = useLocale();
@@ -79,11 +76,7 @@ export function NavigationSidebar({ activeView, onViewChange }: NavigationSideba
   };
 
   const handleGitHubClick = () => {
-    open('https://github.com/talkcody/talkcody');
-  };
-
-  const handleXClick = () => {
-    open('https://twitter.com/talkcody');
+    open('https://github.com/whitelonng/new_talkcode');
   };
 
   const bottomNavigationItems = [
@@ -93,21 +86,11 @@ export function NavigationSidebar({ activeView, onViewChange }: NavigationSideba
       tooltip: `${t.Navigation.toolsPlaygroundTooltip}`,
       action: () => onViewChange(NavigationView.TOOLS_PLAYGROUND),
     },
-    ...(SHOW_OFFICIAL_GITHUB_LINK
-      ? [
-          {
-            id: 'github',
-            icon: Github,
-            tooltip: t.Navigation.githubTooltip,
-            action: handleGitHubClick,
-          },
-        ]
-      : []),
     {
-      id: 'x',
-      icon: SiX,
-      tooltip: 'Twitter',
-      action: handleXClick,
+      id: 'github',
+      icon: Github,
+      tooltip: t.Navigation.githubTooltip,
+      action: handleGitHubClick,
     },
     {
       id: NavigationView.LLM_TRACING,

@@ -197,7 +197,10 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
             >
               <div className="flex h-full flex-col bg-background">
                 <div className="border-b px-2 py-1">
-                  <Tabs value={activeUtilityTab} onValueChange={(value) => onUtilityTabChange(value as UtilityTab)}>
+                  <Tabs
+                    value={activeUtilityTab}
+                    onValueChange={(value) => onUtilityTabChange(value as UtilityTab)}
+                  >
                     <TabsList className="grid h-7 w-[180px] grid-cols-2 bg-muted/50 p-0.5">
                       <TabsTrigger
                         value="terminal"

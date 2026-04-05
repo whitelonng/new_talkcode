@@ -109,7 +109,7 @@ Security updates will be released as soon as possible after a vulnerability is c
 
 - GitHub Security Advisories
 - Release notes
-- Twitter/X: [@talkcody](https://twitter.com/talkcody)
+- GitHub Discussions
 
 ## Bug Bounty Program
 
@@ -128,6 +128,8 @@ TalkCody has not yet undergone a formal security audit. We plan to conduct one a
 ## Questions?
 
 If you have questions about this security policy, please open a GitHub Discussion or contact us at kaisenkang@talkcody.com.
+
+Original upstream project: https://github.com/talkcody/talkcody
 
 ---
 

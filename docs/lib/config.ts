@@ -2,13 +2,11 @@ export const CONFIG = {
   version: '0.5.0',
   releaseDate: '2026-03-28',
 
-  x:'https://x.com/TalkCody',
-
   github: {
-    repo: 'https://github.com/talkcody/talkcody',
-    releases: 'https://github.com/talkcody/talkcody/releases',
-    issues: 'https://github.com/talkcody/talkcody/issues',
-    discussions: 'https://github.com/talkcody/talkcody/discussions',
+    repo: 'https://github.com/whitelonng/new_talkcode',
+    releases: 'https://github.com/whitelonng/new_talkcode/releases',
+    issues: 'https://github.com/whitelonng/new_talkcode/issues',
+    discussions: 'https://github.com/whitelonng/new_talkcode/discussions',
   },
 
   downloads: {

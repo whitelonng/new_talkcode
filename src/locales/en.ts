@@ -931,8 +931,7 @@ const en: LocaleDefinition = {
     browserTab: 'Browser',
     terminalTab: 'Terminal',
     browserPanelTitle: 'Browser panel',
-    browserPanelDescription:
-      'Preview project pages and open URLs inside TalkCody.',
+    browserPanelDescription: 'Preview project pages and open URLs inside TalkCody.',
     browserEmptyState: 'Enter a URL or open an HTML/SVG file in the browser.',
     browserAddressPlaceholder: 'Enter URL, e.g. localhost:3000',
     refreshBrowser: 'Refresh browser',

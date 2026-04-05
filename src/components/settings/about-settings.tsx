@@ -12,8 +12,6 @@ import { useLocale } from '@/hooks/use-locale';
 import { useUpdater } from '@/hooks/use-updater';
 import { logger } from '@/lib/logger';
 
-const SHOW_OFFICIAL_GITHUB_LINK = false;
-
 export function AboutSettings() {
   const { t } = useLocale();
   const [appVersion, setAppVersion] = useState<string>('');
@@ -169,16 +167,14 @@ export function AboutSettings() {
           <div className="space-y-2 border-t pt-4">
             <h4 className="text-sm font-medium">{t.Settings.about.resources}</h4>
             <div className="space-y-1">
-              {SHOW_OFFICIAL_GITHUB_LINK && (
-                <a
-                  href="https://github.com/talkcody/talkcody"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-xs text-muted-foreground hover:text-primary"
-                >
-                  {t.Settings.about.githubRepository}
-                </a>
-              )}
+              <a
+                href="https://github.com/whitelonng/new_talkcode"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-xs text-muted-foreground hover:text-primary"
+              >
+                {t.Settings.about.githubRepository}
+              </a>
               <a
                 href="https://talkcody.com"
                 target="_blank"

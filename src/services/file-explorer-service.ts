@@ -1,6 +1,5 @@
-import { stat } from '@tauri-apps/plugin-fs';
+import { openPath, revealItemInDir } from '@tauri-apps/plugin-opener';
 import { platform } from '@tauri-apps/plugin-os';
-import { Command, open } from '@tauri-apps/plugin-shell';
 import { logger } from '@/lib/logger';
 
 class FileExplorerService {
@@ -9,19 +8,11 @@ class FileExplorerService {
       const currentPlatform = await platform();
 
       if (currentPlatform === 'windows') {
-        const info = await stat(targetPath);
-        const isDirectory = info.isDirectory;
-
-        if (isDirectory) {
-          await Command.create('explorer', [targetPath]).execute();
-          return;
-        }
-
-        await Command.create('explorer', ['/select,', targetPath]).execute();
+        await revealItemInDir(targetPath);
         return;
       }
 
-      await open(targetPath);
+      await openPath(targetPath);
     } catch (error) {
       logger.error('Failed to open path in file explorer:', error);
       throw error;

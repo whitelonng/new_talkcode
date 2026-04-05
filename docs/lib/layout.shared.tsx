@@ -56,11 +56,6 @@ export function baseOptions(locale: string, options?: LayoutOptions): BaseLayout
             url: CONFIG.github.repo,
             external: true,
           },
-          {
-            text: "X",
-            url: CONFIG.x,
-            external: true,
-          },
         ],
     i18n,
   };

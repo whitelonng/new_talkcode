@@ -25,7 +25,6 @@ const translations = {
     security: "Security",
     terms: "Terms",
     githubLabel: "GitHub",
-    xLabel: "X",
     openSource: "Open Source",
     allRightsReserved: "All rights reserved.",
     builtWith: "Built with",
@@ -51,7 +50,6 @@ const translations = {
     security: "安全",
     terms: "条款",
     githubLabel: "GitHub",
-    xLabel: "X",
     openSource: "开源",
     allRightsReserved: "保留所有权利。",
     builtWith: "使用",
@@ -176,16 +174,6 @@ export function Footer({ lang }: { lang: string }) {
                   </a>
                 </li>
                 <li>
-                  <a
-                    href={CONFIG.x}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {t.xLabel}
-                  </a>
-                </li>
-                <li>
                   <Link
                     href={`/${locale}/docs`}
                     className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5"
@@ -206,7 +194,7 @@ export function Footer({ lang }: { lang: string }) {
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>{t.builtWith}</span>
             <a
-              href="https://github.com/talkcody/talkcody"
+              href="https://github.com/whitelonng/new_talkcode"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground transition-colors"

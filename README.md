@@ -1,124 +1,177 @@
-
 <div align="center">
 
 <h1 style="border-bottom: none;">TalkCody</h1>
 
-**Free, Open-Source AI Coding Agent**
+**免费开源的 AI 编码助手**
 
-[![GitHub release](https://img.shields.io/github/v/release/talkcody/talkcody)](https://github.com/talkcody/talkcody/releases)
+[![GitHub release](https://img.shields.io/github/v/release/whitelonng/new_talkcode)](https://github.com/whitelonng/new_talkcode/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-
 
 [![TalkCody](https://cdn.talkcody.com/images/talkcody-architecture.jpg)](https://talkcody.com)
 
 </div>
 
-## Overview
+## 项目简介
 
-TalkCody is an **AI Coding Agent** that actually works the way you do—**in parallel, with control, and privately**.
+TalkCody 是一个真正贴近开发者工作方式的 **AI Coding Agent**：**并行、可控、私密、本地优先**。
 
-Unlike cloud-only AI tools that lock you into a single model or upload your code to remote servers, TalkCody gives you:
-- **True Freedom** - Use any AI model (OpenAI, Anthropic, Google, local models) without vendor lock-in
-- **Maximum Speed** - Unique four-level parallelism runs multiple tasks simultaneously
-- **Your Privacy** - Everything runs locally, your code never leaves your machine
-- **Your Money** - 9 ways to use completely free, or leverage your existing ChatGPT Plus/GitHub Copilot
+和只能依赖云端、受限于单一模型、甚至需要上传代码的 AI 工具不同，TalkCody 提供：
 
-**Built by developers, for developers who value speed, cost, control, and privacy.**
+- **真正自由**：可接入 OpenAI、Anthropic、Google 以及本地模型，无厂商锁定
+- **更高速度**：独特的四级并行机制，可同时处理多个任务
+- **更强隐私**：数据与代码优先保留在本地
+- **更低成本**：支持多种免费使用方式，也可复用你现有的 ChatGPT Plus / GitHub Copilot 等订阅
 
-### Why TalkCody
+**为重视速度、成本、控制权与隐私的开发者而生。**
 
-#### 🚀 Blazing Fast Development
-- **[Four-Level Parallelism](https://www.talkcody.com/blog/four-level-parallelism)** - Project, task, agent, and tool levels run simultaneously—complete complex projects in a fraction of the time
+## 为什么选择 TalkCody
 
-#### 💰 Maximum Flexibility, Minimum Cost
-- **[9 Ways to Use Free](https://www.talkcody.com/docs/guides/free-use)** - Local models, free tiers, and more
-- **Leverage Existing Subscriptions** - Use your [ChatGPT Plus/Pro](https://www.talkcody.com/docs/features/openai-plus-plan), or [GitHub Copilot](https://www.talkcody.com/docs/features/github-copilot) accounts
-- **Any Model, Any Provider** - Switch between OpenAI, Anthropic, Google, or local models instantly
+### 🚀 极速开发
+- **[四级并行](https://www.talkcody.com/blog/four-level-parallelism)**：项目、任务、Agent、工具四层并行执行，更快完成复杂开发工作
 
-#### 🔒 Privacy You Can Trust
-- **100% Local Storage** - All data, conversations, and code stored on your machine
-- **Offline Capable** - Works completely offline with Ollama or LM Studio
-- **You Own Everything** - Your code, your data, your models—completely auditable open-source code
+### 💰 灵活低成本
+- **[9 种免费使用方式](https://www.talkcody.com/docs/guides/free-use)**
+- **复用现有订阅**：支持结合 [ChatGPT Plus/Pro](https://www.talkcody.com/docs/features/openai-plus-plan) 与 [GitHub Copilot](https://www.talkcody.com/docs/features/github-copilot)
+- **任意模型任意提供商**：可随时切换 OpenAI、Anthropic、Google 或本地模型
 
-#### 🛠️ Professional-Grade Features
-- **Multimodal Input** - Text, voice, images, and files work seamlessly together
-- **MCP Server Support** - Extend capabilities through Model Context Protocol
-- **Agents & Skills Marketplace** - Download and share community workflows and specialized agents
-- **Fully Customizable** - System prompts, agents, tools, MCP servers—everything is configurable
-- **Built-in Terminal** - Execute commands without context switching
-- **Native Performance** - Built with Rust + Tauri for instant response and low resource usage
+### 🔒 隐私优先
+- **100% 本地存储**：会话、数据、代码尽可能保留在本机
+- **支持离线**：结合 Ollama 或 LM Studio 可离线工作
+- **完全可审计**：开源代码可自行检查
 
+### 🛠️ 专业能力
+- **多模态输入**：支持文本、语音、图片、文件
+- **MCP Server 支持**：可扩展更多工具与服务
+- **Agents & Skills Marketplace**：可下载和共享社区工作流
+- **高度可定制**：提示词、Agent、Tools、MCP Server 都可配置
+- **内置终端**：无需来回切换上下文
+- **原生性能**：基于 Rust + Tauri 构建
 
+## 安装
 
-## Installation
+支持以下平台：
 
-Download TalkCody for your platform:
+- **macOS**（Apple Silicon / Intel）
+- **Windows**（x64）
+- **Linux**（x86_64 AppImage）
 
-- **macOS** (Apple Silicon / Intel)
-- **Windows** (x64)
-- **Linux** (x86_64 AppImage)
+## 环境要求
 
-📥 **[Download TalkCody](https://www.talkcody.com/docs/introduction/client-downloads)**
+如果你需要本地开发或从源码启动，建议先准备以下环境：
 
+- **Node.js**：建议 20+
+- **Bun**：建议使用最新稳定版
+- **Rust**：Tauri 桌面端开发必需
+- **Tauri 依赖**：不同系统需要对应原生依赖
+  - Windows：Visual Studio C++ Build Tools / WebView2
+  - macOS：Xcode Command Line Tools
+  - Linux：gtk/webkit2gtk 等系统依赖
 
+你也可以参考官方开发文档：
 
-## Quick Start
+📖 **[开发环境搭建文档](https://www.talkcody.com/docs/open-source/development-setup)**
 
-1. Download and install TalkCody
-2. Configure your API keys (OpenAI, Anthropic, Google, etc.)
-3. Select your preferred AI model
-4. Import your project
-5. Start coding with AI assistance
+## 下载依赖
 
-📖 **[Full Quick Start Guide](https://www.talkcody.com/docs/introduction/quick-start)**
+在项目根目录执行：
 
-## Development
+```bash
+bun install
+```
 
-Want to build from source or contribute?
+如果你还需要单独启动 API 或文档站，这些子项目依赖也会通过 workspace 一并安装。
 
-📖 **[Development Setup Guide](https://www.talkcody.com/docs/open-source/development-setup)**
+## 启动方法
 
+### 1. 启动前端开发环境
 
+```bash
+bun run dev
+```
 
-## Architecture
+默认启动 Vite 前端开发服务。
 
-TalkCody uses a two-tier architecture with React 19 + TypeScript frontend and Tauri 2 + Rust backend.
+### 2. 启动桌面端（Tauri）
 
-📖 **[Architecture Overview](https://talkcody.com/docs/open-source/architecture)**
+```bash
+bun run dev:tauri
+```
 
+该命令会启动 Tauri 桌面应用，适合本地完整调试。
 
-## Roadmap
+### 3. 启动 API 服务
 
-Check out our **[ROADMAP](https://talkcody.com/docs/open-source/roadmap)** to see what we are working on and the future direction of TalkCody.
+```bash
+bun run dev:api
+```
 
-## Changelog
+该命令会进入 `apps/api` 并启动 Bun + Hono API 服务。
 
-See **[CHANGELOG](https://talkcody.com/docs/changelog)** for version history and release notes.
+### 4. 启动文档站
 
-## Contributing
+```bash
+cd docs
+bun run dev
+```
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+### 5. 构建项目
 
-## Community
+```bash
+bun run build
+```
 
-- **Issues**: [GitHub Issues](https://github.com/talkcody/talkcody/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/talkcody/talkcody/discussions)
-- **X**: [TalkCody](https://x.com/TalkCody)
+### 6. 类型检查
 
+```bash
+bun run type-check
+```
 
-## License
+### 7. 运行测试
 
-TalkCody is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+```bash
+bun run test
+```
 
+## 架构
 
-## Acknowledgments
+TalkCody 采用 React 19 + TypeScript 前端，以及 Tauri 2 + Rust 后端的双层架构。
 
-- [Tauri](https://github.com/tauri-apps/tauri) - easily build tiny, blazing fast binaries for all major desktop platforms
-- [Bun](https://github.com/oven-sh/bun) - a fast all-in-one JavaScript runtime
-- [Monaco Editor](https://github.com/microsoft/monaco-editor) - code editor that powers VS Code
-- [libSQL](https://github.com/tursodatabase/libsql) - lightweight, embedded SQL database
-- [Shadcn UI](https://github.com/shadcn-ui/ui) - beautiful component library
-- [Fumadocs](https://github.com/fuma-nama/fumadocs) - beautiful documentation framework
+📖 **[架构说明](https://talkcody.com/docs/open-source/architecture)**
+
+## 路线图
+
+查看 **[ROADMAP](https://talkcody.com/docs/open-source/roadmap)** 了解后续开发方向。
+
+## 更新日志
+
+查看 **[CHANGELOG](https://talkcody.com/docs/changelog)** 了解版本历史与发布说明。
+
+## 贡献
+
+欢迎提交 Issue 和 PR，详情请见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+## 社区
+
+- **仓库**：[GitHub Repository](https://github.com/whitelonng/new_talkcode)
+- **问题反馈**：[GitHub Issues](https://github.com/whitelonng/new_talkcode/issues)
+- **交流讨论**：[GitHub Discussions](https://github.com/whitelonng/new_talkcode/discussions)
+
+## 许可证
+
+本项目基于 MIT License 开源，详见 [LICENSE](LICENSE)。
+
+原始上游项目： [talkcody/talkcody](https://github.com/talkcody/talkcody)
+
+当前仓库基于上游项目继续维护，并保留 MIT 协议要求的归属说明。
+
+## 致谢
+
+- [Tauri](https://github.com/tauri-apps/tauri)
+- [Bun](https://github.com/oven-sh/bun)
+- [Monaco Editor](https://github.com/microsoft/monaco-editor)
+- [libSQL](https://github.com/tursodatabase/libsql)
+- [Shadcn UI](https://github.com/shadcn-ui/ui)
+- [Fumadocs](https://github.com/fuma-nama/fumadocs)
 - [opencode-openai-codex-auth](https://github.com/numman-ali/opencode-openai-codex-auth)
 - [baoyu-skills](https://github.com/JimLiu/baoyu-skills)
