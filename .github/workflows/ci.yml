@@ -94,9 +94,9 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             src-tauri/target
-          key: windows-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
+          key: windows-cargo-v2-${{ hashFiles('src-tauri/**/Cargo.toml') }}
           restore-keys: |
-            windows-cargo-
+            windows-cargo-v2-
 
       - name: Run Rust tests
         working-directory: src-tauri
@@ -131,9 +131,9 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             src-tauri/target
-          key: linux-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
+          key: linux-cargo-v2-${{ hashFiles('src-tauri/**/Cargo.toml') }}
           restore-keys: |
-            linux-cargo-
+            linux-cargo-v2-
 
       - name: Run Rust tests
         working-directory: src-tauri
