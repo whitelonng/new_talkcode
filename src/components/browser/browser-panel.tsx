@@ -155,31 +155,31 @@ function buildPickerScript(): string {
     var classes = Array.from(el.classList).filter(Boolean).join(' ');
     var inlineStyle = el.getAttribute('style') || '';
     var selector = getSelector(el);
-    var id = el.id || '';
-    var href = el.getAttribute('href') || '';
-    var src = el.getAttribute('src') || '';
-    var alt = el.getAttribute('alt') || '';
-    var title = el.getAttribute('title') || '';
-    var name = el.getAttribute('name') || '';
-    var role = el.getAttribute('role') || '';
-    var ariaLabel = el.getAttribute('aria-label') || '';
-    var placeholder = el.getAttribute('placeholder') || '';
-    return [
-      'selector: ' + selector,
-      'tag: ' + el.tagName.toLowerCase(),
-      'id: ' + (id || '(none)'),
-      'classes: ' + (classes || '(none)'),
-      'text: ' + (text || '(empty)'),
-      'href: ' + (href || '(none)'),
-      'src: ' + (src || '(none)'),
-      'alt: ' + (alt || '(none)'),
-      'title: ' + (title || '(none)'),
-      'name: ' + (name || '(none)'),
-      'role: ' + (role || '(none)'),
-      'aria-label: ' + (ariaLabel || '(none)'),
-      'placeholder: ' + (placeholder || '(none)'),
-      'inline style: ' + (inlineStyle || '(none)')
-    ].join('\\n');
+    var fields = [
+      ['selector', selector],
+      ['tag', el.tagName.toLowerCase()],
+      ['id', el.id || ''],
+      ['classes', classes],
+      ['text', text],
+      ['href', el.getAttribute('href') || ''],
+      ['src', el.getAttribute('src') || ''],
+      ['alt', el.getAttribute('alt') || ''],
+      ['title', el.getAttribute('title') || ''],
+      ['name', el.getAttribute('name') || ''],
+      ['role', el.getAttribute('role') || ''],
+      ['aria-label', el.getAttribute('aria-label') || ''],
+      ['placeholder', el.getAttribute('placeholder') || ''],
+      ['inline style', inlineStyle],
+    ];
+
+    return fields
+      .filter(function(entry) {
+        return Boolean(entry[1]);
+      })
+      .map(function(entry) {
+        return entry[0] + ': ' + entry[1];
+      })
+      .join('\\n');
   }
 
   // --- Event handlers ---
