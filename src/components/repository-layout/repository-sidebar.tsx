@@ -33,10 +33,6 @@ interface RepositorySidebarProps {
   onSelectRepository: () => Promise<void>;
   onOpenRepository: (path: string, projectId: string) => Promise<void>;
   isLoadingProject: boolean;
-  isTerminalVisible?: boolean;
-  onToggleTerminal?: () => void;
-  isBrowserVisible?: boolean;
-  onToggleBrowser?: () => void;
   onOpenFileSearch?: () => void;
   onOpenContentSearch?: () => void;
   rootPath: string | null;
@@ -67,10 +63,6 @@ export const RepositorySidebar = memo(function RepositorySidebar({
   onSelectRepository,
   onOpenRepository,
   isLoadingProject,
-  isTerminalVisible,
-  onToggleTerminal,
-  isBrowserVisible,
-  onToggleBrowser,
   onOpenFileSearch,
   onOpenContentSearch,
   rootPath,
@@ -168,10 +160,6 @@ export const RepositorySidebar = memo(function RepositorySidebar({
               onProjectSelect={onProjectSelect}
               onImportRepository={onImportRepository}
               isLoadingProject={isLoadingProject}
-              isTerminalVisible={hasRepository ? isTerminalVisible : undefined}
-              onToggleTerminal={hasRepository ? onToggleTerminal : undefined}
-              isBrowserVisible={hasRepository ? isBrowserVisible : undefined}
-              onToggleBrowser={hasRepository ? onToggleBrowser : undefined}
               onOpenFileSearch={hasRepository ? onOpenFileSearch : undefined}
               onOpenContentSearch={hasRepository ? onOpenContentSearch : undefined}
             />
@@ -185,27 +173,47 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                   }}
                 >
                   <TabsList className="grid w-full grid-cols-3 h-7 bg-muted/50 p-0.5">
-                    <TabsTrigger
-                      value={SidebarView.FILES}
-                      className="h-6 gap-1.5 px-2.5 text-[11px] data-[state=active]:shadow-none"
-                    >
-                      <Folder className="h-3.5 w-3.5" />
-                      {t.Sidebar.files}
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value={SidebarView.GIT}
-                      className="h-6 gap-1.5 px-2.5 text-[11px] data-[state=active]:shadow-none"
-                    >
-                      <GitBranch className="h-3.5 w-3.5" />
-                      {t.Sidebar.git}
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value={SidebarView.TASKS}
-                      className="h-6 gap-1.5 px-2.5 text-[11px] data-[state=active]:shadow-none"
-                    >
-                      <ListTodo className="h-3.5 w-3.5" />
-                      {t.Sidebar.tasks}
-                    </TabsTrigger>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <TabsTrigger
+                          value={SidebarView.FILES}
+                          className="h-6 px-2.5 data-[state=active]:shadow-none"
+                        >
+                          <Folder className="h-3.5 w-3.5" />
+                        </TabsTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p>{t.Sidebar.files}</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <TabsTrigger
+                          value={SidebarView.GIT}
+                          className="h-6 px-2.5 data-[state=active]:shadow-none"
+                        >
+                          <GitBranch className="h-3.5 w-3.5" />
+                        </TabsTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p>{t.Sidebar.git}</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <TabsTrigger
+                          value={SidebarView.TASKS}
+                          className="h-6 px-2.5 data-[state=active]:shadow-none"
+                        >
+                          <ListTodo className="h-3.5 w-3.5" />
+                        </TabsTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p>{t.Sidebar.tasks}</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </TabsList>
                 </Tabs>
               </div>

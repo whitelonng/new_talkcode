@@ -5,22 +5,101 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useTranslation } from '@/hooks/use-locale';
 import { useGitStore } from '@/stores/git-store';
 
-export function GitActionBar() {
+/**
+ * Remote operations: Pull, Push, Refresh
+ * Displayed in the branch header row.
+ */
+export function GitRemoteActions() {
   const t = useTranslation();
+  const gp = t.GitPanel;
+
+  const isLoading = useGitStore((state) => state.isLoading);
+  const isPushing = useGitStore((state) => state.isPushing);
+  const isPulling = useGitStore((state) => state.isPulling);
+  const push = useGitStore((state) => state.push);
+  const pull = useGitStore((state) => state.pull);
+  const refreshStatus = useGitStore((state) => state.refreshStatus);
+
+  return (
+    <div className="flex items-center gap-0.5">
+      {/* Pull */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            disabled={isPulling}
+            onClick={pull}
+          >
+            {isPulling ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ArrowDown className="h-4 w-4" />
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{isPulling ? gp.pulling : gp.pull}</TooltipContent>
+      </Tooltip>
+
+      {/* Push */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            disabled={isPushing}
+            onClick={push}
+          >
+            {isPushing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ArrowUp className="h-4 w-4" />
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{isPushing ? gp.pushing : gp.push}</TooltipContent>
+      </Tooltip>
+
+      {/* Refresh */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            disabled={isLoading}
+            onClick={refreshStatus}
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{isLoading ? gp.refreshing : gp.refresh}</TooltipContent>
+      </Tooltip>
+    </div>
+  );
+}
+
+/**
+ * Staging operations: Stage Selected, Unstage Selected, Stage All, Unstage All
+ * Displayed in a separate row below the branch/remote headers.
+ */
+export function GitStagingActions() {
+  const t = useTranslation();
+  const gp = t.GitPanel;
 
   const gitStatus = useGitStore((state) => state.gitStatus);
   const selectedFiles = useGitStore((state) => state.selectedFiles);
-  const isLoading = useGitStore((state) => state.isLoading);
   const isStaging = useGitStore((state) => state.isStaging);
-  const isPushing = useGitStore((state) => state.isPushing);
-  const isPulling = useGitStore((state) => state.isPulling);
   const stageSelected = useGitStore((state) => state.stageSelected);
   const unstageSelected = useGitStore((state) => state.unstageSelected);
   const stageAll = useGitStore((state) => state.stageAll);
   const unstageAll = useGitStore((state) => state.unstageAll);
-  const push = useGitStore((state) => state.push);
-  const pull = useGitStore((state) => state.pull);
-  const refreshStatus = useGitStore((state) => state.refreshStatus);
   const fileStatuses = useGitStore((state) => state.fileStatuses);
 
   const hasUnstagedSelected = useMemo(() => {
@@ -46,8 +125,6 @@ export function GitActionBar() {
   );
 
   const hasStagedChanges = Boolean(gitStatus && gitStatus.staged.length > 0);
-
-  const gp = t.GitPanel;
 
   return (
     <div className="flex items-center gap-0.5">
@@ -129,69 +206,6 @@ export function GitActionBar() {
           </Button>
         </TooltipTrigger>
         <TooltipContent>{gp.unstageAll}</TooltipContent>
-      </Tooltip>
-
-      {/* Separator */}
-      <div className="mx-1 h-4 w-px bg-border" />
-
-      {/* Pull */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0"
-            disabled={isPulling}
-            onClick={pull}
-          >
-            {isPulling ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <ArrowDown className="h-4 w-4" />
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{isPulling ? gp.pulling : gp.pull}</TooltipContent>
-      </Tooltip>
-
-      {/* Push */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0"
-            disabled={isPushing}
-            onClick={push}
-          >
-            {isPushing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <ArrowUp className="h-4 w-4" />
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{isPushing ? gp.pushing : gp.push}</TooltipContent>
-      </Tooltip>
-
-      {/* Refresh */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0"
-            disabled={isLoading}
-            onClick={refreshStatus}
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{isLoading ? gp.refreshing : gp.refresh}</TooltipContent>
       </Tooltip>
     </div>
   );

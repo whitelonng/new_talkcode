@@ -1,4 +1,4 @@
-import { FileSearch, Globe, Search, SquareTerminal } from 'lucide-react';
+import { FileSearch, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslation } from '@/hooks/use-locale';
@@ -9,10 +9,6 @@ interface FileTreeHeaderProps {
   onProjectSelect?: (projectId: string) => Promise<void>;
   onImportRepository?: () => Promise<void>;
   isLoadingProject?: boolean;
-  isTerminalVisible?: boolean;
-  onToggleTerminal?: () => void;
-  isBrowserVisible?: boolean;
-  onToggleBrowser?: () => void;
   onOpenFileSearch?: () => void;
   onOpenContentSearch?: () => void;
 }
@@ -22,10 +18,6 @@ export function FileTreeHeader({
   onProjectSelect,
   onImportRepository,
   isLoadingProject,
-  isTerminalVisible,
-  onToggleTerminal,
-  isBrowserVisible,
-  onToggleBrowser,
   onOpenFileSearch,
   onOpenContentSearch,
 }: FileTreeHeaderProps) {
@@ -45,7 +37,7 @@ export function FileTreeHeader({
         )}
       </div>
 
-      {/* Right: Search and Terminal Actions */}
+      {/* Right: Search Actions */}
       <div className="flex items-center gap-1">
         {/* File Search */}
         {onOpenFileSearch && (
@@ -81,47 +73,6 @@ export function FileTreeHeader({
             </TooltipTrigger>
             <TooltipContent>
               <p>{t.Chat.toolbar.searchContent}</p>
-            </TooltipContent>
-          </Tooltip>
-        )}
-
-        {onToggleBrowser && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                className={`h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700 ${
-                  isBrowserVisible ? 'bg-gray-200 dark:bg-gray-700' : ''
-                }`}
-                onClick={onToggleBrowser}
-                size="sm"
-                variant="ghost"
-              >
-                <Globe className="h-3.5 w-3.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{t.RepositoryLayout.openBrowser}</p>
-            </TooltipContent>
-          </Tooltip>
-        )}
-
-        {/* Terminal Toggle */}
-        {onToggleTerminal && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                className={`h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700 ${
-                  isTerminalVisible ? 'bg-gray-200 dark:bg-gray-700' : ''
-                }`}
-                onClick={onToggleTerminal}
-                size="sm"
-                variant="ghost"
-              >
-                <SquareTerminal className="h-3.5 w-3.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{t.Chat.toolbar.toggleTerminal}</p>
             </TooltipContent>
           </Tooltip>
         )}

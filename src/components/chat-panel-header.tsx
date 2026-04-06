@@ -1,11 +1,12 @@
-import { Maximize2, Minimize2, Plus, Share2 } from 'lucide-react';
+import { Settings, Share2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useUiNavigation } from '@/contexts/ui-navigation';
 import { useTranslation } from '@/hooks/use-locale';
-import { useExecutionStore } from '@/stores/execution-store';
 import type { Task } from '@/types';
 import type { UIMessage } from '@/types/agent';
+import { NavigationView } from '@/types/navigation';
 
 import { ShareTaskDialog } from './task/share-task-dialog';
 import { ToolbarStats } from './toolbar-stats';
@@ -13,20 +14,11 @@ import { ToolbarStats } from './toolbar-stats';
 interface ChatPanelHeaderProps {
   currentTask?: Task;
   messages?: UIMessage[];
-  onNewChat: () => void;
-  isFullscreen?: boolean;
-  onToggleFullscreen?: () => void;
 }
 
-export function ChatPanelHeader({
-  currentTask,
-  messages = [],
-  onNewChat,
-  isFullscreen,
-  onToggleFullscreen,
-}: ChatPanelHeaderProps) {
+export function ChatPanelHeader({ currentTask, messages = [] }: ChatPanelHeaderProps) {
   const t = useTranslation();
-  const isMaxReached = useExecutionStore((state) => state.isMaxReached());
+  const { setActiveView } = useUiNavigation();
   const canShare = currentTask && messages.length > 0;
 
   return (
@@ -38,24 +30,6 @@ export function ChatPanelHeader({
 
       {/* Right: Actions */}
       <div className="flex flex-shrink-0 items-center gap-1">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700"
-              disabled={isMaxReached}
-              onClick={onNewChat}
-              size="sm"
-              title={isMaxReached ? 'Maximum concurrent tasks reached' : undefined}
-              variant="ghost"
-            >
-              <Plus className="h-3.5 w-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{t.Chat.newChat}</p>
-          </TooltipContent>
-        </Tooltip>
-
         {/* Share Button */}
         {canShare && (
           <ShareTaskDialog
@@ -74,28 +48,20 @@ export function ChatPanelHeader({
           />
         )}
 
-        {/* Fullscreen Toggle */}
-        {onToggleFullscreen && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700"
-                onClick={onToggleFullscreen}
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="h-3.5 w-3.5" />
-                ) : (
-                  <Maximize2 className="h-3.5 w-3.5" />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              {isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-            </TooltipContent>
-          </Tooltip>
-        )}
+        {/* Settings Button */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700"
+              onClick={() => setActiveView(NavigationView.SETTINGS)}
+            >
+              <Settings className="h-3.5 w-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">{t.Navigation.settingsTooltip}</TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );

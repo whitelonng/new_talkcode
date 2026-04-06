@@ -272,6 +272,19 @@ const zh: LocaleDefinition = {
     },
   },
 
+  Titlebar: {
+    functionMenu: '功能菜单',
+    terminal: '切换终端',
+    browser: '切换浏览器',
+    fullscreen: '全屏',
+    exitFullscreen: '退出全屏',
+    minimize: '最小化',
+    maximize: '最大化',
+    restore: '还原',
+    close: '关闭',
+    backToExplorer: '返回主界面',
+  },
+
   Settings: {
     title: '设置',
     description: '配置您的应用程序偏好',
@@ -292,6 +305,10 @@ const zh: LocaleDefinition = {
       hooks: 'Hooks',
       remoteControl: '远程控制',
       memory: '长期记忆',
+      logs: '日志',
+      toolsPlayground: '工具测试场',
+      tracing: 'LLM 调用追踪',
+      github: 'GitHub 源码',
     },
     account: {
       title: '账户设置',
