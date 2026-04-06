@@ -2,7 +2,14 @@ import { toast } from 'sonner';
 import { create } from 'zustand';
 import { logger } from '@/lib/logger';
 import { gitService } from '@/services/git-service';
-import type { FileStatusMap, GitStatus, LineChange } from '@/types/git';
+import type {
+  BranchInfo,
+  CommitLogEntry,
+  FileStatusMap,
+  GitStatus,
+  LineChange,
+  RemoteInfo,
+} from '@/types/git';
 import { GitFileStatus } from '@/types/git';
 
 interface GitStore {
@@ -16,6 +23,19 @@ interface GitStore {
   error: string | null;
   lastRefresh: number | null;
 
+  // Branch state
+  branches: BranchInfo[];
+  isBranchesLoading: boolean;
+
+  // Remote state
+  remotes: RemoteInfo[];
+  isRemotesLoading: boolean;
+
+  // Commit log state
+  commitLog: CommitLogEntry[];
+  isCommitLogLoading: boolean;
+  commitLogBranch: string | null;
+
   // Actions
   initialize: (repoPath: string) => Promise<void>;
   refreshStatus: () => Promise<void>;
@@ -26,6 +46,21 @@ interface GitStore {
   setLineChanges: (filePath: string, changes: LineChange[]) => void;
   clearLineChangesCache: () => void;
   clearState: () => void;
+
+  // Branch actions
+  loadBranches: () => Promise<void>;
+  checkoutBranch: (branchName: string) => Promise<void>;
+  createBranch: (branchName: string, checkout: boolean) => Promise<void>;
+  deleteBranch: (branchName: string, force: boolean) => Promise<void>;
+
+  // Remote actions
+  loadRemotes: () => Promise<void>;
+  addRemote: (name: string, url: string) => Promise<void>;
+  removeRemote: (name: string) => Promise<void>;
+
+  // Commit log actions
+  loadCommitLog: (maxCount?: number, branchName?: string) => Promise<void>;
+  loadMoreCommits: () => Promise<void>;
 
   // Git Panel State
   selectedFiles: Set<string>;
@@ -63,13 +98,25 @@ export const useGitStore = create<GitStore>((set, get) => ({
   error: null,
   lastRefresh: null,
 
+  // Branch state
+  branches: [],
+  isBranchesLoading: false,
+
+  // Remote state
+  remotes: [],
+  isRemotesLoading: false,
+
+  // Commit log state
+  commitLog: [],
+  isCommitLogLoading: false,
+  commitLogBranch: null,
+
   // Initialize Git for a repository
   initialize: async (repoPath: string) => {
     logger.info(`Initializing Git for repository: ${repoPath}`);
     set({ isLoading: true, error: null, repositoryPath: repoPath });
 
     try {
-      // Check if it's a Git repository
       const isRepo = await gitService.isRepository(repoPath);
 
       if (!isRepo) {
@@ -86,8 +133,11 @@ export const useGitStore = create<GitStore>((set, get) => ({
       logger.info(`${repoPath} is a valid Git repository`);
       set({ isGitRepository: true });
 
-      // Get initial Git status
       await get().refreshStatus();
+      // Load branches and remotes in background
+      get().loadBranches();
+      get().loadRemotes();
+      get().loadCommitLog();
       logger.info('Git initialization completed successfully');
     } catch (error) {
       logger.error('Failed to initialize Git:', error);
@@ -109,7 +159,6 @@ export const useGitStore = create<GitStore>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      // Get full Git status
       const [gitStatus, fileStatuses] = await Promise.all([
         gitService.getStatus(repositoryPath),
         gitService.getAllFileStatuses(repositoryPath),
@@ -119,7 +168,6 @@ export const useGitStore = create<GitStore>((set, get) => ({
         logger.debug('Sample file paths in status map:', Object.keys(fileStatuses).slice(0, 5));
       }
 
-      // Clear line changes cache since Git status has changed
       get().clearLineChangesCache();
 
       set({
@@ -141,21 +189,17 @@ export const useGitStore = create<GitStore>((set, get) => ({
   getFileStatus: (filePath: string): GitFileStatus | null => {
     const { fileStatuses, repositoryPath, isGitRepository } = get();
 
-    // Silently return null if Git is not initialized yet or not a Git repository
     if (!repositoryPath || !isGitRepository) {
       return null;
     }
 
-    // Try with absolute path first
     let status = fileStatuses[filePath];
 
     if (status) {
       return status[0];
     }
 
-    // If not found, try with relative path
     if (filePath.startsWith(repositoryPath)) {
-      // Normalize repository path (remove trailing slash)
       const normalizedRepoPath = repositoryPath.replace(/\/$/, '');
       const relativePath = filePath.slice(normalizedRepoPath.length).replace(/^\//, '');
 
@@ -165,7 +209,6 @@ export const useGitStore = create<GitStore>((set, get) => ({
         return status[0];
       }
     } else {
-      // FilePath doesn't start with repositoryPath, try as relative path directly
       status = fileStatuses[filePath];
       if (status) {
         return status[0];
@@ -193,16 +236,13 @@ export const useGitStore = create<GitStore>((set, get) => ({
       return false;
     }
 
-    // Try with absolute path first
     let status = fileStatuses[filePath];
 
     if (status) {
       return status[1];
     }
 
-    // If not found, try with relative path
     if (filePath.startsWith(repositoryPath)) {
-      // Normalize repository path (remove trailing slash)
       const normalizedRepoPath = repositoryPath.replace(/\/$/, '');
       const relativePath = filePath.slice(normalizedRepoPath.length).replace(/^\//, '');
       status = fileStatuses[relativePath];
@@ -211,7 +251,6 @@ export const useGitStore = create<GitStore>((set, get) => ({
         return status[1];
       }
     } else {
-      // FilePath doesn't start with repositoryPath, try as relative path directly
       status = fileStatuses[filePath];
       if (status) {
         return status[1];
@@ -229,64 +268,51 @@ export const useGitStore = create<GitStore>((set, get) => ({
       return [];
     }
 
-    // Check cache first
     if (lineChangesCache.has(filePath)) {
       logger.debug(`Cache hit for line changes: ${filePath}`);
       return lineChangesCache.get(filePath) || [];
     }
 
-    // Check if already fetching this file
     if (fetchingPromises.has(filePath)) {
       logger.debug(`Fetch already in progress for ${filePath}, waiting...`);
       return fetchingPromises.get(filePath) as Promise<LineChange[]>;
     }
 
-    // Cache miss - fetch from backend
     logger.debug(`Cache miss for line changes: ${filePath}, fetching...`);
 
-    // Create and track the fetch promise
     const fetchPromise = (async () => {
       try {
         const lineChanges = await gitService.getLineChanges(repositoryPath, filePath);
-
-        // Store in cache
         get().setLineChanges(filePath, lineChanges);
-
         return lineChanges;
       } catch (error) {
         logger.error(`Failed to get line changes for ${filePath}:`, error);
         return [];
       } finally {
-        // Remove from tracking map when done
         fetchingPromises.delete(filePath);
       }
     })();
 
-    // Track this promise
     fetchingPromises.set(filePath, fetchPromise);
 
     return fetchPromise;
   },
 
-  // Set line changes in cache
   setLineChanges: (filePath: string, changes: LineChange[]): void => {
     const { lineChangesCache } = get();
     lineChangesCache.set(filePath, changes);
     logger.debug(`Cached line changes for: ${filePath} (${changes.length} changes)`);
   },
 
-  // Clear line changes cache
   clearLineChangesCache: (): void => {
     const { lineChangesCache } = get();
     const count = lineChangesCache.size;
     lineChangesCache.clear();
-    fetchingPromises.clear(); // Also clear in-flight requests
+    fetchingPromises.clear();
     logger.debug(`Cleared line changes cache (${count} entries)`);
   },
 
-  // Clear all Git state
   clearState: () => {
-    // Clear the cache before resetting state
     get().clearLineChangesCache();
 
     set({
@@ -298,6 +324,13 @@ export const useGitStore = create<GitStore>((set, get) => ({
       isLoading: false,
       error: null,
       lastRefresh: null,
+      branches: [],
+      isBranchesLoading: false,
+      remotes: [],
+      isRemotesLoading: false,
+      commitLog: [],
+      isCommitLogLoading: false,
+      commitLogBranch: null,
       selectedFiles: new Set(),
       commitMessage: '',
       isStaging: false,
@@ -305,6 +338,156 @@ export const useGitStore = create<GitStore>((set, get) => ({
       isPushing: false,
       isPulling: false,
     });
+  },
+
+  // ============================================================================
+  // Branch Actions
+  // ============================================================================
+
+  loadBranches: async () => {
+    const { repositoryPath, isGitRepository } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    set({ isBranchesLoading: true });
+    try {
+      const branches = await gitService.listBranches(repositoryPath);
+      set({ branches, isBranchesLoading: false });
+    } catch (error) {
+      logger.error('Failed to load branches:', error);
+      set({ isBranchesLoading: false });
+    }
+  },
+
+  checkoutBranch: async (branchName: string) => {
+    const { repositoryPath, isGitRepository } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    try {
+      await gitService.checkoutBranch(repositoryPath, branchName);
+      toast.success(`Switched to ${branchName}`);
+      await Promise.all([get().refreshStatus(), get().loadBranches(), get().loadCommitLog()]);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Failed to switch branch';
+      logger.error('Failed to checkout branch:', error);
+      toast.error(msg);
+    }
+  },
+
+  createBranch: async (branchName: string, checkout: boolean) => {
+    const { repositoryPath, isGitRepository } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    try {
+      await gitService.createBranch(repositoryPath, branchName, checkout);
+      toast.success(`Branch '${branchName}' created`);
+      await Promise.all([get().refreshStatus(), get().loadBranches()]);
+      if (checkout) {
+        await get().loadCommitLog();
+      }
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Failed to create branch';
+      logger.error('Failed to create branch:', error);
+      toast.error(msg);
+    }
+  },
+
+  deleteBranch: async (branchName: string, force: boolean) => {
+    const { repositoryPath, isGitRepository } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    try {
+      await gitService.deleteBranch(repositoryPath, branchName, force);
+      toast.success(`Branch '${branchName}' deleted`);
+      await get().loadBranches();
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Failed to delete branch';
+      logger.error('Failed to delete branch:', error);
+      toast.error(msg);
+    }
+  },
+
+  // ============================================================================
+  // Remote Actions
+  // ============================================================================
+
+  loadRemotes: async () => {
+    const { repositoryPath, isGitRepository } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    set({ isRemotesLoading: true });
+    try {
+      const remotes = await gitService.getRemotes(repositoryPath);
+      set({ remotes, isRemotesLoading: false });
+    } catch (error) {
+      logger.error('Failed to load remotes:', error);
+      set({ isRemotesLoading: false });
+    }
+  },
+
+  addRemote: async (name: string, url: string) => {
+    const { repositoryPath, isGitRepository } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    try {
+      await gitService.addRemote(repositoryPath, name, url);
+      toast.success(`Remote '${name}' added`);
+      await get().loadRemotes();
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Failed to add remote';
+      logger.error('Failed to add remote:', error);
+      toast.error(msg);
+    }
+  },
+
+  removeRemote: async (name: string) => {
+    const { repositoryPath, isGitRepository } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    try {
+      await gitService.removeRemote(repositoryPath, name);
+      toast.success(`Remote '${name}' removed`);
+      await get().loadRemotes();
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Failed to remove remote';
+      logger.error('Failed to remove remote:', error);
+      toast.error(msg);
+    }
+  },
+
+  // ============================================================================
+  // Commit Log Actions
+  // ============================================================================
+
+  loadCommitLog: async (maxCount?: number, branchName?: string) => {
+    const { repositoryPath, isGitRepository } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    set({ isCommitLogLoading: true, commitLogBranch: branchName ?? null });
+    try {
+      const commitLog = await gitService.getCommitLog(repositoryPath, maxCount ?? 50, branchName);
+      set({ commitLog, isCommitLogLoading: false });
+    } catch (error) {
+      logger.error('Failed to load commit log:', error);
+      set({ isCommitLogLoading: false });
+    }
+  },
+
+  loadMoreCommits: async () => {
+    const { repositoryPath, isGitRepository, commitLog, commitLogBranch } = get();
+    if (!repositoryPath || !isGitRepository) return;
+
+    set({ isCommitLogLoading: true });
+    try {
+      const moreCommits = await gitService.getCommitLog(
+        repositoryPath,
+        commitLog.length + 50,
+        commitLogBranch ?? undefined
+      );
+      set({ commitLog: moreCommits, isCommitLogLoading: false });
+    } catch (error) {
+      logger.error('Failed to load more commits:', error);
+      set({ isCommitLogLoading: false });
+    }
   },
 
   // Git Panel Initial State
@@ -448,7 +631,7 @@ export const useGitStore = create<GitStore>((set, get) => ({
       logger.info('Successfully committed staged changes');
       toast.success('Changes committed successfully');
       set({ isCommitting: false, commitMessage: '' });
-      await get().refreshStatus();
+      await Promise.all([get().refreshStatus(), get().loadCommitLog()]);
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Failed to commit';
       logger.error('Failed to commit:', error);
@@ -469,7 +652,7 @@ export const useGitStore = create<GitStore>((set, get) => ({
       logger.info('Successfully pushed to remote');
       toast.success('Pushed to remote successfully');
       set({ isPushing: false });
-      await get().refreshStatus();
+      await Promise.all([get().refreshStatus(), get().loadBranches()]);
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Failed to push';
       logger.error('Failed to push:', error);
@@ -490,7 +673,7 @@ export const useGitStore = create<GitStore>((set, get) => ({
       logger.info('Successfully pulled from remote');
       toast.success('Pulled from remote successfully');
       set({ isPulling: false });
-      await get().refreshStatus();
+      await Promise.all([get().refreshStatus(), get().loadBranches(), get().loadCommitLog()]);
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Failed to pull';
       logger.error('Failed to pull:', error);

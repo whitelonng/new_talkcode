@@ -4,7 +4,7 @@ pub mod status;
 pub mod types;
 pub mod worktree;
 
-use types::{DiffLineType, FileDiff, GitFileStatus, GitStatus};
+use types::{CommitLogEntry, DiffLineType, FileDiff, GitFileStatus, GitStatus, RemoteInfo};
 use worktree::{MergeResult, SyncResult, WorktreeChanges, WorktreeInfo, WorktreePoolStatus};
 
 /// Gets the Git status for a repository at the given path
@@ -299,4 +299,281 @@ pub async fn git_pull(repo_path: String) -> Result<String, String> {
     } else {
         Err(String::from_utf8_lossy(&output.stderr).to_string())
     }
+}
+
+// ============================================================================
+// Branch Commands
+// ============================================================================
+
+/// List all local and remote branches
+#[tauri::command]
+pub async fn git_list_branches(repo_path: String) -> Result<Vec<types::BranchInfo>, String> {
+    let repo = repository::discover_repository(&repo_path)
+        .map_err(|e| format!("Failed to open repository: {}", e))?;
+
+    let mut branches = Vec::new();
+
+    // Get current branch name
+    let current_branch = repo
+        .head()
+        .ok()
+        .and_then(|h| h.shorthand().map(|s| s.to_string()));
+
+    // List local branches
+    let local_branches = repo
+        .branches(Some(git2::BranchType::Local))
+        .map_err(|e| format!("Failed to list branches: {}", e))?;
+
+    for branch_result in local_branches {
+        let (branch, _) = branch_result
+            .map_err(|e| format!("Failed to read branch: {}", e))?;
+
+        let name = branch
+            .name()
+            .map_err(|e| format!("Failed to get branch name: {}", e))?
+            .unwrap_or("unknown")
+            .to_string();
+
+        let is_current = current_branch.as_deref() == Some(&name);
+
+        let (upstream, ahead, behind) = match branch.upstream() {
+            Ok(upstream_branch) => {
+                let upstream_name = upstream_branch.name().ok().flatten().map(|s| s.to_string());
+
+                let local_oid = branch.get().target();
+                let upstream_oid = upstream_branch.get().target();
+
+                match (local_oid, upstream_oid) {
+                    (Some(l), Some(u)) => {
+                        match repo.graph_ahead_behind(l, u) {
+                            Ok((a, b)) => (upstream_name, Some(a), Some(b)),
+                            Err(_) => (upstream_name, None, None),
+                        }
+                    }
+                    _ => (upstream_name, None, None),
+                }
+            }
+            Err(_) => (None, None, None),
+        };
+
+        branches.push(types::BranchInfo {
+            name,
+            is_current,
+            is_head: false,
+            upstream,
+            ahead,
+            behind,
+        });
+    }
+
+    Ok(branches)
+}
+
+/// Checkout an existing branch
+#[tauri::command]
+pub async fn git_checkout_branch(repo_path: String, branch_name: String) -> Result<String, String> {
+    let output = crate::shell_utils::new_command("git")
+        .args(["checkout", &branch_name])
+        .current_dir(&repo_path)
+        .output()
+        .map_err(|e| format!("Failed to execute git checkout: {}", e))?;
+
+    if output.status.success() {
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        // git checkout outputs to stderr on success
+        Ok(if stdout.is_empty() { stderr } else { stdout })
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
+/// Create a new branch and optionally switch to it
+#[tauri::command]
+pub async fn git_create_branch(
+    repo_path: String,
+    branch_name: String,
+    checkout: bool,
+) -> Result<String, String> {
+    let args = if checkout {
+        vec!["checkout", "-b", &branch_name]
+    } else {
+        vec!["branch", &branch_name]
+    };
+
+    let output = crate::shell_utils::new_command("git")
+        .args(&args)
+        .current_dir(&repo_path)
+        .output()
+        .map_err(|e| format!("Failed to execute git branch: {}", e))?;
+
+    if output.status.success() {
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        Ok(if stdout.is_empty() { stderr } else { stdout })
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
+/// Delete a local branch
+#[tauri::command]
+pub async fn git_delete_branch(
+    repo_path: String,
+    branch_name: String,
+    force: bool,
+) -> Result<String, String> {
+    let flag = if force { "-D" } else { "-d" };
+
+    let output = crate::shell_utils::new_command("git")
+        .args(["branch", flag, &branch_name])
+        .current_dir(&repo_path)
+        .output()
+        .map_err(|e| format!("Failed to execute git branch delete: {}", e))?;
+
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
+// ============================================================================
+// Remote Commands
+// ============================================================================
+
+/// List all configured remotes
+#[tauri::command]
+pub async fn git_get_remotes(repo_path: String) -> Result<Vec<RemoteInfo>, String> {
+    let repo = repository::discover_repository(&repo_path)
+        .map_err(|e| format!("Failed to open repository: {}", e))?;
+
+    let remote_names = repo
+        .remotes()
+        .map_err(|e| format!("Failed to list remotes: {}", e))?;
+
+    let mut remotes = Vec::new();
+    for name in remote_names.iter().flatten() {
+        if let Ok(remote) = repo.find_remote(name) {
+            remotes.push(RemoteInfo {
+                name: name.to_string(),
+                fetch_url: remote.url().map(|s| s.to_string()),
+                push_url: remote.pushurl().map(|s| s.to_string()),
+            });
+        }
+    }
+
+    Ok(remotes)
+}
+
+/// Add a new remote
+#[tauri::command]
+pub async fn git_add_remote(
+    repo_path: String,
+    name: String,
+    url: String,
+) -> Result<String, String> {
+    let output = crate::shell_utils::new_command("git")
+        .args(["remote", "add", &name, &url])
+        .current_dir(&repo_path)
+        .output()
+        .map_err(|e| format!("Failed to execute git remote add: {}", e))?;
+
+    if output.status.success() {
+        Ok(format!("Remote '{}' added with URL: {}", name, url))
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
+/// Remove a remote
+#[tauri::command]
+pub async fn git_remove_remote(repo_path: String, name: String) -> Result<String, String> {
+    let output = crate::shell_utils::new_command("git")
+        .args(["remote", "remove", &name])
+        .current_dir(&repo_path)
+        .output()
+        .map_err(|e| format!("Failed to execute git remote remove: {}", e))?;
+
+    if output.status.success() {
+        Ok(format!("Remote '{}' removed", name))
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
+// ============================================================================
+// Commit Log Commands
+// ============================================================================
+
+/// Get commit log for the repository
+#[tauri::command]
+pub async fn git_get_commit_log(
+    repo_path: String,
+    max_count: Option<u32>,
+    branch_name: Option<String>,
+) -> Result<Vec<CommitLogEntry>, String> {
+    let repo = repository::discover_repository(&repo_path)
+        .map_err(|e| format!("Failed to open repository: {}", e))?;
+
+    let max = max_count.unwrap_or(50) as usize;
+
+    let mut revwalk = repo
+        .revwalk()
+        .map_err(|e| format!("Failed to create revwalk: {}", e))?;
+
+    // Push the starting point
+    if let Some(ref branch) = branch_name {
+        let reference = repo
+            .resolve_reference_from_short_name(branch)
+            .map_err(|e| format!("Failed to resolve branch '{}': {}", branch, e))?;
+        let oid = reference
+            .target()
+            .ok_or_else(|| format!("Branch '{}' has no target", branch))?;
+        revwalk
+            .push(oid)
+            .map_err(|e| format!("Failed to push oid: {}", e))?;
+    } else {
+        revwalk
+            .push_head()
+            .map_err(|e| format!("Failed to push HEAD: {}", e))?;
+    }
+
+    revwalk.set_sorting(git2::Sort::TIME)
+        .map_err(|e| format!("Failed to set sorting: {}", e))?;
+
+    let mut entries = Vec::new();
+    for oid_result in revwalk {
+        if entries.len() >= max {
+            break;
+        }
+
+        let oid = oid_result.map_err(|e| format!("Failed to get oid: {}", e))?;
+        let commit = repo
+            .find_commit(oid)
+            .map_err(|e| format!("Failed to find commit: {}", e))?;
+
+        let message_full = commit.message().unwrap_or("").to_string();
+        let mut lines = message_full.lines();
+        let first_line = lines.next().unwrap_or("").to_string();
+        let body: String = lines.collect::<Vec<_>>().join("\n").trim().to_string();
+
+        let parents: Vec<String> = commit
+            .parent_ids()
+            .map(|id| id.to_string()[..7].to_string())
+            .collect();
+
+        entries.push(CommitLogEntry {
+            hash: oid.to_string(),
+            short_hash: oid.to_string()[..7].to_string(),
+            message: first_line,
+            body: if body.is_empty() { None } else { Some(body) },
+            author_name: commit.author().name().unwrap_or("Unknown").to_string(),
+            author_email: commit.author().email().unwrap_or("").to_string(),
+            timestamp: commit.time().seconds(),
+            parents,
+        });
+    }
+
+    Ok(entries)
 }

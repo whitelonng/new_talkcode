@@ -1,5 +1,13 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { FileDiff, FileStatusMap, GitStatus, LineChange } from '../types/git';
+import type {
+  BranchInfo,
+  CommitLogEntry,
+  FileDiff,
+  FileStatusMap,
+  GitStatus,
+  LineChange,
+  RemoteInfo,
+} from '../types/git';
 
 /**
  * Service layer for Git operations using Tauri commands
@@ -84,6 +92,42 @@ export class GitService {
    */
   async pull(repoPath: string): Promise<string> {
     return invoke<string>('git_pull', { repoPath });
+  }
+
+  async listBranches(repoPath: string): Promise<BranchInfo[]> {
+    return invoke<BranchInfo[]>('git_list_branches', { repoPath });
+  }
+
+  async checkoutBranch(repoPath: string, branchName: string): Promise<string> {
+    return invoke<string>('git_checkout_branch', { repoPath, branchName });
+  }
+
+  async createBranch(repoPath: string, branchName: string, checkout: boolean): Promise<string> {
+    return invoke<string>('git_create_branch', { repoPath, branchName, checkout });
+  }
+
+  async deleteBranch(repoPath: string, branchName: string, force: boolean): Promise<string> {
+    return invoke<string>('git_delete_branch', { repoPath, branchName, force });
+  }
+
+  async getRemotes(repoPath: string): Promise<RemoteInfo[]> {
+    return invoke<RemoteInfo[]>('git_get_remotes', { repoPath });
+  }
+
+  async addRemote(repoPath: string, name: string, url: string): Promise<string> {
+    return invoke<string>('git_add_remote', { repoPath, name, url });
+  }
+
+  async removeRemote(repoPath: string, name: string): Promise<string> {
+    return invoke<string>('git_remove_remote', { repoPath, name });
+  }
+
+  async getCommitLog(
+    repoPath: string,
+    maxCount?: number,
+    branchName?: string
+  ): Promise<CommitLogEntry[]> {
+    return invoke<CommitLogEntry[]>('git_get_commit_log', { repoPath, maxCount, branchName });
   }
 }
 
