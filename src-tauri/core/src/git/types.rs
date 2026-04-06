@@ -149,6 +149,40 @@ pub struct CommitInfo {
     pub timestamp: i64,
 }
 
+/// Represents information about a Git remote
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RemoteInfo {
+    /// Remote name (e.g. "origin")
+    pub name: String,
+    /// Fetch URL
+    pub fetch_url: Option<String>,
+    /// Push URL
+    pub push_url: Option<String>,
+}
+
+/// Represents a commit log entry for display
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommitLogEntry {
+    /// Full commit hash
+    pub hash: String,
+    /// Short commit hash (7 chars)
+    pub short_hash: String,
+    /// Commit message (first line)
+    pub message: String,
+    /// Full commit message body
+    pub body: Option<String>,
+    /// Author name
+    pub author_name: String,
+    /// Author email
+    pub author_email: String,
+    /// Commit timestamp in seconds since epoch
+    pub timestamp: i64,
+    /// Parent commit hashes
+    pub parents: Vec<String>,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

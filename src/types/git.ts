@@ -75,6 +75,25 @@ export interface CommitInfo {
   timestamp: number;
 }
 
+export interface RemoteInfo {
+  name: string;
+  fetchUrl: string | null;
+  pushUrl: string | null;
+}
+
+export interface CommitLogEntry {
+  hash: string;
+  shortHash: string;
+  /** First line of commit message */
+  message: string;
+  /** Rest of commit message */
+  body: string | null;
+  authorName: string;
+  authorEmail: string;
+  timestamp: number;
+  parents: string[];
+}
+
 // Helper types for UI components
 export type LineChange = [number, DiffLineType];
 

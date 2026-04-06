@@ -953,6 +953,45 @@ export interface LocaleDefinition {
     ahead: string;
     behind: string;
     upToDate: string;
+    // Branch management
+    branches: string;
+    currentBranch: string;
+    switchBranch: string;
+    newBranch: string;
+    createBranch: string;
+    deleteBranch: string;
+    branchName: string;
+    branchNamePlaceholder: string;
+    branchCreated: string;
+    branchDeleted: string;
+    branchSwitched: string;
+    createBranchFailed: string;
+    deleteBranchFailed: string;
+    switchBranchFailed: string;
+    confirmDeleteBranch: string;
+    noBranches: string;
+    // Remote management
+    remotes: string;
+    addRemote: string;
+    removeRemote: string;
+    remoteName: string;
+    remoteUrl: string;
+    remoteNamePlaceholder: string;
+    remoteUrlPlaceholder: string;
+    remoteAdded: string;
+    remoteRemoved: string;
+    addRemoteFailed: string;
+    removeRemoteFailed: string;
+    confirmRemoveRemote: string;
+    noRemotes: string;
+    // Commit log
+    commitLog: string;
+    noCommits: string;
+    loadMore: string;
+    commitBy: string;
+    // Layout tabs
+    changesTab: string;
+    historyTab: string;
   };
 
   Skills: {
