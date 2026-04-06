@@ -282,6 +282,19 @@ const en: LocaleDefinition = {
     },
   },
 
+  Titlebar: {
+    functionMenu: 'Function Menu',
+    terminal: 'Toggle Terminal',
+    browser: 'Toggle Browser',
+    fullscreen: 'Fullscreen',
+    exitFullscreen: 'Exit Fullscreen',
+    minimize: 'Minimize',
+    maximize: 'Maximize',
+    restore: 'Restore',
+    close: 'Close',
+    backToExplorer: 'Back to Explorer',
+  },
+
   Settings: {
     title: 'Settings',
     description: 'Configure your application preferences',
@@ -302,6 +315,10 @@ const en: LocaleDefinition = {
       hooks: 'Hooks',
       remoteControl: 'Remote Control',
       memory: 'Long-Term Memory',
+      logs: 'Logs',
+      toolsPlayground: 'Tools Playground',
+      tracing: 'LLM Tracing',
+      github: 'GitHub',
     },
     account: {
       title: 'Account Settings',

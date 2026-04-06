@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useTranslation } from '@/hooks/use-locale';
 import { useGitStore } from '@/stores/git-store';
-import { GitActionBar } from './git-action-bar';
+import { GitRemoteActions, GitStagingActions } from './git-action-bar';
 import { GitBranchSelector } from './git-branch-selector';
 import { GitCommitBox } from './git-commit-box';
 import { GitCommitLog } from './git-commit-log';
@@ -107,7 +107,7 @@ export function GitPanel() {
                 {gitStatus.changesCount}
               </Badge>
             )}
-            <GitActionBar />
+            <GitRemoteActions />
           </div>
         </div>
 
@@ -138,6 +138,11 @@ export function GitPanel() {
           </CollapsibleContent>
         </Collapsible>
       )}
+
+      {/* Staging actions row */}
+      <div className="flex items-center justify-end gap-0.5 border-b border-border px-3 py-1">
+        <GitStagingActions />
+      </div>
 
       {/* Tab bar: Changes / History */}
       <div className="flex border-b border-border">

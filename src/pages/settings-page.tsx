@@ -1,12 +1,16 @@
+import { open } from '@tauri-apps/plugin-shell';
 import {
   BookOpen,
   Bot,
   Code,
   FileCode,
+  FileText,
   GitBranch,
+  Github,
   Info,
   Key,
   Keyboard,
+  Radar,
   Settings,
   Terminal,
   User,
@@ -28,9 +32,13 @@ import { RemoteControlSettings } from '@/components/settings/remote-control-sett
 import { TerminalSettings } from '@/components/settings/terminal-settings';
 import { WorktreeSettings } from '@/components/settings/worktree-settings';
 import { ShortcutSettingsPanel } from '@/components/shortcuts/shortcut-settings';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLocale } from '@/hooks/use-locale';
+import { LLMTracingPage } from '@/pages/llm-tracing-page';
+import { LogsPage } from '@/pages/logs-page';
+import ToolPlayground from '@/pages/tool-playground-page';
 
 export function SettingsPage() {
   const [activeTab, setActiveTab] = useState('api-keys');
@@ -55,7 +63,7 @@ export function SettingsPage() {
         orientation="vertical"
         className="flex h-full w-full flex-row"
       >
-        <aside className="w-56 shrink-0 border-r p-4">
+        <aside className="w-56 shrink-0 overflow-y-auto border-r p-4">
           <TabsList className="flex h-auto w-full flex-col gap-1 bg-transparent">
             <TabsTrigger
               value="account"
@@ -142,6 +150,28 @@ export function SettingsPage() {
               <Bot className="size-4" />
               {t.Settings.tabs.remoteControl || 'Remote Control'}
             </TabsTrigger>
+            <TabsTrigger value="logs" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+              <FileText className="size-4" />
+              {t.Settings.tabs.logs}
+            </TabsTrigger>
+            <TabsTrigger
+              value="tools-playground"
+              className="w-full justify-start gap-2 rounded-md px-3 py-2"
+            >
+              <Wrench className="size-4" />
+              {t.Settings.tabs.toolsPlayground}
+            </TabsTrigger>
+            <TabsTrigger
+              value="tracing"
+              className="w-full justify-start gap-2 rounded-md px-3 py-2"
+            >
+              <Radar className="size-4" />
+              {t.Settings.tabs.tracing}
+            </TabsTrigger>
+            <TabsTrigger value="github" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+              <Github className="size-4" />
+              {t.Settings.tabs.github}
+            </TabsTrigger>
             <TabsTrigger value="about" className="w-full justify-start gap-2 rounded-md px-3 py-2">
               <Info className="size-4" />
               {t.Settings.tabs.about}
@@ -189,6 +219,38 @@ export function SettingsPage() {
             </TabsContent>
             <TabsContent value="remote-control" className="mt-0 flex-none space-y-6">
               <RemoteControlSettings />
+            </TabsContent>
+            <TabsContent
+              value="logs"
+              className="mt-0 h-[calc(100vh-8rem)] flex-none space-y-6 overflow-auto"
+            >
+              <LogsPage />
+            </TabsContent>
+            <TabsContent
+              value="tools-playground"
+              className="mt-0 h-[calc(100vh-8rem)] flex-none space-y-6 overflow-auto"
+            >
+              <ToolPlayground />
+            </TabsContent>
+            <TabsContent
+              value="tracing"
+              className="mt-0 h-[calc(100vh-8rem)] flex-none space-y-6 overflow-auto"
+            >
+              <LLMTracingPage />
+            </TabsContent>
+            <TabsContent value="github" className="mt-0 flex-none space-y-6">
+              <div className="rounded-lg border p-6">
+                <div className="mb-3 flex items-center gap-2 text-lg font-semibold">
+                  <Github className="size-5" />
+                  {t.Settings.tabs.github}
+                </div>
+                <p className="mb-4 text-sm text-muted-foreground">
+                  https://github.com/whitelonng/Talkcody
+                </p>
+                <Button onClick={() => open('https://github.com/whitelonng/Talkcody')}>
+                  {t.Common.open}
+                </Button>
+              </div>
             </TabsContent>
             <TabsContent value="about" className="mt-0 flex-none space-y-6">
               <AboutSettings />

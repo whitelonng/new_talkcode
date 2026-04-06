@@ -17,8 +17,6 @@ interface RepositoryChatPanelProps {
   currentTaskId: string | null | undefined;
   currentTask?: Task;
   messages?: UIMessage[];
-  onNewChat: () => void;
-  onToggleFullscreen: () => void;
   chatBoxRef: React.RefObject<ChatBoxRef | null>;
   rootPath: string | null;
   currentFile: OpenFile | null | undefined;
@@ -39,8 +37,6 @@ export const RepositoryChatPanel = memo(function RepositoryChatPanel({
   currentTaskId,
   currentTask,
   messages,
-  onNewChat,
-  onToggleFullscreen,
   chatBoxRef,
   rootPath,
   currentFile,
@@ -72,13 +68,7 @@ export const RepositoryChatPanel = memo(function RepositoryChatPanel({
       minSize={minSize}
     >
       <div className="flex h-full flex-col">
-        <ChatPanelHeader
-          currentTask={currentTask}
-          messages={messages}
-          onNewChat={onNewChat}
-          isFullscreen={isChatFullscreen}
-          onToggleFullscreen={onToggleFullscreen}
-        />
+        <ChatPanelHeader currentTask={currentTask} messages={messages} />
         <div className="flex-1 overflow-hidden">
           <ChatBox
             ref={chatBoxRef}

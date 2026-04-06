@@ -1,10 +1,10 @@
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { getCurrent as getCurrentDeepLinkUrls, onOpenUrl } from '@tauri-apps/plugin-deep-link';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { CustomTitlebar } from '@/components/custom-titlebar';
 import { InitializationScreen } from '@/components/initialization-screen';
 import { LspDownloadPrompt } from '@/components/lsp-download-prompt';
 import { MainContent } from '@/components/main-content';
-import { NavigationSidebar } from '@/components/navigation-sidebar';
 import { OnboardingWizard } from '@/components/onboarding';
 import { RemoteServiceRunner } from '@/components/remote/telegram-remote-runner';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -386,12 +386,12 @@ function AppContent() {
   }
 
   return (
-    <div className="flex h-screen">
-      {/* Left Navigation Sidebar */}
-      <NavigationSidebar activeView={activeView} onViewChange={setActiveView} />
+    <div className="flex h-screen flex-col">
+      {/* Custom Titlebar */}
+      <CustomTitlebar />
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         <MainContent activeView={activeView} />
       </div>
 

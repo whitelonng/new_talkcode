@@ -271,6 +271,19 @@ export interface LocaleDefinition {
     searchTasks: string;
   };
 
+  Titlebar: {
+    functionMenu: string;
+    terminal: string;
+    browser: string;
+    fullscreen: string;
+    exitFullscreen: string;
+    minimize: string;
+    maximize: string;
+    restore: string;
+    close: string;
+    backToExplorer: string;
+  };
+
   Settings: {
     title: string;
     description: string;
@@ -291,6 +304,10 @@ export interface LocaleDefinition {
       hooks: string;
       remoteControl: string;
       memory: string;
+      logs: string;
+      toolsPlayground: string;
+      tracing: string;
+      github: string;
     };
     hooksScopeHint: string;
     account: {

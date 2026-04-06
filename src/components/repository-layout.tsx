@@ -1,4 +1,4 @@
-import { memo, useEffect, useId, useRef } from 'react';
+import { memo, useCallback, useEffect, useId, useRef } from 'react';
 import { toast } from 'sonner';
 import { ResizablePanelGroup } from '@/components/ui/resizable';
 import { useGlobalFileSearch } from '@/hooks/use-global-file-search';
@@ -13,6 +13,7 @@ import { getRelativePath } from '@/services/repository-utils';
 import { taskService } from '@/services/task-service';
 import { WindowManagerService } from '@/services/window-manager-service';
 import { settingsManager } from '@/stores/settings-store';
+import { useTitlebarStore } from '@/stores/titlebar-store';
 import { SidebarView } from '@/types/navigation';
 import type { ChatBoxRef } from './chat-box';
 import { GitStatusBar } from './git/git-status-bar';
@@ -188,14 +189,6 @@ export const RepositoryLayout = memo(function RepositoryLayout() {
     }
   };
 
-  const handleNewTask = async () => {
-    const hasConflict = await checkForConflicts();
-    if (hasConflict) {
-      return;
-    }
-    taskService.startNewTask();
-  };
-
   const handleDiscardAndContinue = async () => {
     await discardChanges();
     resetWorktreeState();
@@ -293,7 +286,7 @@ export const RepositoryLayout = memo(function RepositoryLayout() {
     selectFile(diagnostic.filePath, diagnostic.range.start.line);
   };
 
-  const handleToggleBrowser = () => {
+  const handleToggleBrowser = useCallback(() => {
     if (!isBrowserVisible) {
       setBrowserVisible(true);
       setActiveUtilityTab('browser');
@@ -306,7 +299,41 @@ export const RepositoryLayout = memo(function RepositoryLayout() {
     }
 
     setBrowserVisible(false);
-  };
+  }, [activeUtilityTab, isBrowserVisible, setActiveUtilityTab, setBrowserVisible]);
+
+  useEffect(() => {
+    // Register actions
+    useTitlebarStore.getState().registerLayoutActions({
+      toggleTerminal: () => {
+        const nextVisible = !isTerminalVisible;
+        setTerminalVisible(nextVisible);
+        if (nextVisible) {
+          setActiveUtilityTab('terminal');
+        }
+      },
+      toggleBrowser: handleToggleBrowser,
+      toggleChatFullscreen: () => toggleFullscreen('chat'),
+    });
+
+    return () => {
+      useTitlebarStore.getState().unregisterLayoutActions();
+    };
+  }, [
+    isTerminalVisible,
+    setTerminalVisible,
+    setActiveUtilityTab,
+    handleToggleBrowser,
+    toggleFullscreen,
+  ]);
+
+  useEffect(() => {
+    // Sync state to titlebar store
+    const store = useTitlebarStore.getState();
+    store.setHasRepository(hasRepository);
+    store.setTerminalVisible(isTerminalVisible);
+    store.setBrowserVisible(isBrowserVisible);
+    store.setChatFullscreen(isChatFullscreen);
+  }, [hasRepository, isTerminalVisible, isBrowserVisible, isChatFullscreen]);
 
   useEffect(() => {
     if (isContentSearchVisible) {
@@ -386,7 +413,7 @@ export const RepositoryLayout = memo(function RepositoryLayout() {
         showContentSearch={hasRepository}
       />
 
-      <div className="flex h-screen flex-1 flex-col overflow-hidden">
+      <div className="flex h-full flex-1 flex-col overflow-hidden">
         <div className="flex-1 overflow-hidden">
           <ResizablePanelGroup className="h-full" direction="horizontal">
             {showFileTree && (
@@ -419,20 +446,6 @@ export const RepositoryLayout = memo(function RepositoryLayout() {
                   await refreshProjects();
                 }}
                 isLoadingProject={isLoading}
-                isTerminalVisible={hasRepository ? isTerminalVisible : undefined}
-                onToggleTerminal={
-                  hasRepository
-                    ? () => {
-                        const nextVisible = !isTerminalVisible;
-                        setTerminalVisible(nextVisible);
-                        if (nextVisible) {
-                          setActiveUtilityTab('terminal');
-                        }
-                      }
-                    : undefined
-                }
-                isBrowserVisible={hasRepository ? isBrowserVisible : undefined}
-                onToggleBrowser={hasRepository ? handleToggleBrowser : undefined}
                 onOpenFileSearch={hasRepository ? openFileSearch : undefined}
                 onOpenContentSearch={
                   hasRepository ? () => setIsContentSearchVisible(true) : undefined
@@ -516,8 +529,6 @@ export const RepositoryLayout = memo(function RepositoryLayout() {
                 currentTaskId={state.currentTaskId}
                 currentTask={currentTask}
                 messages={currentMessages}
-                onNewChat={handleNewTask}
-                onToggleFullscreen={() => toggleFullscreen('chat')}
                 chatBoxRef={chatBoxRef}
                 rootPath={rootPath}
                 currentFile={currentFile}
