@@ -1,6 +1,5 @@
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { type as getOsType } from '@tauri-apps/plugin-os';
-import talkCodyIcon from '../../src-tauri/icons/128x128.png';
 import {
   Activity,
   ArrowLeft,
@@ -38,6 +37,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { cn } from '@/lib/utils';
 import { useTitlebarStore } from '@/stores/titlebar-store';
 import { NavigationView } from '@/types/navigation';
+import talkCodyIcon from '../../src-tauri/icons/128x128.png';
 
 export function CustomTitlebar() {
   const { t } = useLocale();

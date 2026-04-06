@@ -336,6 +336,9 @@ const mockTranslations = {
   Agents: {
     title: 'Agents',
   },
+  Navigation: {
+    settingsTooltip: 'Settings',
+  },
   Worktree: {
     conflictDialog: {
       title: 'Uncommitted Changes Detected',

@@ -51,7 +51,7 @@ export function useWindowTitle(): void {
         const found = projects.find((p) => p.id === selectedProjectId);
         if (found) {
           if (currentUpdateId !== updateIdRef.current) return;
-          await getCurrentWindow().setTitle(baseTitle);
+          await getCurrentWindow().setTitle(`${found.name} - ${baseTitle}`);
           return;
         }
 
@@ -67,7 +67,7 @@ export function useWindowTitle(): void {
         if (currentUpdateId !== updateIdRef.current) return;
 
         if (refreshed) {
-          await getCurrentWindow().setTitle(baseTitle);
+          await getCurrentWindow().setTitle(`${refreshed.name} - ${baseTitle}`);
         } else {
           // Project id is unknown — fall back to base title.
           await getCurrentWindow().setTitle(baseTitle);
