@@ -226,6 +226,25 @@ class CustomModelService {
   }
 
   /**
+   * Update an existing custom model's configuration
+   */
+  async updateCustomModel(modelId: string, modelConfig: ModelConfig): Promise<void> {
+    const config = await this.getCustomModels();
+    if (!(modelId in config.models)) {
+      throw new Error(`Custom model "${modelId}" not found`);
+    }
+    config.models[modelId] = modelConfig;
+    await this.saveCustomModels(config);
+
+    // Clear cache to force fresh load on next read
+    // This ensures other components reading during event handling get the latest data
+    this.memoryCache = null;
+
+    // Dispatch event to notify UI
+    window.dispatchEvent(new CustomEvent('customModelsUpdated'));
+  }
+
+  /**
    * Check if a model is a custom model
    */
   async isCustomModel(modelId: string): Promise<boolean> {

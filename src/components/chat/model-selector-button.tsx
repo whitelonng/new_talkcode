@@ -14,10 +14,16 @@ import { useModelSearch } from '@/hooks/use-model-search';
 import { getDocLinks } from '@/lib/doc-links';
 import { logger } from '@/lib/logger';
 import { useProviderStore } from '@/providers/stores/provider-store';
+import { databaseService } from '@/services/database-service';
 import { useSettingsStore } from '@/stores/settings-store';
+import { useTaskStore } from '@/stores/task-store';
 import type { AvailableModel } from '@/types/api-keys';
 
-export function ModelSelectorButton() {
+interface ModelSelectorButtonProps {
+  taskId?: string | null;
+}
+
+export function ModelSelectorButton({ taskId }: ModelSelectorButtonProps) {
   const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,17 +39,26 @@ export function ModelSelectorButton() {
   const modelTypeMain = useSettingsStore((state) => state.model_type_main);
   const setModelType = useSettingsStore((state) => state.setModelType);
 
+  // Get current task (if any) for task-level model binding
+  const currentTaskId = useTaskStore((state) => state.currentTaskId);
+  const effectiveTaskId = taskId ?? currentTaskId;
+  const currentTask = useTaskStore((state) =>
+    effectiveTaskId ? state.getTask(effectiveTaskId) : undefined
+  );
+
   // Load models on mount if not already loaded
   useEffect(() => {
     loadModels();
   }, [loadModels]);
 
   // Parse current model key from stored value (format: "modelKey@provider" or just "modelKey")
+  // Prefer task-level model if a task is active
   const currentModelKey = useMemo(() => {
-    if (!modelTypeMain) return '';
-    const parts = modelTypeMain.split('@');
+    const source = currentTask?.model || modelTypeMain;
+    if (!source) return '';
+    const parts = source.split('@');
     return parts[0] || '';
-  }, [modelTypeMain]);
+  }, [currentTask?.model, modelTypeMain]);
 
   // Use shared search hook
   const { filteredModels, hasSearchQuery } = useModelSearch({
@@ -136,9 +151,17 @@ export function ModelSelectorButton() {
   // Handle model selection
   const handleSelectModel = async (model: AvailableModel) => {
     try {
-      // Store as "modelKey@provider" format
       const modelIdentifier = `${model.key}@${model.provider}`;
-      await setModelType('main', modelIdentifier);
+      const currentTaskIdNow = taskId ?? useTaskStore.getState().currentTaskId;
+
+      if (currentTaskIdNow) {
+        // Bind model to current task
+        useTaskStore.getState().updateTask(currentTaskIdNow, { model: modelIdentifier });
+        await databaseService.updateTaskModel(currentTaskIdNow, modelIdentifier);
+      } else {
+        // No task — update global setting
+        await setModelType('main', modelIdentifier);
+      }
 
       // Update recent models tracking
       setRecentModels((prev) => ({
@@ -156,7 +179,9 @@ export function ModelSelectorButton() {
 
   // Check if model is selected (matches both key and provider)
   const isModelSelected = (model: AvailableModel) => {
-    return model.key === currentModelKey && model.provider === modelTypeMain.split('@')[1];
+    const source = currentTask?.model || modelTypeMain;
+    const [key, provider] = (source || '').split('@');
+    return model.key === key && model.provider === provider;
   };
 
   return (

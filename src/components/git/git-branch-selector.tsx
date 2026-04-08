@@ -26,6 +26,7 @@ export function GitBranchSelector() {
   const [deletingBranch, setDeletingBranch] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [switchingBranch, setSwitchingBranch] = useState<string | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const currentBranchName = gitStatus?.branch?.name ?? null;
 
@@ -54,6 +55,7 @@ export function GitBranchSelector() {
     try {
       await createBranch(name, true);
       setNewBranchName('');
+      setShowCreateForm(false);
     } finally {
       setIsCreating(false);
     }
@@ -64,6 +66,10 @@ export function GitBranchSelector() {
       if (e.key === 'Enter') {
         e.preventDefault();
         handleCreate();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        setNewBranchName('');
+        setShowCreateForm(false);
       }
     },
     [handleCreate]
@@ -146,34 +152,47 @@ export function GitBranchSelector() {
 
       {/* Create branch input - fixed at bottom */}
       <div className="border-t border-border p-2">
-        <div className="flex items-center gap-1.5">
-          <Input
-            placeholder={gp.branchNamePlaceholder}
-            value={newBranchName}
-            onChange={(e) => setNewBranchName(e.target.value)}
-            onKeyDown={handleCreateKeyDown}
-            disabled={isCreating}
-            className="h-7 text-xs"
-          />
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 w-7 shrink-0 p-0"
-                disabled={isCreating || !newBranchName.trim()}
-                onClick={handleCreate}
-              >
-                {isCreating ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Plus className="h-3.5 w-3.5" />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{gp.createBranch}</TooltipContent>
-          </Tooltip>
-        </div>
+        {showCreateForm ? (
+          <div className="flex items-center gap-1.5">
+            <Input
+              placeholder={gp.branchNamePlaceholder}
+              value={newBranchName}
+              onChange={(e) => setNewBranchName(e.target.value)}
+              onKeyDown={handleCreateKeyDown}
+              disabled={isCreating}
+              className="h-7 text-xs"
+              autoFocus
+            />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 w-7 shrink-0 p-0"
+                  disabled={isCreating || !newBranchName.trim()}
+                  onClick={handleCreate}
+                >
+                  {isCreating ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Plus className="h-3.5 w-3.5" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{gp.createBranch}</TooltipContent>
+            </Tooltip>
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-full justify-start gap-1.5 text-xs text-muted-foreground"
+            onClick={() => setShowCreateForm(true)}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {gp.newBranch}
+          </Button>
+        )}
       </div>
     </div>
   );

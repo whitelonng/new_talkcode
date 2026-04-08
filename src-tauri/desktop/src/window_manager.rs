@@ -7,6 +7,10 @@ use tauri::{AppHandle, Manager, Runtime, WebviewUrl, WebviewWindowBuilder};
 
 use crate::file_watcher::FileWatcher;
 
+/// Global lock for windows-state.json file operations to prevent
+/// concurrent read-modify-write races when multiple windows close simultaneously.
+static STATE_FILE_LOCK: std::sync::LazyLock<Mutex<()>> = std::sync::LazyLock::new(|| Mutex::new(()));
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WindowInfo {
     pub label: String,
@@ -46,12 +50,12 @@ impl WindowRegistry {
     }
 
     pub fn unregister_window(&self, label: &str) -> Result<(), String> {
-        let mut windows = self.windows.lock().map_err(|e| e.to_string())?;
-        if let Some(mut state) = windows.remove(label) {
-            // Stop file watcher if exists
-            if let Some(mut watcher) = state.file_watcher.take() {
-                watcher.stop();
-            }
+        let watcher = {
+            let mut windows = self.windows.lock().map_err(|e| e.to_string())?;
+            windows.remove(label).and_then(|mut state| state.file_watcher.take())
+        }; // lock released here
+        if let Some(mut watcher) = watcher {
+            watcher.stop();
         }
         Ok(())
     }
@@ -101,13 +105,18 @@ impl WindowRegistry {
         label: &str,
         watcher: Option<FileWatcher>,
     ) -> Result<(), String> {
-        let mut windows = self.windows.lock().map_err(|e| e.to_string())?;
-        if let Some(state) = windows.get_mut(label) {
-            // Stop existing watcher if any
-            if let Some(mut old_watcher) = state.file_watcher.take() {
-                old_watcher.stop();
+        let old_watcher = {
+            let mut windows = self.windows.lock().map_err(|e| e.to_string())?;
+            if let Some(state) = windows.get_mut(label) {
+                let old = state.file_watcher.take();
+                state.file_watcher = watcher;
+                old
+            } else {
+                None
             }
-            state.file_watcher = watcher;
+        }; // lock released here
+        if let Some(mut old_watcher) = old_watcher {
+            old_watcher.stop();
         }
         Ok(())
     }
@@ -116,15 +125,20 @@ impl WindowRegistry {
     /// This should be called when the application exits to release file handles
     pub fn cleanup_all_watchers(&self) {
         log::info!("Cleaning up all window file watchers");
-        if let Ok(mut windows) = self.windows.lock() {
-            for (label, state) in windows.iter_mut() {
-                if let Some(mut watcher) = state.file_watcher.take() {
-                    log::info!("Stopping file watcher for window: {}", label);
-                    watcher.stop();
-                }
-            }
+        let watchers: Vec<(String, FileWatcher)> = if let Ok(mut windows) = self.windows.lock() {
+            windows
+                .iter_mut()
+                .filter_map(|(label, state)| {
+                    state.file_watcher.take().map(|w| (label.clone(), w))
+                })
+                .collect()
         } else {
             log::error!("Failed to acquire lock for cleanup_all_watchers");
+            return;
+        }; // lock released here
+        for (label, mut watcher) in watchers {
+            log::info!("Stopping file watcher for window: {}", label);
+            watcher.stop();
         }
     }
 }
@@ -197,6 +211,11 @@ fn remove_window_state_from_file<R: Runtime>(
     if window_label == "main" {
         return Ok(());
     }
+
+    // Acquire file lock to prevent concurrent read-modify-write races
+    let _file_guard = STATE_FILE_LOCK
+        .lock()
+        .map_err(|e| format!("Failed to acquire state file lock: {}", e))?;
 
     // Get app data directory
     let app_data_dir = app_handle
@@ -318,7 +337,7 @@ pub fn create_window<R: Runtime>(
 
     // Create window with URL parameter to indicate new window
     // This is more reliable than events due to timing issues
-    let url_path = if is_new_window && root_path.is_none() {
+    let url_path = if is_new_window {
         "/?isNewWindow=true"
     } else {
         "/"

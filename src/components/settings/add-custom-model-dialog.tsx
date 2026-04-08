@@ -1,4 +1,4 @@
-import { Loader2, Plus, RefreshCw, Trash2, X } from 'lucide-react';
+import { Loader2, Pencil, Plus, RefreshCw, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useTranslation } from '@/hooks/use-locale';
 import { logger } from '@/lib/logger';
 import { customModelService, type FetchedModel } from '@/providers/custom/custom-model-service';
@@ -348,6 +349,9 @@ export function CustomModelList({ onRefresh }: CustomModelListProps) {
   const t = useTranslation();
   const [customModels, setCustomModels] = useState<Record<string, ModelConfig>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [editingModel, setEditingModel] = useState<{ id: string; config: ModelConfig } | null>(
+    null
+  );
 
   const loadCustomModels = useCallback(async () => {
     try {
@@ -408,21 +412,195 @@ export function CustomModelList({ onRefresh }: CustomModelListProps) {
           className="flex items-center justify-between rounded-md border p-3 bg-muted/30"
         >
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium truncate">{config.name}</div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-medium truncate">{config.name}</span>
+              {config.imageInput && (
+                <span className="text-[10px] px-1 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                  IMG
+                </span>
+              )}
+              {config.imageOutput && (
+                <span className="text-[10px] px-1 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                  IMG OUT
+                </span>
+              )}
+              {config.audioInput && (
+                <span className="text-[10px] px-1 py-0.5 rounded bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                  AUDIO
+                </span>
+              )}
+              {config.videoInput && (
+                <span className="text-[10px] px-1 py-0.5 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400">
+                  VID
+                </span>
+              )}
+            </div>
             <div className="text-xs text-muted-foreground">
               {modelId} - {config.providers.join(', ')}
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleRemoveModel(modelId)}
-            className="text-destructive hover:text-destructive"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setEditingModel({ id: modelId, config })}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleRemoveModel(modelId)}
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       ))}
+
+      {editingModel && (
+        <EditCustomModelDialog
+          open={!!editingModel}
+          onOpenChange={(open) => {
+            if (!open) setEditingModel(null);
+          }}
+          modelId={editingModel.id}
+          modelConfig={editingModel.config}
+          onModelUpdated={() => {
+            loadCustomModels();
+            onRefresh?.();
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+// ===== Edit Custom Model Dialog =====
+
+interface EditCustomModelDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  modelId: string;
+  modelConfig: ModelConfig;
+  onModelUpdated?: () => void;
+}
+
+function EditCustomModelDialog({
+  open,
+  onOpenChange,
+  modelId,
+  modelConfig,
+  onModelUpdated,
+}: EditCustomModelDialogProps) {
+  const t = useTranslation();
+  const [name, setName] = useState(modelConfig.name);
+  const [imageInput, setImageInput] = useState(modelConfig.imageInput ?? false);
+  const [imageOutput, setImageOutput] = useState(modelConfig.imageOutput ?? false);
+  const [audioInput, setAudioInput] = useState(modelConfig.audioInput ?? false);
+  const [videoInput, setVideoInput] = useState(modelConfig.videoInput ?? false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Reset form when dialog opens with new model
+  useEffect(() => {
+    if (open) {
+      setName(modelConfig.name);
+      setImageInput(modelConfig.imageInput ?? false);
+      setImageOutput(modelConfig.imageOutput ?? false);
+      setAudioInput(modelConfig.audioInput ?? false);
+      setVideoInput(modelConfig.videoInput ?? false);
+    }
+  }, [open, modelConfig]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const updatedConfig: ModelConfig = {
+        ...modelConfig,
+        name: name.trim() || modelId,
+        imageInput,
+        imageOutput,
+        audioInput,
+        videoInput,
+      };
+      await customModelService.updateCustomModel(modelId, updatedConfig);
+      toast.success(t.Settings.customModelsDialog.modelUpdated);
+      onOpenChange(false);
+      onModelUpdated?.();
+    } catch (error) {
+      logger.error('Failed to update custom model:', error);
+      toast.error(t.Settings.customModelsDialog.updateFailed);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[480px]">
+        <DialogHeader>
+          <DialogTitle>{t.Settings.customModelsDialog.editTitle}</DialogTitle>
+          <DialogDescription>{t.Settings.customModelsDialog.editDescription}</DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          {/* Model ID (read-only) */}
+          <div className="space-y-2">
+            <Label>ID</Label>
+            <Input value={modelId} disabled className="bg-muted" />
+          </div>
+
+          {/* Model Name */}
+          <div className="space-y-2">
+            <Label>{t.Settings.customModelsDialog.modelName}</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t.Settings.customModelsDialog.modelNamePlaceholder}
+            />
+          </div>
+
+          {/* Provider (read-only) */}
+          <div className="space-y-2">
+            <Label>{t.Settings.customModelsDialog.provider}</Label>
+            <Input value={modelConfig.providers.join(', ')} disabled className="bg-muted" />
+          </div>
+
+          {/* Capabilities */}
+          <div className="space-y-3">
+            <Label>{t.Settings.customModelsDialog.capabilities}</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center justify-between rounded-md border p-3">
+                <span className="text-sm">{t.Settings.customModelsDialog.imageInput}</span>
+                <Switch checked={imageInput} onCheckedChange={setImageInput} />
+              </div>
+              <div className="flex items-center justify-between rounded-md border p-3">
+                <span className="text-sm">{t.Settings.customModelsDialog.imageOutput}</span>
+                <Switch checked={imageOutput} onCheckedChange={setImageOutput} />
+              </div>
+              <div className="flex items-center justify-between rounded-md border p-3">
+                <span className="text-sm">{t.Settings.customModelsDialog.audioInput}</span>
+                <Switch checked={audioInput} onCheckedChange={setAudioInput} />
+              </div>
+              <div className="flex items-center justify-between rounded-md border p-3">
+                <span className="text-sm">{t.Settings.customModelsDialog.videoInput}</span>
+                <Switch checked={videoInput} onCheckedChange={setVideoInput} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
+            {t.Common.cancel}
+          </Button>
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {t.Settings.customModelsDialog.saveChanges}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

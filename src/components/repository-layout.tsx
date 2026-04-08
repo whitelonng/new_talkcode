@@ -178,6 +178,12 @@ export const RepositoryLayout = memo(function RepositoryLayout() {
     }
   };
 
+  const handleReferenceToChat = useCallback((filePath: string) => {
+    if (chatBoxRef.current?.appendToInput) {
+      chatBoxRef.current.appendToInput(`[File: ${filePath}] `);
+    }
+  }, []);
+
   const handleOpenFileInBrowser = async (filePath: string) => {
     try {
       const content = await repositoryService.readFileWithCache(filePath);
@@ -354,15 +360,23 @@ export const RepositoryLayout = memo(function RepositoryLayout() {
       if (!isMounted || rootPath) return;
 
       const isNewWindow = await WindowManagerService.checkNewWindowFlag();
-      if (isNewWindow) {
-        logger.info('[repository-layout] New window detected - skipping auto-load');
-        await WindowManagerService.clearNewWindowFlag();
+      const windowInfo = await WindowManagerService.getWindowInfo();
+
+      if (windowInfo?.rootPath) {
+        logger.info(
+          '[repository-layout] Window has associated project, skipping global saved repository restore'
+        );
+        if (isNewWindow) {
+          await WindowManagerService.clearNewWindowFlag();
+        }
         return;
       }
 
-      const windowInfo = await WindowManagerService.getWindowInfo();
-      if (windowInfo?.rootPath) {
-        logger.info('[repository-layout] Window has associated project, skip global load');
+      if (isNewWindow) {
+        logger.info(
+          '[repository-layout] New window detected without associated project - skipping auto-load'
+        );
+        await WindowManagerService.clearNewWindowFlag();
         return;
       }
 
@@ -462,6 +476,7 @@ export const RepositoryLayout = memo(function RepositoryLayout() {
                 onRefreshFileTree={refreshFileTree}
                 onLoadChildren={loadDirectoryChildren}
                 onToggleExpansion={toggleExpansion}
+                onReferenceToChat={handleReferenceToChat}
                 taskSearchInputRef={taskSearchInputRef}
               />
             )}

@@ -50,20 +50,25 @@ export class WindowRestoreService {
 
       logger.info(`Restoring ${windowsToRestore.length} windows`);
 
-      // Restore windows one by one without focusing existing windows
-      for (const windowState of windowsToRestore) {
-        try {
-          if (windowState.rootPath) {
-            await WindowManagerService.openProjectInWindow(
-              windowState.rootPath,
+      // Restore windows in parallel to avoid one slow window blocking others
+      const results = await Promise.allSettled(
+        windowsToRestore
+          .filter((windowState) => windowState.rootPath)
+          .map((windowState) =>
+            WindowManagerService.openProjectInWindow(
+              windowState.rootPath!,
               windowState.projectId,
               false,
               true
-            );
-            logger.info(`Restored window for: ${windowState.rootPath}`);
-          }
-        } catch (error) {
-          logger.error(`Failed to restore window for ${windowState.rootPath}:`, error);
+            ).then(() => {
+              logger.info(`Restored window for: ${windowState.rootPath}`);
+            })
+          )
+      );
+
+      for (const result of results) {
+        if (result.status === 'rejected') {
+          logger.error('Failed to restore a window:', result.reason);
         }
       }
     } catch (error) {

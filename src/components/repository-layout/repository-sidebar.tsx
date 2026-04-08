@@ -47,6 +47,7 @@ interface RepositorySidebarProps {
   onRefreshFileTree: () => void;
   onLoadChildren: (node: FileNode) => Promise<FileNode[]>;
   onToggleExpansion: (path: string) => void;
+  onReferenceToChat?: (filePath: string) => void;
   taskSearchInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
@@ -77,6 +78,7 @@ export const RepositorySidebar = memo(function RepositorySidebar({
   onRefreshFileTree,
   onLoadChildren,
   onToggleExpansion,
+  onReferenceToChat,
   taskSearchInputRef,
 }: RepositorySidebarProps) {
   const t = useTranslation();
@@ -241,6 +243,7 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                       return node.children || [];
                     }}
                     onToggleExpansion={onToggleExpansion}
+                    onReferenceToChat={onReferenceToChat}
                   />
                 )}
               </div>
@@ -327,6 +330,23 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                         });
                       }
                     });
+                  }}
+                  onDeleteTasks={(taskIds) => {
+                    // If any task requires confirmation, show dialog for the first one and abort bulk
+                    // (keeps current UX consistent with existing single-delete confirmation flow)
+                    void (async () => {
+                      for (const taskId of taskIds) {
+                        const result = await deleteTask(taskId);
+                        if (result.requiresConfirmation && result.changesCount && result.message) {
+                          useWorktreeStore.getState().setPendingDeletion?.({
+                            taskId,
+                            changesCount: result.changesCount,
+                            message: result.message,
+                          });
+                          return;
+                        }
+                      }
+                    })();
                   }}
                   onSaveEdit={finishEditing}
                   onStartEditing={startEditing}

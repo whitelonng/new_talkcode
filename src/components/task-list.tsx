@@ -1,5 +1,5 @@
 import { MessageSquare } from 'lucide-react';
-import { forwardRef } from 'react';
+import { forwardRef, useCallback, useMemo, useState } from 'react';
 import InfiniteScroll from '@/components/ui/infinite-scroll';
 import type { Task } from '@/services/database-service';
 import type { WorktreeInfo } from '@/types/worktree';
@@ -32,6 +32,7 @@ interface TaskListProps {
   getWorktreeForTask?: (taskId: string) => WorktreeInfo | null;
   onTaskSelect: (taskId: string) => void;
   onDeleteTask: (taskId: string, e?: React.MouseEvent) => void;
+  onDeleteTasks?: (taskIds: string[]) => void;
   onStartEditing: (task: Task, e?: React.MouseEvent) => void;
   onSaveEdit: (taskId: string) => void;
   onCancelEdit: () => void;
@@ -52,11 +53,60 @@ export function TaskList({
   getWorktreeForTask,
   onTaskSelect,
   onDeleteTask,
+  onDeleteTasks,
   onStartEditing,
   onSaveEdit,
   onCancelEdit,
   onTitleChange,
 }: TaskListProps) {
+  const [isMultiSelectEnabled, setIsMultiSelectEnabled] = useState(false);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(() => new Set());
+
+  const selectedCount = selectedTaskIds.size;
+
+  const allTaskIds = useMemo(() => tasks.map((task) => task.id), [tasks]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedTaskIds(new Set());
+  }, []);
+
+  const selectAll = useCallback(() => {
+    setSelectedTaskIds(new Set(allTaskIds));
+  }, [allTaskIds]);
+
+  const handleMultiSelectToggle = useCallback((taskId: string, selected: boolean) => {
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      if (selected) {
+        next.add(taskId);
+      } else {
+        next.delete(taskId);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleDeleteSelected = useCallback(() => {
+    if (selectedTaskIds.size === 0) return;
+
+    const taskIds = Array.from(selectedTaskIds);
+    onDeleteTasks?.(taskIds);
+  }, [onDeleteTasks, selectedTaskIds]);
+
+  const handleDeleteTask = useCallback(
+    (taskId: string, e?: React.MouseEvent) => {
+      onDeleteTask(taskId, e);
+
+      // Multi-select is primarily for batch operations.
+      // If the user deletes a task while multi-select is enabled, exit multi-select mode.
+      if (isMultiSelectEnabled) {
+        clearSelection();
+        setIsMultiSelectEnabled(false);
+      }
+    },
+    [clearSelection, isMultiSelectEnabled, onDeleteTask]
+  );
+
   if (loading && tasks.length === 0) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -88,8 +138,25 @@ export function TaskList({
             isRunning={runningTaskIds.includes(task.id)}
             isSelected={currentTaskId === task.id}
             worktreeInfo={getWorktreeForTask?.(task.id)}
+            isMultiSelectEnabled={isMultiSelectEnabled}
+            isMultiSelected={selectedTaskIds.has(task.id)}
+            selectedCount={selectedCount}
+            onMultiSelectEnabledChange={(enabled) => {
+              setIsMultiSelectEnabled(enabled);
+              if (!enabled) {
+                clearSelection();
+              }
+            }}
+            onMultiSelectToggle={handleMultiSelectToggle}
+            onDeleteSelected={() => {
+              handleDeleteSelected();
+              clearSelection();
+              setIsMultiSelectEnabled(false);
+            }}
+            onClearSelection={clearSelection}
+            onSelectAll={selectAll}
             onCancelEdit={onCancelEdit}
-            onDelete={onDeleteTask}
+            onDelete={handleDeleteTask}
             onSaveEdit={onSaveEdit}
             onSelect={onTaskSelect}
             onStartEditing={onStartEditing}

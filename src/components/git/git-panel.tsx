@@ -119,25 +119,25 @@ export function GitPanel() {
       </Collapsible>
 
       {/* Remote row — click to expand remote manager */}
-      {(branch?.upstream || remotes.length > 0) && (
-        <Collapsible open={showRemotes} onOpenChange={setShowRemotes}>
-          <CollapsibleTrigger className="flex w-full items-center gap-1.5 border-b border-border px-3 py-1 text-[11px] text-muted-foreground hover:bg-accent/30 transition-colors">
-            {showRemotes ? (
-              <ChevronDown className="h-3 w-3 shrink-0" />
-            ) : (
-              <ChevronRight className="h-3 w-3 shrink-0" />
-            )}
-            <Globe className="h-3 w-3 shrink-0" />
-            <span className="truncate">{branch?.upstream ?? remotes[0]?.fetchUrl ?? ''}</span>
-          </CollapsibleTrigger>
+      <Collapsible open={showRemotes} onOpenChange={setShowRemotes}>
+        <CollapsibleTrigger className="flex w-full items-center gap-1.5 border-b border-border px-3 py-1 text-[11px] text-muted-foreground hover:bg-accent/30 transition-colors">
+          {showRemotes ? (
+            <ChevronDown className="h-3 w-3 shrink-0" />
+          ) : (
+            <ChevronRight className="h-3 w-3 shrink-0" />
+          )}
+          <Globe className="h-3 w-3 shrink-0" />
+          <span className="truncate">
+            {branch?.upstream ?? remotes[0]?.fetchUrl ?? gp.noRemoteHint}
+          </span>
+        </CollapsibleTrigger>
 
-          <CollapsibleContent>
-            <div className="border-b border-border max-h-[200px] overflow-auto">
-              <GitRemoteManager />
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-      )}
+        <CollapsibleContent>
+          <div className="border-b border-border max-h-[200px] overflow-auto">
+            <GitRemoteManager />
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       {/* Staging actions row */}
       <div className="flex items-center justify-end gap-0.5 border-b border-border px-3 py-1">

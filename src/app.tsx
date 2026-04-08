@@ -9,7 +9,6 @@ import { OnboardingWizard } from '@/components/onboarding';
 import { RemoteServiceRunner } from '@/components/remote/telegram-remote-runner';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
-import { UpdateNotification } from '@/components/update-notification';
 import { WhatsNewDialog } from '@/components/whats-new-dialog';
 import { UiNavigationProvider, useUiNavigation } from '@/contexts/ui-navigation';
 import { useWindowContext, WindowProvider } from '@/contexts/window-context';
@@ -279,16 +278,8 @@ function AppContent() {
       // Skip if already loaded or repository already ready
       if (projectLoadedRef.current || repositoryReadyRef.current) return;
 
-      // 1. First check if this is a new window
       const isNewWindow = await WindowManagerService.checkNewWindowFlag();
-      if (isNewWindow) {
-        logger.info('[app.tsx] New window detected - skipping auto-load');
-        await WindowManagerService.clearNewWindowFlag();
-        projectLoadedRef.current = true;
-        return;
-      }
 
-      // 2. Then check window-associated project
       try {
         const windowInfo = await WindowManagerService.getWindowInfo();
         const { openRepository: repoOpenFn, rootPath: currentRootPath } = repositoryDepsRef.current;
@@ -297,10 +288,24 @@ function AppContent() {
           logger.info('[app.tsx] Loading window-associated project:', windowInfo.rootPath);
           projectLoadedRef.current = true;
           await repoOpenFn(windowInfo.rootPath, windowInfo.projectId);
-        } else {
-          logger.info('[app.tsx] No window-associated project, delegating to repository-layout');
-          projectLoadedRef.current = true;
+
+          if (isNewWindow) {
+            await WindowManagerService.clearNewWindowFlag();
+          }
+          return;
         }
+
+        if (isNewWindow) {
+          logger.info(
+            '[app.tsx] New window detected without associated project - skipping auto-load'
+          );
+          await WindowManagerService.clearNewWindowFlag();
+          projectLoadedRef.current = true;
+          return;
+        }
+
+        logger.info('[app.tsx] No window-associated project, delegating to repository-layout');
+        projectLoadedRef.current = true;
       } catch (error) {
         logger.error('[app.tsx] Failed to load window project:', error);
         projectLoadedRef.current = true;
@@ -398,9 +403,6 @@ function AppContent() {
       {/* Toast Notifications */}
       <RemoteServiceRunner />
       <Toaster richColors />
-
-      {/* Update Notification */}
-      <UpdateNotification checkOnMount={true} periodicCheck={true} />
 
       {/* What's New Dialog - shown after app update */}
       <WhatsNewDialog />

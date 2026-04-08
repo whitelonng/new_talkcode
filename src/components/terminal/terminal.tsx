@@ -9,12 +9,15 @@ import { logger } from '@/lib/logger';
 import { terminalService } from '@/services/terminal-service';
 import { useSettingsStore } from '@/stores/settings-store';
 import { useTerminalStore } from '@/stores/terminal-store';
+import { copyTerminalSelection, isTerminalCopyShortcut } from './terminal-keyboard';
 
 // Terminal themes
 const darkTheme: ITheme = {
   background: '#1e1e1e',
   foreground: '#d4d4d4',
   cursor: '#d4d4d4',
+  selectionBackground: 'rgba(59, 130, 246, 0.35)',
+  selectionInactiveBackground: 'rgba(59, 130, 246, 0.22)',
   black: '#000000',
   red: '#cd3131',
   green: '#0dbc79',
@@ -37,6 +40,8 @@ const lightTheme: ITheme = {
   background: '#ffffff',
   foreground: '#333333',
   cursor: '#333333',
+  selectionBackground: 'rgba(37, 99, 235, 0.28)',
+  selectionInactiveBackground: 'rgba(37, 99, 235, 0.18)',
   black: '#000000',
   red: '#cd3131',
   green: '#00bc00',
@@ -118,6 +123,23 @@ export function Terminal({ sessionId }: TerminalProps) {
     xterm.loadAddon(fitAddon);
     xterm.loadAddon(webLinksAddon);
     xterm.loadAddon(searchAddon);
+
+    xterm.attachCustomKeyEventHandler((event) => {
+      if (!isTerminalCopyShortcut(event)) {
+        return true;
+      }
+
+      const selection = xterm.getSelection();
+      if (!selection) {
+        return true;
+      }
+
+      void copyTerminalSelection(selection, navigator.clipboard).catch((error) => {
+        logger.error('Failed to copy terminal selection', { sessionId, error });
+      });
+      event.preventDefault();
+      return false;
+    });
 
     // Open terminal
     xterm.open(terminalRef.current);

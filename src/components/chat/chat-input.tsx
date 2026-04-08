@@ -36,6 +36,7 @@ import { repositoryService } from '@/services/repository-service';
 import { usePlanModeStore } from '@/stores/plan-mode-store';
 import { useRalphLoopStore } from '@/stores/ralph-loop-store';
 import { useSettingsStore } from '@/stores/settings-store';
+import { useTaskStore } from '@/stores/task-store';
 import { useWorktreeStore } from '@/stores/worktree-store';
 import type { MessageAttachment } from '@/types/agent';
 import type { Command } from '@/types/command';
@@ -535,12 +536,20 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
       [pendingImageAttachments, pendingVideoAttachments, t]
     );
 
+    const getEffectiveModel = useCallback(async (): Promise<string> => {
+      if (taskId) {
+        const task = useTaskStore.getState().getTask(taskId);
+        if (task?.model) return task.model;
+      }
+      return modelService.getCurrentModel();
+    }, [taskId]);
+
     const handleImageUpload = async () => {
       const newAttachments = await uploadImage();
       if (newAttachments.length > 0) {
         logger.debug(`Uploaded ${newAttachments.length} image(s):`, newAttachments);
 
-        const currentModel = await modelService.getCurrentModel();
+        const currentModel = await getEffectiveModel();
         if (currentModel) {
           const supportsImages = await checkModelImageSupport(currentModel);
 
@@ -560,7 +569,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
       if (newAttachments.length > 0) {
         logger.debug(`Uploaded ${newAttachments.length} video(s):`, newAttachments);
 
-        const currentModel = await modelService.getCurrentModel();
+        const currentModel = await getEffectiveModel();
         if (currentModel) {
           const supportsVideos = await checkModelVideoSupport(currentModel);
 
@@ -601,7 +610,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
 
           if (imageAttachments.length > 0 || videoAttachments.length > 0) {
             // Check if current model supports images/videos
-            const currentModel = await modelService.getCurrentModel();
+            const currentModel = await getEffectiveModel();
 
             if (currentModel) {
               if (imageAttachments.length > 0) {
@@ -862,63 +871,128 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                 return;
               }
 
-              // Delegate to file upload service
-              try {
-                const attachments = await fileUploadService.uploadFilesFromPaths(filePaths);
+              // Separate media files from other files
+              const mediaFilePaths: string[] = [];
+              const otherFilePaths: string[] = [];
 
-                if (attachments.length > 0) {
-                  const imageAttachments = attachments.filter((att) => att.type === 'image');
-                  const videoAttachments = attachments.filter((att) => att.type === 'video');
-
-                  // Check if current model supports images/videos
-                  const currentModel = await modelService.getCurrentModel();
-
-                  if (currentModel) {
-                    if (imageAttachments.length > 0) {
-                      const supportsImages = await checkModelImageSupport(currentModel);
-
-                      if (!supportsImages) {
-                        showImageSupportAlert(imageAttachments);
-                        return;
-                      }
-                    }
-
-                    if (videoAttachments.length > 0) {
-                      const supportsVideos = await checkModelVideoSupport(currentModel);
-
-                      if (!supportsVideos) {
-                        showVideoSupportAlert(videoAttachments);
-                        return;
-                      }
-                    }
-                  }
-
-                  setAttachments((prev) => [...prev, ...attachments]);
-
-                  const imageCount = imageAttachments.length;
-                  const videoCount = videoAttachments.length;
-
-                  if (imageCount > 0) {
-                    const message =
-                      imageCount === 1
-                        ? t.Chat.image.pasteSuccess(imageAttachments[0]?.filename ?? 'unknown')
-                        : t.Chat.image.pasteMultipleSuccess(imageCount);
-                    toast.success(message);
-                  }
-
-                  if (videoCount > 0) {
-                    const message =
-                      videoCount === 1
-                        ? t.Chat.video.pasteSuccess(videoAttachments[0]?.filename ?? 'unknown')
-                        : t.Chat.video.pasteMultipleSuccess(videoCount);
-                    toast.success(message);
-                  }
-
-                  logger.info('✅ Drag-drop completed successfully:', attachments.length);
+              for (const fp of filePaths) {
+                const ext = fp.split('.').pop()?.toLowerCase() ?? '';
+                const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+                const videoExts = [
+                  'mp4',
+                  'mov',
+                  'webm',
+                  'mkv',
+                  'avi',
+                  'flv',
+                  'wmv',
+                  '3gp',
+                  'm4v',
+                  'ogv',
+                ];
+                if (imageExts.includes(ext) || videoExts.includes(ext)) {
+                  mediaFilePaths.push(fp);
+                } else {
+                  otherFilePaths.push(fp);
                 }
-              } catch (error) {
-                logger.error('Failed to process dropped files:', error);
-                toast.error(t.Error.generic);
+              }
+
+              // Insert absolute paths for non-media files into the input
+              if (otherFilePaths.length > 0) {
+                const pathsText = otherFilePaths.map((fp) => `[File: ${fp}]`).join(' ');
+                const textarea = textareaRef.current;
+                if (textarea) {
+                  const currentValue = textarea.value;
+                  const separator =
+                    currentValue.length > 0 &&
+                    !currentValue.endsWith(' ') &&
+                    !currentValue.endsWith('\n')
+                      ? ' '
+                      : '';
+                  const newValue = currentValue + separator + pathsText + ' ';
+                  const newCursorPosition = newValue.length;
+
+                  const syntheticEvent = {
+                    target: {
+                      value: newValue,
+                      selectionStart: newCursorPosition,
+                      selectionEnd: newCursorPosition,
+                    },
+                  } as React.ChangeEvent<HTMLTextAreaElement>;
+                  onInputChange(syntheticEvent);
+
+                  setTimeout(() => {
+                    if (textareaRef.current) {
+                      textareaRef.current.value = newValue;
+                      textareaRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+                      textareaRef.current.focus();
+                    }
+                  }, 0);
+                }
+
+                toast.success(t.Chat.files.filePathInserted(otherFilePaths.length));
+                logger.info('✅ Inserted file paths into input:', otherFilePaths);
+              }
+
+              // Process media files (images/videos) as before
+              if (mediaFilePaths.length > 0) {
+                try {
+                  const attachments = await fileUploadService.uploadFilesFromPaths(mediaFilePaths);
+
+                  if (attachments.length > 0) {
+                    const imageAttachments = attachments.filter((att) => att.type === 'image');
+                    const videoAttachments = attachments.filter((att) => att.type === 'video');
+
+                    // Check if current model supports images/videos
+                    const currentModel = await getEffectiveModel();
+
+                    if (currentModel) {
+                      if (imageAttachments.length > 0) {
+                        const supportsImages = await checkModelImageSupport(currentModel);
+
+                        if (!supportsImages) {
+                          showImageSupportAlert(imageAttachments);
+                          return;
+                        }
+                      }
+
+                      if (videoAttachments.length > 0) {
+                        const supportsVideos = await checkModelVideoSupport(currentModel);
+
+                        if (!supportsVideos) {
+                          showVideoSupportAlert(videoAttachments);
+                          return;
+                        }
+                      }
+                    }
+
+                    setAttachments((prev) => [...prev, ...attachments]);
+
+                    const imageCount = imageAttachments.length;
+                    const videoCount = videoAttachments.length;
+
+                    if (imageCount > 0) {
+                      const message =
+                        imageCount === 1
+                          ? t.Chat.image.pasteSuccess(imageAttachments[0]?.filename ?? 'unknown')
+                          : t.Chat.image.pasteMultipleSuccess(imageCount);
+                      toast.success(message);
+                    }
+
+                    if (videoCount > 0) {
+                      const message =
+                        videoCount === 1
+                          ? t.Chat.video.pasteSuccess(videoAttachments[0]?.filename ?? 'unknown')
+                          : t.Chat.video.pasteMultipleSuccess(videoCount);
+                      toast.success(message);
+                    }
+
+                    logger.info('✅ Drag-drop completed successfully:', attachments.length);
+                  }
+                } catch (error) {
+                  logger.error('Failed to process dropped files:', error);
+                  toast.error(t.Error.generic);
+                }
               }
             }
           );
@@ -1022,8 +1096,8 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                 style={{ pointerEvents: 'none' }}
               >
                 <div className="flex flex-col items-center gap-2">
-                  <Image size={32} className="text-primary" />
-                  <p className="text-sm font-medium text-primary">{t.Chat.image.dropHere}</p>
+                  <FileIcon size={32} className="text-primary" />
+                  <p className="text-sm font-medium text-primary">{t.Chat.files.dropHere}</p>
                 </div>
               </div>
             )}

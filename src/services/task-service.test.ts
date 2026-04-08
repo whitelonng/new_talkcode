@@ -128,7 +128,12 @@ describe('TaskService.createTask', () => {
     const taskId = await taskService.createTask('Hello world');
 
     expect(taskId).toBe('task-123');
-    expect(mockDatabaseService.createTask).toHaveBeenCalledWith('Test Title', 'task-123', 'default');
+    expect(mockDatabaseService.createTask).toHaveBeenCalledWith(
+      'Test Title',
+      'task-123',
+      'default',
+      undefined
+    );
 
     const createdTask = mockAddTask.mock.calls[0]?.[0] as Task;
     expect(createdTask.request_count).toBe(0);
@@ -150,7 +155,12 @@ describe('TaskService.createTask', () => {
     const taskId = await taskService.createTask('Hello world');
 
     expect(taskId).toBe('task-123');
-    expect(mockDatabaseService.createTask).toHaveBeenCalledWith('Test Title', 'task-123', 'default');
+    expect(mockDatabaseService.createTask).toHaveBeenCalledWith(
+      'Test Title',
+      'task-123',
+      'default',
+      undefined
+    );
 
     const createdTask = mockAddTask.mock.calls[0]?.[0] as Task;
     expect(createdTask.request_count).toBe(0);
@@ -172,7 +182,12 @@ describe('TaskService.createTask', () => {
     const taskId = await taskService.createTask('Hello world');
 
     expect(taskId).toBe('task-123');
-    expect(mockDatabaseService.createTask).toHaveBeenCalledWith('Test Title', 'task-123', 'default');
+    expect(mockDatabaseService.createTask).toHaveBeenCalledWith(
+      'Test Title',
+      'task-123',
+      'default',
+      undefined
+    );
 
     const createdTask = mockAddTask.mock.calls[0]?.[0] as Task;
     expect(createdTask.request_count).toBe(0);

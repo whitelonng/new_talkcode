@@ -60,6 +60,9 @@ export class TursoDatabaseInit {
       // Migration 8: Create api_usage_events table
       await TursoDatabaseInit.migrateApiUsageEventsTable(db);
 
+      // Migration 9: Add model field to conversations table
+      await TursoDatabaseInit.migrateConversationsModel(db);
+
       logger.info('✅ Database migrations check completed');
     } catch (error) {
       logger.error('❌ Database migration error:', error);
@@ -333,6 +336,29 @@ export class TursoDatabaseInit {
       }
     } catch (error) {
       logger.error('Error creating api_usage_events table:', error);
+    }
+  }
+
+  /**
+   * Add model field to conversations table for per-task model binding
+   */
+  private static async migrateConversationsModel(db: TursoClient): Promise<void> {
+    try {
+      const result = await (db as any).execute(`
+        SELECT COUNT(*) as count
+        FROM pragma_table_info('conversations')
+        WHERE name = 'model'
+      `);
+
+      const columnExists = result.rows[0]?.count > 0;
+
+      if (!columnExists) {
+        logger.info('Migrating conversations table to add model field...');
+        await (db as any).execute(`ALTER TABLE conversations ADD COLUMN model TEXT DEFAULT NULL`);
+        logger.info('✅ Conversations table model migration completed');
+      }
+    } catch (error) {
+      logger.error('Error migrating conversations table model:', error);
     }
   }
 }

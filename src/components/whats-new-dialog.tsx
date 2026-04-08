@@ -309,12 +309,9 @@ export function WhatsNewDialog({ forceOpen, onForceOpenChange }: WhatsNewDialogP
   useEffect(() => {
     if (!isInitialized || !currentVersion || !changelog) return;
 
-    if (lastSeenVersion !== currentVersion) {
-      logger.info(
-        `Showing What's New dialog for version ${currentVersion} (last seen: ${lastSeenVersion})`
-      );
-      setOpen(true);
-    }
+    logger.info(
+      `Skipping automatic What's New dialog for version ${currentVersion} (last seen: ${lastSeenVersion})`
+    );
   }, [changelog, currentVersion, isInitialized, lastSeenVersion]);
 
   // Handle force open (from settings page)

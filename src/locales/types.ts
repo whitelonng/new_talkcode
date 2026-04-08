@@ -119,6 +119,8 @@ export interface LocaleDefinition {
       uploadFile: string;
       addAttachment: string;
       fileAdded: (filename: string) => string;
+      dropHere: string;
+      filePathInserted: (count: number) => string;
     };
     planMode: {
       label: string;
@@ -528,6 +530,19 @@ export interface LocaleDefinition {
       addedModels: (count: number) => string;
       addFailed: string;
       addModels: string;
+      editModel: string;
+      editTitle: string;
+      editDescription: string;
+      modelName: string;
+      modelNamePlaceholder: string;
+      capabilities: string;
+      imageInput: string;
+      imageOutput: string;
+      audioInput: string;
+      videoInput: string;
+      saveChanges: string;
+      modelUpdated: string;
+      updateFailed: string;
     };
     language: {
       title: string;
@@ -899,6 +914,14 @@ export interface LocaleDefinition {
     exitFullscreen: string;
     deleteTaskWithChangesTitle: string;
     deleteAnyway: string;
+    taskContextMenu: {
+      multiSelect: string;
+      cancelMultiSelect: string;
+      selectAll: string;
+      clearSelection: string;
+      selectTask: string;
+      deleteSelected: (count: number) => string;
+    };
     openBrowser: string;
     browserTab: string;
     terminalTab: string;
@@ -1001,6 +1024,7 @@ export interface LocaleDefinition {
     removeRemoteFailed: string;
     confirmRemoveRemote: string;
     noRemotes: string;
+    noRemoteHint: string;
     // Commit log
     commitLog: string;
     noCommits: string;
@@ -1679,6 +1703,7 @@ export interface LocaleDefinition {
       copyPath: string;
       copyRelativePath: string;
       refresh: string;
+      referenceToChat: string;
     };
     placeholder: {
       folderName: string;

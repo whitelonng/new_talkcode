@@ -21,7 +21,7 @@ import { useEditReviewStore } from '@/stores/edit-review-store';
 import { useExecutionStore } from '@/stores/execution-store';
 import { useFileChangesStore } from '@/stores/file-changes-store';
 import { usePlanModeStore } from '@/stores/plan-mode-store';
-import { settingsManager } from '@/stores/settings-store';
+import { settingsManager, useSettingsStore } from '@/stores/settings-store';
 import { useTaskStore } from '@/stores/task-store';
 import { useUserQuestionStore } from '@/stores/user-question-store';
 import { useWorktreeStore } from '@/stores/worktree-store';
@@ -51,6 +51,8 @@ class TaskService {
             ...(autoCodeReviewGlobal ? { autoCodeReview: true } : {}),
           }
         : undefined;
+    // Get current global model to bind to this task
+    const currentModel = useSettingsStore.getState().model_type_main || undefined;
     const task: Task = {
       id: taskId,
       title,
@@ -62,6 +64,7 @@ class TaskService {
       cost: 0,
       input_token: 0,
       output_token: 0,
+      model: currentModel,
       settings: initialTaskSettings ? JSON.stringify(initialTaskSettings) : undefined,
     };
 
@@ -71,7 +74,7 @@ class TaskService {
 
     // 2. Persist to database
     try {
-      await databaseService.createTask(title, taskId, projectId);
+      await databaseService.createTask(title, taskId, projectId, currentModel);
       logger.info('[TaskService] Task created', { taskId, title });
 
       if (initialTaskSettings) {

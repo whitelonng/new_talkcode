@@ -1,6 +1,8 @@
 import { error as logError, info as logInfo } from '@tauri-apps/plugin-log';
 import { relaunch } from '@tauri-apps/plugin-process';
-import { check, type DownloadEvent, type Update } from '@tauri-apps/plugin-updater';
+import type { Update } from '@tauri-apps/plugin-updater';
+
+const UPDATER_DISABLED_MESSAGE = '应用更新功能已暂时关闭';
 
 export interface UpdateInfo {
   version: string;
@@ -35,93 +37,15 @@ export class UpdateService {
    * Check if an update is available
    */
   async checkForUpdate(): Promise<Update | null> {
-    if (this.checkingForUpdate) {
-      logInfo('Update check already in progress');
-      return null;
-    }
-
-    try {
-      this.checkingForUpdate = true;
-      logInfo('Checking for updates...');
-
-      const update = await check();
-
-      if (update) {
-        logInfo(`Update available: ${update.version} (current: ${update.currentVersion})`);
-        return update;
-      } else {
-        logInfo('No update available');
-        return null;
-      }
-    } catch (error) {
-      logError(`Failed to check for updates: ${error}`);
-      throw new Error(`Failed to check for updates: ${error}`);
-    } finally {
-      this.checkingForUpdate = false;
-    }
+    logInfo('Updater disabled: skipping update check');
+    return null;
   }
 
   /**
    * Download and install update with progress tracking
    */
-  async downloadAndInstall(update: Update, onProgress?: UpdateProgressCallback): Promise<void> {
-    if (this.downloadingUpdate) {
-      throw new Error('Update download already in progress');
-    }
-
-    try {
-      this.downloadingUpdate = true;
-      logInfo(`Starting update download: ${update.version}`);
-
-      let downloaded = 0;
-      let total: number | undefined;
-
-      await update.downloadAndInstall((event: DownloadEvent) => {
-        switch (event.event) {
-          case 'Started':
-            total = event.data.contentLength;
-            logInfo(`Download started: ${total ? `${total} bytes` : 'unknown size'}`);
-            if (onProgress && total) {
-              onProgress({
-                downloaded: 0,
-                total,
-                percentage: 0,
-              });
-            }
-            break;
-
-          case 'Progress':
-            downloaded += event.data.chunkLength;
-            logInfo(`Downloaded: ${downloaded} bytes`);
-            if (onProgress) {
-              onProgress({
-                downloaded,
-                total,
-                percentage: total ? (downloaded / total) * 100 : undefined,
-              });
-            }
-            break;
-
-          case 'Finished':
-            logInfo('Download complete');
-            if (onProgress && total) {
-              onProgress({
-                downloaded: total,
-                total,
-                percentage: 100,
-              });
-            }
-            break;
-        }
-      });
-
-      logInfo('Update installed successfully');
-    } catch (error) {
-      logError(`Failed to download and install update: ${error}`);
-      throw new Error(`Failed to download and install update: ${error}`);
-    } finally {
-      this.downloadingUpdate = false;
-    }
+  async downloadAndInstall(_update: Update, _onProgress?: UpdateProgressCallback): Promise<void> {
+    throw new Error(UPDATER_DISABLED_MESSAGE);
   }
 
   /**

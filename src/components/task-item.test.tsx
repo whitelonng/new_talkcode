@@ -1,7 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import mockSettingsStore from '@/test/mocks/settings-store';
 import { TaskItem } from './task-item';
 import type { Task } from '@/services/database-service';
+
+vi.mock('@/stores/settings-store', () => mockSettingsStore);
 
 // Mock the utilities
 vi.mock('@/lib/utils', async (importOriginal) => {
@@ -33,6 +36,11 @@ describe('TaskItem - No Nested Buttons Regression Test', () => {
     onSaveEdit: vi.fn(),
     onCancelEdit: vi.fn(),
     onTitleChange: vi.fn(),
+    onMultiSelectEnabledChange: vi.fn(),
+    onMultiSelectToggle: vi.fn(),
+    onDeleteSelected: vi.fn(),
+    onClearSelection: vi.fn(),
+    onSelectAll: vi.fn(),
   };
 
   beforeEach(() => {
@@ -249,21 +257,89 @@ describe('TaskItem - No Nested Buttons Regression Test', () => {
     expect(mockCallbacks.onSaveEdit).toHaveBeenCalledWith(mockTask.id);
   });
 
-  it('should call onCancelEdit when Cancel button is clicked', () => {
+  it('should call onDelete when context menu delete is clicked', async () => {
     render(
       <TaskItem
         task={mockTask}
         isSelected={false}
-        isEditing={true}
-        editingTitle="Editing title"
+        isEditing={false}
+        editingTitle=""
         {...mockCallbacks}
       />
     );
 
-    const cancelButton = screen.getByText('Cancel');
-    fireEvent.click(cancelButton);
+    const trigger = screen.getByText('Test Task');
+    fireEvent.contextMenu(trigger);
 
-    expect(mockCallbacks.onCancelEdit).toHaveBeenCalled();
+    const deleteItem = await screen.findByText('Delete');
+    fireEvent.click(deleteItem);
+
+    expect(mockCallbacks.onDelete).toHaveBeenCalledWith(mockTask.id);
+  });
+
+  it('should show checkbox in multi-select mode and toggle selection', () => {
+    render(
+      <TaskItem
+        task={mockTask}
+        isSelected={false}
+        isEditing={false}
+        editingTitle=""
+        isMultiSelectEnabled={true}
+        isMultiSelected={false}
+        selectedCount={0}
+        {...mockCallbacks}
+      />
+    );
+
+    // Checkbox should be present
+    const checkbox = screen.getByLabelText('Select task');
+    fireEvent.click(checkbox);
+
+    expect(mockCallbacks.onMultiSelectToggle).toHaveBeenCalledWith(mockTask.id, true);
+  });
+
+  it('should show cancel multi-select in context menu when multi-select is enabled', async () => {
+    render(
+      <TaskItem
+        task={mockTask}
+        isSelected={false}
+        isEditing={false}
+        editingTitle=""
+        isMultiSelectEnabled={true}
+        {...mockCallbacks}
+      />
+    );
+
+    const mainContainer = document.querySelector('[title="Test Task"]');
+    if (mainContainer) {
+      fireEvent.contextMenu(mainContainer);
+    }
+
+    expect(await screen.findByText('Cancel multi-select')).toBeDefined();
+  });
+
+  it('should call clear selection and disable multi-select when cancel multi-select is clicked', async () => {
+    render(
+      <TaskItem
+        task={mockTask}
+        isSelected={false}
+        isEditing={false}
+        editingTitle=""
+        isMultiSelectEnabled={true}
+        {...mockCallbacks}
+      />
+    );
+
+    const mainContainer = document.querySelector('[title="Test Task"]');
+    if (mainContainer) {
+      fireEvent.contextMenu(mainContainer);
+    }
+
+    const cancelMultiSelect = await screen.findByText('Cancel multi-select');
+    fireEvent.click(cancelMultiSelect);
+
+    expect(mockCallbacks.onClearSelection).toHaveBeenCalled();
+    expect(mockCallbacks.onMultiSelectEnabledChange).toHaveBeenCalledWith(false);
   });
 
   it('should display default title when title is empty', () => {

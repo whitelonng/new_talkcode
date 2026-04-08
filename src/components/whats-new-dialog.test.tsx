@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WhatsNewDialog } from './whats-new-dialog';
 
@@ -57,6 +57,14 @@ describe('WhatsNewDialog video previews', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('does not open automatically on app startup', async () => {
+    render(<WhatsNewDialog />);
+
+    await waitFor(() => {
+      expect(screen.queryByText('What\'s New in TalkCody')).not.toBeInTheDocument();
+    });
   });
 
   it('does not render video previews on Linux', async () => {

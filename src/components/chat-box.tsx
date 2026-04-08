@@ -25,6 +25,7 @@ import { previewSystemPrompt } from '@/services/prompt/preview';
 import { getEffectiveWorkspaceRoot } from '@/services/workspace-root-service';
 import { useAuthStore } from '@/stores/auth-store';
 import { settingsManager, useSettingsStore } from '@/stores/settings-store';
+import { useTaskStore } from '@/stores/task-store';
 import { useWorktreeStore } from '@/stores/worktree-store';
 import type { MessageAttachment, UIMessage } from '@/types/agent';
 import type { Command, CommandContext, CommandResult } from '@/types/command';
@@ -151,23 +152,6 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
         );
         agent = await agentRegistry.getWithResolvedTools('planner');
       }
-      const model = await modelService.getCurrentModel();
-      logger.info(`Using model "${model}" for message processing`);
-
-      // Check if using TalkCody provider and user is not authenticated
-      const { providerId } = parseModelIdentifier(model);
-      if (providerId === 'talkcody') {
-        const { isAuthenticated } = useAuthStore.getState();
-        if (!isAuthenticated) {
-          setShowTalkCodyFreeLoginDialog(true);
-          return;
-        }
-      }
-
-      // Note: isLoading state is now derived from store - startExecution will set it
-      setError(null);
-
-      onMessageSent?.(userMessage);
 
       let activeTaskId = taskId;
       let isNewTask = false;
@@ -187,6 +171,26 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
         logger.error('No task ID available');
         return;
       }
+
+      const currentTask = activeTaskId ? useTaskStore.getState().getTask(activeTaskId) : undefined;
+      const model = currentTask?.model || (await modelService.getCurrentModel());
+
+      // Check if using TalkCody provider and user is not authenticated
+      const { providerId } = parseModelIdentifier(model);
+      if (providerId === 'talkcody') {
+        const { isAuthenticated } = useAuthStore.getState();
+        if (!isAuthenticated) {
+          setShowTalkCodyFreeLoginDialog(true);
+          return;
+        }
+      }
+
+      logger.info(`Using model "${model}" for message processing`);
+
+      // Note: isLoading state is now derived from store - startExecution will set it
+      setError(null);
+
+      onMessageSent?.(userMessage);
 
       // Add user message with attachments only if not skipping
       let userChatMessage: UIMessage;

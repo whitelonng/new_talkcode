@@ -22,7 +22,7 @@ export function ChatInputToolsBar({ taskId, disabled, onAddCurrentFile }: ChatIn
       <ToolSelectorButton />
       <SkillsSelectorButton taskId={taskId} />
       <McpSelectorButton />
-      <ModelSelectorButton />
+      <ModelSelectorButton taskId={taskId} />
       {/* <OutputFormatButton /> */}
       <ReasoningEffortButton />
       <AutoApproveButton />

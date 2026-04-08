@@ -7,10 +7,9 @@ import {
   Copy,
   Edit,
   File,
-  FileText,
   Folder,
   Globe,
-  Plus,
+  MessageSquareQuote,
   RefreshCw,
   Scissors,
   Trash2,
@@ -125,6 +124,7 @@ interface FileTreeProps {
   onRefresh?: () => void;
   onLoadChildren?: (node: FileNode) => Promise<FileNode[]>;
   onToggleExpansion?: (path: string) => void;
+  onReferenceToChat?: (filePath: string) => void;
 }
 
 interface FileTreeNodeProps {
@@ -141,6 +141,7 @@ interface FileTreeNodeProps {
   onRefresh?: () => void;
   onLoadChildren?: (node: FileNode) => Promise<FileNode[]>;
   onToggleExpansion?: (path: string) => void;
+  onReferenceToChat?: (filePath: string) => void;
 }
 
 function FileTreeNode({
@@ -157,6 +158,7 @@ function FileTreeNode({
   onRefresh,
   onLoadChildren,
   onToggleExpansion,
+  onReferenceToChat,
 }: FileTreeNodeProps) {
   const t = useTranslation();
   // Subscribe to lastRefresh to trigger re-render when Git data changes
@@ -383,24 +385,6 @@ function FileTreeNode({
     }
   };
 
-  const handleNewFile = () => {
-    // Expand the directory if it's not already expanded
-    if (!isExpanded) {
-      onToggleExpansion?.(node.path);
-    }
-    setIsCreatingFile(true);
-    setNewItemName('');
-  };
-
-  const handleNewFolder = () => {
-    // Expand the directory if it's not already expanded
-    if (!isExpanded) {
-      onToggleExpansion?.(node.path);
-    }
-    setIsCreatingFolder(true);
-    setNewItemName('');
-  };
-
   const handleNewItemSubmit = () => {
     const trimmedName = newItemName.trim();
     if (trimmedName) {
@@ -439,6 +423,10 @@ function FileTreeNode({
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to open in explorer');
     }
+  };
+
+  const handleReferenceToChat = () => {
+    onReferenceToChat?.(node.path);
   };
 
   const isSelected = selectedFile === node.path;
@@ -543,19 +531,6 @@ function FileTreeNode({
       <ContextMenu onOpenChange={handleContextMenuOpenChange}>
         <ContextMenuTrigger asChild>{fileTreeItem}</ContextMenuTrigger>
         <ContextMenuContent>
-          {node.is_directory && (
-            <>
-              <ContextMenuItem onClick={handleNewFile}>
-                <FileText className="mr-2 h-4 w-4" />
-                {t.FileTree.contextMenu.newFile}
-              </ContextMenuItem>
-              <ContextMenuItem onClick={handleNewFolder}>
-                <Plus className="mr-2 h-4 w-4" />
-                {t.FileTree.contextMenu.newFolder}
-              </ContextMenuItem>
-              <ContextMenuSeparator />
-            </>
-          )}
           {!node.is_directory && onOpenInBrowser && canOpenInBrowser(node.path) && (
             <>
               <ContextMenuItem onClick={() => onOpenInBrowser(node.path)}>
@@ -569,6 +544,12 @@ function FileTreeNode({
             <Folder className="mr-2 h-4 w-4" />
             {t.Share.openInExplorer}
           </ContextMenuItem>
+          {onReferenceToChat && (
+            <ContextMenuItem onClick={handleReferenceToChat}>
+              <MessageSquareQuote className="mr-2 h-4 w-4" />
+              {t.FileTree.contextMenu.referenceToChat}
+            </ContextMenuItem>
+          )}
           <ContextMenuSeparator />
           <ContextMenuItem onClick={handleCut}>
             <Scissors className="mr-2 h-4 w-4" />
@@ -672,6 +653,7 @@ function FileTreeNode({
               onRefresh={onRefresh}
               onLoadChildren={onLoadChildren}
               onToggleExpansion={onToggleExpansion}
+              onReferenceToChat={onReferenceToChat}
               selectedFile={selectedFile}
             />
           ))}
@@ -694,6 +676,7 @@ export function FileTree({
   onRefresh,
   onLoadChildren,
   onToggleExpansion,
+  onReferenceToChat,
 }: FileTreeProps) {
   return (
     <div className="h-full overflow-auto">
@@ -710,6 +693,7 @@ export function FileTree({
         onRefresh={onRefresh}
         onLoadChildren={onLoadChildren}
         onToggleExpansion={onToggleExpansion}
+        onReferenceToChat={onReferenceToChat}
         selectedFile={selectedFile}
       />
     </div>

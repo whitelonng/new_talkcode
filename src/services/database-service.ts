@@ -154,10 +154,15 @@ export class DatabaseService {
   }
 
   // Task methods
-  async createTask(title: string, taskId: string, projectId = 'default'): Promise<string> {
+  async createTask(
+    title: string,
+    taskId: string,
+    projectId = 'default',
+    model?: string
+  ): Promise<string> {
     await this.ensureInitialized();
     if (!this.taskService) throw new Error('Task service not initialized');
-    return this.taskService.createTask(title, taskId, projectId);
+    return this.taskService.createTask(title, taskId, projectId, model);
   }
 
   async getTasks(projectId?: string): Promise<import('@/types').Task[]> {
@@ -342,6 +347,12 @@ export class DatabaseService {
     await this.ensureInitialized();
     if (!this.taskService) throw new Error('Task service not initialized');
     return this.taskService.getTaskSettings(taskId);
+  }
+
+  async updateTaskModel(taskId: string, model: string): Promise<void> {
+    await this.ensureInitialized();
+    if (!this.taskService) throw new Error('Task service not initialized');
+    return this.taskService.updateTaskModel(taskId, model);
   }
 
   // API usage methods

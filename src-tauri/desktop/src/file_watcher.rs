@@ -10,7 +10,7 @@ use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter};
 
 pub struct FileWatcher {
-    _watcher: RecommendedWatcher,
+    _watcher: Option<RecommendedWatcher>,
     _thread_handle: Option<JoinHandle<()>>,
     _stop_flag: Arc<AtomicBool>,
     // Git watcher (separate from main file watcher)
@@ -33,7 +33,7 @@ impl FileWatcher {
         )?;
 
         Ok(Self {
-            _watcher: watcher,
+            _watcher: Some(watcher),
             _thread_handle: None,
             _stop_flag: Arc::new(AtomicBool::new(false)),
             _git_watcher: None,
@@ -72,7 +72,7 @@ impl FileWatcher {
         watcher.watch(path.as_ref(), RecursiveMode::Recursive)?;
 
         // Replace the old watcher
-        self._watcher = watcher;
+        self._watcher = Some(watcher);
 
         // Create new stop flag
         self._stop_flag = Arc::new(AtomicBool::new(false));
@@ -321,6 +321,9 @@ impl FileWatcher {
 
         // Set stop flag to signal thread to exit
         self._stop_flag.store(true, Ordering::Relaxed);
+
+        // Drop the watcher first to close the watch
+        self._watcher = None;
 
         // Wait for thread to finish
         if let Some(handle) = self._thread_handle.take() {

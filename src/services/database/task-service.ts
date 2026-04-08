@@ -11,14 +11,19 @@ export class TaskService {
   constructor(private db: TursoClient) {}
 
   @timedMethod('createTask')
-  async createTask(title: string, taskId: string, projectId = 'default'): Promise<string> {
+  async createTask(
+    title: string,
+    taskId: string,
+    projectId = 'default',
+    model?: string
+  ): Promise<string> {
     const now = Date.now();
 
     logger.info('createTask', taskId, title, projectId, now);
 
     await this.db.execute(
-      'INSERT INTO conversations (id, title, project_id, created_at, updated_at, message_count, request_count) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-      [taskId, title, projectId, now, now, 0, 0]
+      'INSERT INTO conversations (id, title, project_id, created_at, updated_at, message_count, request_count, model) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+      [taskId, title, projectId, now, now, 0, 0, model || null]
     );
 
     return taskId;
@@ -353,5 +358,14 @@ export class TaskService {
     );
 
     return result.length > 0 ? (result[0]?.settings ?? null) : null;
+  }
+
+  @timedMethod('updateTaskModel')
+  async updateTaskModel(taskId: string, model: string): Promise<void> {
+    await this.db.execute('UPDATE conversations SET model = $1, updated_at = $2 WHERE id = $3', [
+      model,
+      Date.now(),
+      taskId,
+    ]);
   }
 }
