@@ -10,8 +10,8 @@ import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/hooks/use-locale';
+import { useTheme } from '@/hooks/use-theme';
 import { cn } from '@/lib/utils';
 import type { LintDiagnostic } from '@/services/lint-service';
 import type { BrowserSource, UtilityTab } from '@/stores/browser-store';
@@ -135,7 +135,8 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
                     <div
                       className={cn(
                         'flex items-center border-b',
-                        isAppleTheme && 'border-white/10 bg-black/10 px-1 backdrop-blur-xl dark:bg-white/5'
+                        isAppleTheme &&
+                          'border-white/10 bg-black/10 px-1 backdrop-blur-xl dark:bg-white/5'
                       )}
                     >
                       <div className="flex-1 overflow-hidden">
@@ -191,7 +192,9 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
                   </div>
                 </ResizablePanel>
 
-                {showUtilityPanel && <ResizableHandle withHandle className={cn(isAppleTheme && 'bg-transparent')} />}
+                {showUtilityPanel && (
+                  <ResizableHandle withHandle className={cn(isAppleTheme && 'bg-transparent')} />
+                )}
 
                 {showProblemsPanel && (
                   <>
@@ -212,8 +215,18 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
                 minSize={'15%'}
                 maxSize={'100%'}
               >
-                <div className={cn('flex h-full flex-col bg-background', isAppleTheme && 'bg-transparent')}>
-                  <div className={cn('border-b px-2 py-1', isAppleTheme && 'border-white/10 backdrop-blur-xl')}>
+                <div
+                  className={cn(
+                    'flex h-full flex-col bg-background',
+                    isAppleTheme && 'bg-transparent'
+                  )}
+                >
+                  <div
+                    className={cn(
+                      'border-b px-2 py-1',
+                      isAppleTheme && 'border-white/10 backdrop-blur-xl'
+                    )}
+                  >
                     <Tabs
                       value={activeUtilityTab}
                       onValueChange={(value) => onUtilityTabChange(value as UtilityTab)}
@@ -266,7 +279,9 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
         </div>
       </ResizablePanel>
 
-      {showChatPanel && <ResizableHandle withHandle className={cn(isAppleTheme && 'bg-transparent')} />}
+      {showChatPanel && (
+        <ResizableHandle withHandle className={cn(isAppleTheme && 'bg-transparent')} />
+      )}
     </>
   );
 });

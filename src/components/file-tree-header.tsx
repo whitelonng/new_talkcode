@@ -1,8 +1,8 @@
 import { FileSearch, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/hooks/use-locale';
+import { useTheme } from '@/hooks/use-theme';
 import { cn } from '@/lib/utils';
 import { ProjectDropdown } from './project-dropdown';
 

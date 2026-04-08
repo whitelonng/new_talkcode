@@ -83,7 +83,9 @@ export const PromptInputTextarea = ({
   return (
     <Textarea
       className={cn(
-        isAppleTheme ? 'w-full resize-none rounded-none border-none p-4 shadow-none outline-none ring-0' : 'w-full resize-none rounded-none border-none p-3 shadow-none outline-none ring-0',
+        isAppleTheme
+          ? 'w-full resize-none rounded-none border-none p-4 shadow-none outline-none ring-0'
+          : 'w-full resize-none rounded-none border-none p-3 shadow-none outline-none ring-0',
         'field-sizing-content max-h-[10lh] bg-transparent dark:bg-transparent',
         'focus-visible:ring-0',
         className

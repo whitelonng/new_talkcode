@@ -84,7 +84,9 @@ export function GeneralSettings() {
                           <Icon className="h-4 w-4" />
                           <div>
                             <div className="font-medium">{option.label}</div>
-                            <div className="text-sm text-muted-foreground">{option.description}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {option.description}
+                            </div>
                           </div>
                         </div>
                         {isSelected && <Check className="h-4 w-4 text-primary" />}
@@ -123,7 +125,9 @@ export function GeneralSettings() {
                           <Sun className="h-4 w-4" />
                           <div>
                             <div className="font-medium">{option.label}</div>
-                            <div className="text-sm text-muted-foreground">{option.description}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {option.description}
+                            </div>
                           </div>
                         </div>
                         {isSelected && <Check className="h-4 w-4 text-primary" />}

@@ -12,10 +12,10 @@ import { Input } from '@/components/ui/input';
 import { ResizableHandle, ResizablePanel } from '@/components/ui/resizable';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/hooks/use-locale';
 import { useStableRunningIds } from '@/hooks/use-stable-running-ids';
 import { useTasks } from '@/hooks/use-tasks';
+import { useTheme } from '@/hooks/use-theme';
 import { cn } from '@/lib/utils';
 import { useExecutionStore } from '@/stores/execution-store';
 import { useWorktreeStore } from '@/stores/worktree-store';
@@ -245,7 +245,11 @@ export const RepositorySidebar = memo(function RepositorySidebar({
 
             {hasRepository && (
               <div
-                className={sidebarView === SidebarView.FILES ? cn('flex-1 overflow-auto', isAppleTheme && 'apple-scrollbar') : 'hidden'}
+                className={
+                  sidebarView === SidebarView.FILES
+                    ? cn('flex-1 overflow-auto', isAppleTheme && 'apple-scrollbar')
+                    : 'hidden'
+                }
               >
                 {fileTree && rootPath && (
                   <FileTree

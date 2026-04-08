@@ -70,7 +70,12 @@ export const RepositoryChatPanel = memo(function RepositoryChatPanel({
       maxSize={'100%'}
       minSize={minSize}
     >
-      <div className={cn('flex h-full flex-col', isAppleTheme && 'apple-panel apple-scrollbar min-h-0 overflow-hidden')}>
+      <div
+        className={cn(
+          'flex h-full flex-col',
+          isAppleTheme && 'apple-panel apple-scrollbar min-h-0 overflow-hidden'
+        )}
+      >
         <ChatPanelHeader currentTask={currentTask} messages={messages} />
         <div className="flex-1 overflow-hidden">
           <ChatBox

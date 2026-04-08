@@ -195,7 +195,10 @@ export function CustomTitlebar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-52">
             <DropdownMenuLabel>Theme</DropdownMenuLabel>
-            <DropdownMenuRadioGroup value={theme} onValueChange={(value) => setTheme(value as typeof theme)}>
+            <DropdownMenuRadioGroup
+              value={theme}
+              onValueChange={(value) => setTheme(value as typeof theme)}
+            >
               <DropdownMenuRadioItem value="light">Default Light</DropdownMenuRadioItem>
               <DropdownMenuRadioItem value="dark">Default Dark</DropdownMenuRadioItem>
               <DropdownMenuRadioItem value="system">Default System</DropdownMenuRadioItem>
