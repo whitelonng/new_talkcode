@@ -27,6 +27,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -41,7 +44,7 @@ import talkCodyIcon from '../../src-tauri/icons/128x128.png';
 
 export function CustomTitlebar() {
   const { t } = useLocale();
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, resolvedTheme, isAppleTheme, setTheme } = useTheme();
   const [osType, setOsType] = useState<string>('windows');
   const [isMaximized, setIsMaximized] = useState(false);
   const { activeView, setActiveView } = useUiNavigation();
@@ -129,7 +132,14 @@ export function CustomTitlebar() {
   );
 
   return (
-    <div className="flex h-10 w-full select-none items-center justify-between border-b bg-gray-50/90 backdrop-blur dark:bg-gray-900/90">
+    <div
+      className={cn(
+        'flex h-10 w-full select-none items-center justify-between border-b',
+        isAppleTheme
+          ? 'border-white/10 bg-black/30 backdrop-blur-2xl'
+          : 'bg-gray-50/90 backdrop-blur dark:bg-gray-900/90'
+      )}
+    >
       <div className="flex h-full items-center pl-2">
         {isMac && <WindowControls />}
 
@@ -173,25 +183,28 @@ export function CustomTitlebar() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0 ml-1"
-              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-            >
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="ml-1 h-7 w-7 p-0">
               {resolvedTheme === 'dark' ? (
                 <Sun className="h-4 w-4 text-gray-600 dark:text-gray-400" />
               ) : (
                 <Moon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
               )}
             </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">
-            <p>{resolvedTheme === 'dark' ? 'Light Theme' : 'Dark Theme'}</p>
-          </TooltipContent>
-        </Tooltip>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-52">
+            <DropdownMenuLabel>Theme</DropdownMenuLabel>
+            <DropdownMenuRadioGroup value={theme} onValueChange={(value) => setTheme(value as typeof theme)}>
+              <DropdownMenuRadioItem value="light">Default Light</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="dark">Default Dark</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="system">Default System</DropdownMenuRadioItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioItem value="apple-light">Apple Light</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="apple-dark">Apple Dark</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {isNonExplorerView && (
           <Tooltip>

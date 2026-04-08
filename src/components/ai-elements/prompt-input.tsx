@@ -12,17 +12,27 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useTheme } from '@/hooks/use-theme';
 import { cn } from '@/lib/utils';
 import type { ChatStatus } from '@/services/llm/ui';
 
 export type PromptInputProps = HTMLAttributes<HTMLFormElement>;
 
-export const PromptInput = ({ className, ...props }: PromptInputProps) => (
-  <form
-    className={cn('w-full overflow-hidden rounded-xl border bg-background shadow-sm', className)}
-    {...props}
-  />
-);
+export const PromptInput = ({ className, ...props }: PromptInputProps) => {
+  const { isAppleTheme } = useTheme();
+
+  return (
+    <form
+      className={cn(
+        isAppleTheme
+          ? 'apple-panel-light dark:apple-panel w-full overflow-hidden rounded-[24px] border shadow-[0_18px_60px_rgba(15,23,42,0.12)]'
+          : 'w-full overflow-hidden rounded-xl border bg-background shadow-sm',
+        className
+      )}
+      {...props}
+    />
+  );
+};
 
 export type PromptInputTextareaProps = ComponentProps<typeof Textarea> & {
   minHeight?: number;
@@ -37,6 +47,8 @@ export const PromptInputTextarea = ({
   maxHeight = 164,
   ...props
 }: PromptInputTextareaProps) => {
+  const { isAppleTheme } = useTheme();
+
   const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
     if (e.key === 'Enter') {
       if (e.shiftKey) {
@@ -71,7 +83,7 @@ export const PromptInputTextarea = ({
   return (
     <Textarea
       className={cn(
-        'w-full resize-none rounded-none border-none p-3 shadow-none outline-none ring-0',
+        isAppleTheme ? 'w-full resize-none rounded-none border-none p-4 shadow-none outline-none ring-0' : 'w-full resize-none rounded-none border-none p-3 shadow-none outline-none ring-0',
         'field-sizing-content max-h-[10lh] bg-transparent dark:bg-transparent',
         'focus-visible:ring-0',
         className
@@ -90,7 +102,7 @@ export const PromptInputTextarea = ({
 export type PromptInputToolbarProps = HTMLAttributes<HTMLDivElement>;
 
 export const PromptInputToolbar = ({ className, ...props }: PromptInputToolbarProps) => (
-  <div className={cn('flex items-center justify-between p-1', className)} {...props} />
+  <div className={cn('flex items-center justify-between px-2 pb-2', className)} {...props} />
 );
 
 export type PromptInputToolsProps = HTMLAttributes<HTMLDivElement>;

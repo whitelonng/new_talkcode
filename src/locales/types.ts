@@ -560,10 +560,21 @@ export interface LocaleDefinition {
     theme: {
       title: string;
       description: string;
+      defaultGroupLabel: string;
+      appleGroupLabel: string;
       options: {
         light: string;
         dark: string;
         system: string;
+        appleLight: string;
+        appleDark: string;
+      };
+      descriptions: {
+        light: string;
+        dark: string;
+        system: string;
+        appleLight: string;
+        appleDark: string;
       };
       currentTheme: string;
       switchTo: string;

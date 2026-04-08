@@ -119,6 +119,66 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.06), transparent 28%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 22%);
+  }
+
+  .theme-apple body {
+    background-image:
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.08), transparent 26%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 24%);
+  }
+
+  .theme-apple.dark body {
+    background-color: #0a0a0c;
+    background-image:
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.09), transparent 24%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 20%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.015), transparent 38%);
+  }
+
+  .theme-apple.light {
+    --background: oklch(0.985 0.002 264);
+    --foreground: oklch(0.19 0.004 264);
+    --card: oklch(1 0 0 / 92%);
+    --card-foreground: oklch(0.19 0.004 264);
+    --popover: oklch(1 0 0 / 96%);
+    --popover-foreground: oklch(0.19 0.004 264);
+    --secondary: oklch(0.965 0.003 264);
+    --secondary-foreground: oklch(0.22 0.004 264);
+    --muted: oklch(0.965 0.003 264);
+    --muted-foreground: oklch(0.52 0.01 264);
+    --accent: oklch(0.96 0.01 258);
+    --accent-foreground: oklch(0.24 0.01 264);
+    --border: oklch(0.86 0.004 264 / 55%);
+    --input: oklch(0.9 0.003 264 / 60%);
+    --ring: oklch(0.64 0.19 257);
+  }
+
+  .theme-apple.dark {
+    --background: oklch(0.16 0.003 264);
+    --foreground: oklch(0.975 0.002 264);
+    --card: oklch(0.22 0.004 264 / 88%);
+    --card-foreground: oklch(0.975 0.002 264);
+    --popover: oklch(0.205 0.004 264 / 92%);
+    --popover-foreground: oklch(0.975 0.002 264);
+    --primary: oklch(0.72 0.17 251);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: oklch(0.26 0.004 264 / 88%);
+    --secondary-foreground: oklch(0.965 0.002 264);
+    --muted: oklch(0.24 0.004 264 / 85%);
+    --muted-foreground: oklch(0.78 0.003 264);
+    --accent: oklch(0.29 0.01 258 / 82%);
+    --accent-foreground: oklch(0.985 0 0);
+    --border: oklch(1 0 0 / 12%);
+    --input: oklch(1 0 0 / 14%);
+    --ring: oklch(0.72 0.17 251);
+    --sidebar: oklch(0.205 0.004 264 / 92%);
+    --sidebar-foreground: oklch(0.975 0.002 264);
+    --sidebar-accent: oklch(0.29 0.01 258 / 82%);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 12%);
   }
 
   /* Make native UI elements (scrollbars, form controls) respect the theme */
@@ -152,6 +212,49 @@
   }
   .git-status-conflicted {
     color: var(--color-git-conflicted);
+  }
+}
+
+@layer utilities {
+  .apple-glass {
+    @apply border border-white/10 bg-white/6 backdrop-blur-xl;
+  }
+
+  .apple-panel {
+    @apply rounded-2xl border border-white/10 bg-white/5 shadow-[0_12px_40px_rgba(0,0,0,0.24)];
+  }
+
+  .theme-apple.dark .apple-panel {
+    @apply border-white/8 bg-white/[0.045] shadow-[0_18px_60px_rgba(0,0,0,0.42)];
+  }
+
+  .theme-apple.light .apple-panel {
+    @apply border-black/8 bg-white/75 shadow-[0_12px_36px_rgba(15,23,42,0.08)] backdrop-blur-xl;
+  }
+
+  .apple-panel-light {
+    @apply rounded-2xl border border-black/8 bg-white/80 shadow-[0_12px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl;
+  }
+
+  .theme-apple.dark .apple-panel-light {
+    @apply border-white/10 bg-white/[0.055] shadow-[0_18px_60px_rgba(0,0,0,0.42)];
+  }
+
+  .apple-section {
+    @apply bg-gradient-to-b from-white/6 to-transparent;
+  }
+
+  .theme-apple.dark .apple-section {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 30%);
+  }
+
+  .apple-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  }
+
+  .light .apple-scrollbar {
+    scrollbar-color: rgba(29, 29, 31, 0.18) transparent;
   }
 }
 

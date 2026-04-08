@@ -10,7 +10,9 @@ import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/hooks/use-locale';
+import { cn } from '@/lib/utils';
 import type { LintDiagnostic } from '@/services/lint-service';
 import type { BrowserSource, UtilityTab } from '@/stores/browser-store';
 import type { OpenFile } from '@/types/file-system';
@@ -99,146 +101,172 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
   onUtilityTabChange,
 }: RepositoryEditorAreaProps) {
   const t = useTranslation();
+  const { isAppleTheme } = useTheme();
 
   return (
     <>
       <ResizablePanel
         id={editorAreaPanelId}
         order={2}
-        className={showChatPanel ? 'border-r' : ''}
+        className={
+          showChatPanel
+            ? isAppleTheme
+              ? 'bg-transparent px-2 py-2'
+              : 'border-r'
+            : isAppleTheme
+              ? 'bg-transparent px-2 py-2 pr-3'
+              : ''
+        }
         defaultSize={isEditorFullscreen || isTerminalFullscreen ? '100%' : '40%'}
         minSize={'20%'}
         maxSize={'100%'}
       >
-        <ResizablePanelGroup direction="vertical">
-          {hasOpenFiles && showEditor && (
-            <>
-              <ResizablePanel
-                id={fileEditorPanelId}
-                order={1}
-                defaultSize={isEditorFullscreen ? '100%' : showUtilityPanel ? '60%' : '100%'}
-                minSize={'20%'}
-              >
-                <div className="flex h-full flex-col">
-                  <div className="flex items-center border-b">
-                    <div className="flex-1 overflow-hidden">
-                      <FileTabs
-                        activeFileIndex={activeFileIndex}
-                        onTabClose={onTabClose}
-                        onCloseOthers={onCloseOthers}
-                        onCloseAll={onCloseAll}
-                        onCopyPath={onCopyPath}
-                        onCopyRelativePath={onCopyRelativePath}
-                        onAddFileToChat={onAddFileToChat}
-                        onOpenInBrowser={onOpenFileInBrowser}
-                        onTabSelect={onTabSelect}
-                        openFiles={openFiles}
-                        rootPath={rootPath ?? undefined}
+        <div className={cn('flex h-full min-h-0 overflow-hidden', isAppleTheme && 'apple-panel')}>
+          <ResizablePanelGroup direction="vertical">
+            {hasOpenFiles && showEditor && (
+              <>
+                <ResizablePanel
+                  id={fileEditorPanelId}
+                  order={1}
+                  defaultSize={isEditorFullscreen ? '100%' : showUtilityPanel ? '60%' : '100%'}
+                  minSize={'20%'}
+                >
+                  <div className="flex h-full flex-col">
+                    <div
+                      className={cn(
+                        'flex items-center border-b',
+                        isAppleTheme && 'border-white/10 bg-black/10 px-1 backdrop-blur-xl dark:bg-white/5'
+                      )}
+                    >
+                      <div className="flex-1 overflow-hidden">
+                        <FileTabs
+                          activeFileIndex={activeFileIndex}
+                          onTabClose={onTabClose}
+                          onCloseOthers={onCloseOthers}
+                          onCloseAll={onCloseAll}
+                          onCopyPath={onCopyPath}
+                          onCopyRelativePath={onCopyRelativePath}
+                          onAddFileToChat={onAddFileToChat}
+                          onOpenInBrowser={onOpenFileInBrowser}
+                          onTabSelect={onTabSelect}
+                          openFiles={openFiles}
+                          rootPath={rootPath ?? undefined}
+                        />
+                      </div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className={cn('mr-1 h-7 w-7', isAppleTheme && 'h-8 w-8 rounded-full')}
+                            onClick={onToggleEditorFullscreen}
+                          >
+                            {isEditorFullscreen ? (
+                              <Minimize2 className="h-3.5 w-3.5" />
+                            ) : (
+                              <Maximize2 className="h-3.5 w-3.5" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          {isEditorFullscreen
+                            ? t.RepositoryLayout.exitFullscreen
+                            : t.RepositoryLayout.fullscreen}
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+
+                    <div className="flex-1 overflow-auto">
+                      <FileEditor
+                        error={currentFile?.error || null}
+                        fileContent={currentFile?.content || null}
+                        filePath={currentFile?.path || null}
+                        hasUnsavedChanges={currentFile?.hasUnsavedChanges}
+                        isLoading={currentFile?.isLoading ?? false}
+                        lineNumber={currentFile?.lineNumber}
+                        onContentChange={onContentChange}
+                        onGlobalSearch={onToggleContentSearch}
                       />
                     </div>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 mr-1"
-                          onClick={onToggleEditorFullscreen}
-                        >
-                          {isEditorFullscreen ? (
-                            <Minimize2 className="h-3.5 w-3.5" />
-                          ) : (
-                            <Maximize2 className="h-3.5 w-3.5" />
+                  </div>
+                </ResizablePanel>
+
+                {showUtilityPanel && <ResizableHandle withHandle className={cn(isAppleTheme && 'bg-transparent')} />}
+
+                {showProblemsPanel && (
+                  <>
+                    <ResizableHandle withHandle className={cn(isAppleTheme && 'bg-transparent')} />
+                    <DiagnosticsPanel onDiagnosticClick={onDiagnosticClick} />
+                  </>
+                )}
+              </>
+            )}
+
+            {showUtilityPanel && (
+              <ResizablePanel
+                id={terminalPanelId}
+                order={2}
+                defaultSize={
+                  isTerminalFullscreen ? '100%' : hasOpenFiles && showEditor ? '40%' : '100%'
+                }
+                minSize={'15%'}
+                maxSize={'100%'}
+              >
+                <div className={cn('flex h-full flex-col bg-background', isAppleTheme && 'bg-transparent')}>
+                  <div className={cn('border-b px-2 py-1', isAppleTheme && 'border-white/10 backdrop-blur-xl')}>
+                    <Tabs
+                      value={activeUtilityTab}
+                      onValueChange={(value) => onUtilityTabChange(value as UtilityTab)}
+                    >
+                      <TabsList
+                        className={cn(
+                          'grid grid-cols-2 p-0.5',
+                          isAppleTheme
+                            ? 'h-8 w-[190px] rounded-full bg-white/5 dark:bg-white/5'
+                            : 'h-7 w-[180px] bg-muted/50'
+                        )}
+                      >
+                        <TabsTrigger
+                          value="terminal"
+                          className={cn(
+                            'h-6 px-2.5 text-[11px] data-[state=active]:shadow-none',
+                            isAppleTheme && 'rounded-full data-[state=active]:bg-white/10'
                           )}
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom">
-                        {isEditorFullscreen
-                          ? t.RepositoryLayout.exitFullscreen
-                          : t.RepositoryLayout.fullscreen}
-                      </TooltipContent>
-                    </Tooltip>
+                        >
+                          {t.RepositoryLayout.terminalTab}
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="browser"
+                          className="h-6 rounded-full px-2.5 text-[11px] data-[state=active]:bg-white/10 data-[state=active]:shadow-none"
+                        >
+                          {t.RepositoryLayout.browserTab}
+                        </TabsTrigger>
+                      </TabsList>
+                    </Tabs>
                   </div>
 
-                  <div className="flex-1 overflow-auto">
-                    <FileEditor
-                      error={currentFile?.error || null}
-                      fileContent={currentFile?.content || null}
-                      filePath={currentFile?.path || null}
-                      hasUnsavedChanges={currentFile?.hasUnsavedChanges}
-                      isLoading={currentFile?.isLoading ?? false}
-                      lineNumber={currentFile?.lineNumber}
-                      onContentChange={onContentChange}
-                      onGlobalSearch={onToggleContentSearch}
-                    />
+                  <div className="flex-1 overflow-hidden">
+                    {showTerminal && <TerminalPanel onCopyToChat={onCopyTerminalToChat} />}
+
+                    {showBrowser && (
+                      <BrowserPanel
+                        sourceType={browserSourceType}
+                        currentUrl={currentBrowserUrl}
+                        currentFilePath={currentBrowserFilePath}
+                        currentContent={currentBrowserContent}
+                        onOpenUrl={onOpenBrowserUrl}
+                        onClose={onCloseBrowser}
+                      />
+                    )}
                   </div>
                 </div>
               </ResizablePanel>
-
-              {showUtilityPanel && <ResizableHandle withHandle />}
-
-              {showProblemsPanel && (
-                <>
-                  <ResizableHandle withHandle />
-                  <DiagnosticsPanel onDiagnosticClick={onDiagnosticClick} />
-                </>
-              )}
-            </>
-          )}
-
-          {showUtilityPanel && (
-            <ResizablePanel
-              id={terminalPanelId}
-              order={2}
-              defaultSize={
-                isTerminalFullscreen ? '100%' : hasOpenFiles && showEditor ? '40%' : '100%'
-              }
-              minSize={'15%'}
-              maxSize={'100%'}
-            >
-              <div className="flex h-full flex-col bg-background">
-                <div className="border-b px-2 py-1">
-                  <Tabs
-                    value={activeUtilityTab}
-                    onValueChange={(value) => onUtilityTabChange(value as UtilityTab)}
-                  >
-                    <TabsList className="grid h-7 w-[180px] grid-cols-2 bg-muted/50 p-0.5">
-                      <TabsTrigger
-                        value="terminal"
-                        className="h-6 px-2.5 text-[11px] data-[state=active]:shadow-none"
-                      >
-                        {t.RepositoryLayout.terminalTab}
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="browser"
-                        className="h-6 px-2.5 text-[11px] data-[state=active]:shadow-none"
-                      >
-                        {t.RepositoryLayout.browserTab}
-                      </TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                </div>
-
-                <div className="flex-1 overflow-hidden">
-                  {showTerminal && <TerminalPanel onCopyToChat={onCopyTerminalToChat} />}
-
-                  {showBrowser && (
-                    <BrowserPanel
-                      sourceType={browserSourceType}
-                      currentUrl={currentBrowserUrl}
-                      currentFilePath={currentBrowserFilePath}
-                      currentContent={currentBrowserContent}
-                      onOpenUrl={onOpenBrowserUrl}
-                      onClose={onCloseBrowser}
-                    />
-                  )}
-                </div>
-              </div>
-            </ResizablePanel>
-          )}
-        </ResizablePanelGroup>
+            )}
+          </ResizablePanelGroup>
+        </div>
       </ResizablePanel>
 
-      {showChatPanel && <ResizableHandle withHandle />}
+      {showChatPanel && <ResizableHandle withHandle className={cn(isAppleTheme && 'bg-transparent')} />}
     </>
   );
 });

@@ -10,25 +10,26 @@ export function ThemeStep() {
   const themeOptions: {
     value: Theme;
     icon: typeof Sun;
-    labelKey: keyof typeof t.Onboarding.steps.theme;
+    label: string;
   }[] = [
-    { value: 'light', icon: Sun, labelKey: 'light' },
-    { value: 'dark', icon: Moon, labelKey: 'dark' },
-    { value: 'system', icon: Monitor, labelKey: 'system' },
+    { value: 'light', icon: Sun, label: t.Onboarding.steps.theme.light },
+    { value: 'dark', icon: Moon, label: t.Onboarding.steps.theme.dark },
+    { value: 'system', icon: Monitor, label: t.Onboarding.steps.theme.system },
+    { value: 'apple-light', icon: Sun, label: t.Settings.theme.options.appleLight },
+    { value: 'apple-dark', icon: Moon, label: t.Settings.theme.options.appleDark },
   ];
 
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <Sun className="h-12 w-12 mx-auto text-primary mb-3" />
+        <Sun className="mx-auto mb-3 h-12 w-12 text-primary" />
         <h3 className="text-lg font-semibold">{t.Onboarding.steps.theme.title}</h3>
-        <p className="text-sm text-muted-foreground mt-1">{t.Onboarding.steps.theme.description}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t.Onboarding.steps.theme.description}</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {themeOptions.map((option) => {
           const Icon = option.icon;
-          const label = t.Onboarding.steps.theme[option.labelKey];
           return (
             <button
               type="button"
@@ -41,8 +42,8 @@ export function ThemeStep() {
                   : 'hover:border-primary/50 hover:bg-accent'
               )}
             >
-              <Icon className="h-8 w-8 mb-2" />
-              <span className="text-sm font-medium">{label}</span>
+              <Icon className="mb-2 h-8 w-8" />
+              <span className="text-center text-sm font-medium">{option.label}</span>
               {theme === option.value && (
                 <Check className="absolute top-2 right-2 h-4 w-4 text-primary" />
               )}

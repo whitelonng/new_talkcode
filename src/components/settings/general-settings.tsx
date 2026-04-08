@@ -6,7 +6,7 @@ import type { SupportedLocale } from '@/locales';
 
 export function GeneralSettings() {
   const { locale, t, setLocale, supportedLocales } = useLocale();
-  const { resolvedTheme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   const handleLanguageChange = async (value: SupportedLocale) => {
     await setLocale(value);
@@ -45,25 +45,93 @@ export function GeneralSettings() {
           {/* Theme Section */}
           <div>
             <h3 className="mb-3 text-sm font-medium">{t.Settings.theme.title}</h3>
-            <div className="space-y-2">
-              <button
-                type="button"
-                className="flex w-full items-center justify-between rounded-lg border p-4 text-left transition-colors hover:bg-accent"
-                onClick={() => toggleTheme()}
-              >
-                <div className="flex items-center gap-3">
-                  {resolvedTheme === 'light' ? (
-                    <Sun className="h-4 w-4" />
-                  ) : (
-                    <Moon className="h-4 w-4" />
-                  )}
-                  <span className="font-medium">{t.Settings.theme.options[resolvedTheme]}</span>
+            <div className="space-y-3">
+              <div>
+                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t.Settings.theme.defaultGroupLabel}
                 </div>
-                <span className="text-sm text-gray-500">
-                  {t.Settings.theme.switchTo}{' '}
-                  {t.Settings.theme.options[resolvedTheme === 'light' ? 'dark' : 'light']}
-                </span>
-              </button>
+                <div className="space-y-2">
+                  {[
+                    {
+                      value: 'light' as const,
+                      icon: Sun,
+                      label: t.Settings.theme.options.light,
+                      description: t.Settings.theme.descriptions.light,
+                    },
+                    {
+                      value: 'dark' as const,
+                      icon: Moon,
+                      label: t.Settings.theme.options.dark,
+                      description: t.Settings.theme.descriptions.dark,
+                    },
+                    {
+                      value: 'system' as const,
+                      icon: Sun,
+                      label: t.Settings.theme.options.system,
+                      description: t.Settings.theme.descriptions.system,
+                    },
+                  ].map((option) => {
+                    const Icon = option.icon;
+                    const isSelected = theme === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className="flex w-full items-center justify-between rounded-xl border p-4 text-left transition-colors hover:bg-accent"
+                        onClick={() => setTheme(option.value)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className="h-4 w-4" />
+                          <div>
+                            <div className="font-medium">{option.label}</div>
+                            <div className="text-sm text-muted-foreground">{option.description}</div>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="h-4 w-4 text-primary" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t.Settings.theme.appleGroupLabel}
+                </div>
+                <div className="space-y-2">
+                  {[
+                    {
+                      value: 'apple-light' as const,
+                      label: t.Settings.theme.options.appleLight,
+                      description: t.Settings.theme.descriptions.appleLight,
+                    },
+                    {
+                      value: 'apple-dark' as const,
+                      label: t.Settings.theme.options.appleDark,
+                      description: t.Settings.theme.descriptions.appleDark,
+                    },
+                  ].map((option) => {
+                    const isSelected = theme === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className="flex w-full items-center justify-between rounded-xl border p-4 text-left transition-colors hover:bg-accent"
+                        onClick={() => setTheme(option.value)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Sun className="h-4 w-4" />
+                          <div>
+                            <div className="font-medium">{option.label}</div>
+                            <div className="text-sm text-muted-foreground">{option.description}</div>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="h-4 w-4 text-primary" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>

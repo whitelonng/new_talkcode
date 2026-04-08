@@ -3,6 +3,8 @@ import { memo } from 'react';
 import { ChatBox, type ChatBoxRef } from '@/components/chat-box';
 import { ChatPanelHeader } from '@/components/chat-panel-header';
 import { ResizablePanel } from '@/components/ui/resizable';
+import { useTheme } from '@/hooks/use-theme';
+import { cn } from '@/lib/utils';
 import type { Task } from '@/services/database-service';
 import type { UIMessage } from '@/types/agent';
 import type { OpenFile } from '@/types/file-system';
@@ -46,6 +48,7 @@ export const RepositoryChatPanel = memo(function RepositoryChatPanel({
   onAddFileToChat,
   checkForConflicts,
 }: RepositoryChatPanelProps) {
+  const { isAppleTheme } = useTheme();
   const order = hasRepository ? 3 : 2;
   const defaultSize = isChatFullscreen
     ? '100%'
@@ -62,12 +65,12 @@ export const RepositoryChatPanel = memo(function RepositoryChatPanel({
     <ResizablePanel
       id={mainChatPanelId}
       order={order}
-      className="bg-white dark:bg-gray-950"
+      className={isAppleTheme ? 'bg-transparent px-2 py-2' : 'bg-white dark:bg-gray-950'}
       defaultSize={defaultSize}
       maxSize={'100%'}
       minSize={minSize}
     >
-      <div className="flex h-full flex-col">
+      <div className={cn('flex h-full flex-col', isAppleTheme && 'apple-panel apple-scrollbar min-h-0 overflow-hidden')}>
         <ChatPanelHeader currentTask={currentTask} messages={messages} />
         <div className="flex-1 overflow-hidden">
           <ChatBox

@@ -12,9 +12,11 @@ import { Input } from '@/components/ui/input';
 import { ResizableHandle, ResizablePanel } from '@/components/ui/resizable';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/hooks/use-locale';
 import { useStableRunningIds } from '@/hooks/use-stable-running-ids';
 import { useTasks } from '@/hooks/use-tasks';
+import { cn } from '@/lib/utils';
 import { useExecutionStore } from '@/stores/execution-store';
 import { useWorktreeStore } from '@/stores/worktree-store';
 import type { FileNode } from '@/types/file-system';
@@ -82,6 +84,7 @@ export const RepositorySidebar = memo(function RepositorySidebar({
   taskSearchInputRef,
 }: RepositorySidebarProps) {
   const t = useTranslation();
+  const { isAppleTheme } = useTheme();
   const panelId = shouldShowSidebar ? fileTreePanelId : emptyRepoPanelId;
 
   const { isMaxReached } = useExecutionStore(
@@ -148,15 +151,24 @@ export const RepositorySidebar = memo(function RepositorySidebar({
         order={1}
         className={
           shouldShowSidebar
-            ? 'border-r bg-white dark:bg-gray-950'
-            : 'flex items-center justify-center bg-white dark:bg-gray-950'
+            ? isAppleTheme
+              ? 'bg-transparent px-2 py-2'
+              : 'border-r bg-white dark:bg-gray-950'
+            : isAppleTheme
+              ? 'flex items-center justify-center bg-transparent px-2 py-2'
+              : 'flex items-center justify-center bg-white dark:bg-gray-950'
         }
         defaultSize={shouldShowSidebar ? '20%' : '50%'}
         maxSize={shouldShowSidebar ? '35%' : '70%'}
         minSize={shouldShowSidebar ? '15%' : '10%'}
       >
         {shouldShowSidebar ? (
-          <div className="flex h-full flex-col">
+          <div
+            className={cn(
+              'flex h-full flex-col',
+              isAppleTheme && 'apple-panel apple-scrollbar min-h-0 overflow-hidden'
+            )}
+          >
             <FileTreeHeader
               currentProjectId={currentProjectId}
               onProjectSelect={onProjectSelect}
@@ -167,19 +179,29 @@ export const RepositorySidebar = memo(function RepositorySidebar({
             />
 
             {hasRepository && (
-              <div className=" border-b px-2 py-1">
+              <div className={cn('border-b px-2 py-1', isAppleTheme && 'border-white/10')}>
                 <Tabs
                   value={sidebarView}
                   onValueChange={(value) => {
                     onSidebarViewChange(value as SidebarView);
                   }}
                 >
-                  <TabsList className="grid w-full grid-cols-3 h-7 bg-muted/50 p-0.5">
+                  <TabsList
+                    className={cn(
+                      'grid w-full grid-cols-3 p-0.5',
+                      isAppleTheme
+                        ? 'h-8 rounded-full bg-white/5 dark:bg-white/5'
+                        : 'h-7 bg-muted/50'
+                    )}
+                  >
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <TabsTrigger
                           value={SidebarView.FILES}
-                          className="h-6 px-2.5 data-[state=active]:shadow-none"
+                          className={cn(
+                            'h-6 px-2.5 data-[state=active]:shadow-none',
+                            isAppleTheme && 'rounded-full data-[state=active]:bg-white/10'
+                          )}
                         >
                           <Folder className="h-3.5 w-3.5" />
                         </TabsTrigger>
@@ -193,7 +215,7 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                       <TooltipTrigger asChild>
                         <TabsTrigger
                           value={SidebarView.GIT}
-                          className="h-6 px-2.5 data-[state=active]:shadow-none"
+                          className="h-6 rounded-full px-2.5 data-[state=active]:bg-white/10 data-[state=active]:shadow-none"
                         >
                           <GitBranch className="h-3.5 w-3.5" />
                         </TabsTrigger>
@@ -207,7 +229,7 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                       <TooltipTrigger asChild>
                         <TabsTrigger
                           value={SidebarView.TASKS}
-                          className="h-6 px-2.5 data-[state=active]:shadow-none"
+                          className="h-6 rounded-full px-2.5 data-[state=active]:bg-white/10 data-[state=active]:shadow-none"
                         >
                           <ListTodo className="h-3.5 w-3.5" />
                         </TabsTrigger>
@@ -223,7 +245,7 @@ export const RepositorySidebar = memo(function RepositorySidebar({
 
             {hasRepository && (
               <div
-                className={sidebarView === SidebarView.FILES ? 'flex-1 overflow-auto' : 'hidden'}
+                className={sidebarView === SidebarView.FILES ? cn('flex-1 overflow-auto', isAppleTheme && 'apple-scrollbar') : 'hidden'}
               >
                 {fileTree && rootPath && (
                   <FileTree

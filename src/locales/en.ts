@@ -588,10 +588,21 @@ const en: LocaleDefinition = {
     theme: {
       title: 'Theme',
       description: 'Choose your preferred appearance theme',
+      defaultGroupLabel: 'Default Theme',
+      appleGroupLabel: 'Apple Theme',
       options: {
         light: 'Light',
         dark: 'Dark',
         system: 'System',
+        appleLight: 'Apple Light',
+        appleDark: 'Apple Dark',
+      },
+      descriptions: {
+        light: 'Keep the current default light appearance',
+        dark: 'Keep the current default dark appearance',
+        system: 'Follow system appearance with the default theme',
+        appleLight: 'Use the Apple-inspired light interface',
+        appleDark: 'Use the optimized Apple-inspired dark interface',
       },
       currentTheme: 'Current theme',
       switchTo: 'Switch to',
