@@ -2,6 +2,7 @@
 
 import { Check, CopyIcon, RefreshCcwIcon, Trash2 } from 'lucide-react';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { CollapsibleReasoning } from '@/components/chat/collapsible-reasoning';
 import { FilePreview } from '@/components/chat/file-preview';
 import { ToolErrorBoundary } from '@/components/tools/tool-error-boundary';
 import { ToolErrorFallback } from '@/components/tools/tool-error-fallback';
@@ -283,18 +284,41 @@ function MessageItemComponent({
     outputFormat === 'web' || outputFormat === 'ppt'
       ? 'w-full max-w-none'
       : 'prose prose-neutral dark:prose-invert w-full max-w-none';
-  const assistantText = typeof message.content === 'string' ? message.content : '';
-  const mermaidContent = assistantText.trim().startsWith('```mermaid')
-    ? assistantText
-    : `\n\n\`\`\`mermaid\n${assistantText}\n\`\`\`\n\n`;
+
+  // Split reasoning from content
+  const { reasoningText, mainText } = useMemo(() => {
+    if (typeof message.content !== 'string') return { reasoningText: '', mainText: '' };
+
+    const content = message.content;
+    // Match reasoning block at the start: "> Reasoning:\n> \n> ..."
+    const reasoningMatch = content.match(/^> Reasoning:\n> \n((?:> .*\n?)*)/);
+
+    if (reasoningMatch?.[1]) {
+      const rawReasoning = reasoningMatch[1];
+      // Remove "> " prefix from each line
+      const cleanReasoning = rawReasoning
+        .split('\n')
+        .map((line) => line.replace(/^> ?/, ''))
+        .join('\n')
+        .trim();
+      const mainContent = content.slice(reasoningMatch[0].length).trim();
+      return { reasoningText: cleanReasoning, mainText: mainContent };
+    }
+
+    return { reasoningText: '', mainText: content };
+  }, [message.content]);
+
+  const mermaidContent = mainText.trim().startsWith('```mermaid')
+    ? mainText
+    : `\n\n\`\`\`mermaid\n${mainText}\n\`\`\`\n\n`;
 
   const assistantContent =
     outputFormat === 'web' ? (
-      <WebContentRenderer content={assistantText} />
+      <WebContentRenderer content={mainText} />
     ) : outputFormat === 'mermaid' ? (
       <MyMarkdown content={mermaidContent} />
     ) : (
-      <MyMarkdown content={assistantText} />
+      <MyMarkdown content={mainText} />
     );
 
   return (
@@ -312,7 +336,12 @@ function MessageItemComponent({
             </div>
           )}
           {message.role === 'assistant' && typeof message.content === 'string' && (
-            <div className={assistantContentClass}>{assistantContent}</div>
+            <>
+              {reasoningText && (
+                <CollapsibleReasoning text={reasoningText} isStreaming={!!message.isStreaming} />
+              )}
+              {mainText && <div className={assistantContentClass}>{assistantContent}</div>}
+            </>
           )}
           {message.role === 'tool' && Array.isArray(message.content) && (
             <div className="w-full min-w-0">{toolMessageNodes}</div>
@@ -368,6 +397,7 @@ export const MessageItem = memo(MessageItemComponent, (prevProps, nextProps) => 
     const nextLen = typeof nextMessage.content === 'string' ? nextMessage.content.length : 0;
     return (
       prevLen === nextLen &&
+      prevMessage.isStreaming === nextMessage.isStreaming &&
       prevMessage.renderDoingUI === nextMessage.renderDoingUI &&
       prevMessage.outputFormat === nextMessage.outputFormat
     );

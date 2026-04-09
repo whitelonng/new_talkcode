@@ -100,6 +100,20 @@ export class AgentSkillService {
     const skillsDir = await this.getSkillsDir();
     const entries = await readDir(skillsDir);
 
+    // Scan home skills directory (~/.talkcody/skills)
+    let homeEntries: Array<{ name: string; baseDir: string }> = [];
+    try {
+      const homeSkillsDir = await this.getHomeSkillsDir();
+      if (await exists(homeSkillsDir)) {
+        const homeDirEntries = await readDir(homeSkillsDir);
+        homeEntries = homeDirEntries
+          .filter((entry) => entry.isDirectory)
+          .map((entry) => ({ name: entry.name, baseDir: homeSkillsDir }));
+      }
+    } catch (error) {
+      logger.warn('Failed to scan home skills directory:', error);
+    }
+
     const claudeDirs = await ClaudeCodeImporter.getClaudeCodeSkillDirs();
     const extraEntries = await this.listClaudeSkillEntries(claudeDirs);
 
@@ -107,6 +121,7 @@ export class AgentSkillService {
       ...entries
         .filter((entry) => entry.isDirectory)
         .map((entry) => ({ name: entry.name, baseDir: skillsDir })),
+      ...homeEntries,
       ...extraEntries
         .filter((entry) => entry.isDirectory)
         .map((entry) => ({ name: entry.name, baseDir: entry.path })),
@@ -174,14 +189,39 @@ export class AgentSkillService {
   }
 
   /**
-   * Get skill by name (optimized - load directly by normalized name)
+   * Get skill by name (searches all skill directories)
    */
   async getSkillByName(name: string): Promise<AgentSkill | null> {
     // Normalize the name to directory format
     const normalizedName = AgentSkillValidator.normalizeName(name);
 
-    // Try to load directly by normalized name
-    return await this.loadSkill(normalizedName);
+    // 1. Try appDataDir/skills first
+    let skill = await this.loadSkill(normalizedName);
+    if (skill) return skill;
+
+    // 2. Try home skills dir (~/.talkcody/skills)
+    try {
+      const homeSkillsDir = await this.getHomeSkillsDir();
+      if (await exists(homeSkillsDir)) {
+        skill = await this.loadSkill(normalizedName, homeSkillsDir);
+        if (skill) return skill;
+      }
+    } catch (error) {
+      logger.warn('Failed to search home skills directory:', error);
+    }
+
+    // 3. Try Claude Code skill directories
+    try {
+      const claudeDirs = await ClaudeCodeImporter.getClaudeCodeSkillDirs();
+      for (const dir of claudeDirs) {
+        skill = await this.loadSkill(normalizedName, dir.path);
+        if (skill) return skill;
+      }
+    } catch (error) {
+      logger.warn('Failed to search Claude Code skills directories:', error);
+    }
+
+    return null;
   }
 
   private async listClaudeSkillEntries(

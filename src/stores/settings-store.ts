@@ -97,6 +97,11 @@ interface SettingsState {
   terminal_font: string; // Terminal font family
   terminal_font_size: number; // Terminal font size
 
+  // Font Size Settings
+  app_font_size: number; // Application font size
+  chat_font_size: number; // Chat font size
+  code_font_size: number; // Code block font size
+
   // Worktree Settings
   worktree_root_path: string; // Custom worktree root path (empty = use default ~/.talkcody)
 
@@ -236,6 +241,14 @@ interface SettingsActions {
   setTerminalFontSize: (size: number) => Promise<void>;
   getTerminalFontSize: () => number;
 
+  // Font Size Settings
+  setAppFontSize: (size: number) => Promise<void>;
+  getAppFontSize: () => number;
+  setChatFontSize: (size: number) => Promise<void>;
+  getChatFontSize: () => number;
+  setCodeFontSize: (size: number) => Promise<void>;
+  getCodeFontSize: () => number;
+
   // Worktree Settings
   setWorktreeRootPath: (path: string) => Promise<void>;
   getWorktreeRootPath: () => string;
@@ -328,6 +341,9 @@ const DEFAULT_SETTINGS: Omit<SettingsState, 'loading' | 'error' | 'isInitialized
   terminal_font:
     'Menlo, Monaco, "DejaVu Sans Mono", "Ubuntu Mono", "Liberation Mono", "Droid Sans Mono", "Courier New", monospace',
   terminal_font_size: 14,
+  app_font_size: 15,
+  chat_font_size: 14,
+  code_font_size: 13,
   worktree_root_path: '',
   lsp_enabled: true,
   lsp_show_diagnostics: true,
@@ -422,6 +438,9 @@ class SettingsDatabase {
       terminal_font:
         'Menlo, Monaco, "DejaVu Sans Mono", "Ubuntu Mono", "Liberation Mono", "Droid Sans Mono", "Courier New", monospace',
       terminal_font_size: '14',
+      app_font_size: '15',
+      chat_font_size: '14',
+      code_font_size: '13',
       worktree_root_path: '',
       lsp_enabled: 'true',
       lsp_show_diagnostics: 'true',
@@ -572,6 +591,9 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
         'terminal_shell',
         'terminal_font',
         'terminal_font_size',
+        'app_font_size',
+        'chat_font_size',
+        'code_font_size',
         'worktree_root_path',
         'lsp_enabled',
         'lsp_show_diagnostics',
@@ -675,6 +697,9 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
           rawSettings.terminal_font ||
           'Menlo, Monaco, "DejaVu Sans Mono", "Ubuntu Mono", "Liberation Mono", "Droid Sans Mono", "Courier New", monospace',
         terminal_font_size: Number(rawSettings.terminal_font_size) || 14,
+        app_font_size: Number(rawSettings.app_font_size) || 15,
+        chat_font_size: Number(rawSettings.chat_font_size) || 14,
+        code_font_size: Number(rawSettings.code_font_size) || 13,
         worktree_root_path: rawSettings.worktree_root_path || '',
         lsp_enabled: rawSettings.lsp_enabled !== 'false',
         lsp_show_diagnostics: rawSettings.lsp_show_diagnostics !== 'false',
@@ -1183,6 +1208,34 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     return get().terminal_font_size || 14;
   },
 
+  // Font Size Settings
+  setAppFontSize: async (size: number) => {
+    await settingsDb.set('app_font_size', size.toString());
+    set({ app_font_size: size });
+  },
+
+  getAppFontSize: () => {
+    return get().app_font_size || 15;
+  },
+
+  setChatFontSize: async (size: number) => {
+    await settingsDb.set('chat_font_size', size.toString());
+    set({ chat_font_size: size });
+  },
+
+  getChatFontSize: () => {
+    return get().chat_font_size || 14;
+  },
+
+  setCodeFontSize: async (size: number) => {
+    await settingsDb.set('code_font_size', size.toString());
+    set({ code_font_size: size });
+  },
+
+  getCodeFontSize: () => {
+    return get().code_font_size || 13;
+  },
+
   // MiniMax Cookie
   setMinimaxCookie: async (cookie: string) => {
     await settingsDb.set('minimax_cookie', cookie);
@@ -1531,6 +1584,14 @@ export const settingsManager = {
   getTerminalFont: () => useSettingsStore.getState().getTerminalFont(),
   setTerminalFontSize: (size: number) => useSettingsStore.getState().setTerminalFontSize(size),
   getTerminalFontSize: () => useSettingsStore.getState().getTerminalFontSize(),
+
+  // Font Size Settings
+  setAppFontSize: (size: number) => useSettingsStore.getState().setAppFontSize(size),
+  getAppFontSize: () => useSettingsStore.getState().getAppFontSize(),
+  setChatFontSize: (size: number) => useSettingsStore.getState().setChatFontSize(size),
+  getChatFontSize: () => useSettingsStore.getState().getChatFontSize(),
+  setCodeFontSize: (size: number) => useSettingsStore.getState().setCodeFontSize(size),
+  getCodeFontSize: () => useSettingsStore.getState().getCodeFontSize(),
 
   // MiniMax Cookie
   setMinimaxCookie: (cookie: string) => useSettingsStore.getState().setMinimaxCookie(cookie),

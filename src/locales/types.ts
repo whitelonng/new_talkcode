@@ -295,6 +295,7 @@ export interface LocaleDefinition {
       customProviders: string;
       models: string;
       terminal: string;
+      font: string;
       lint: string;
       lsp: string;
       worktree: string;
@@ -556,6 +557,16 @@ export interface LocaleDefinition {
       fontFamily: string;
       fontSize: string;
       placeholder: string;
+    };
+    fontSettings: {
+      title: string;
+      description: string;
+      appFontSize: string;
+      appFontSizeHint: string;
+      chatFontSize: string;
+      chatFontSizeHint: string;
+      codeFontSize: string;
+      codeFontSizeHint: string;
     };
     theme: {
       title: string;
@@ -1082,6 +1093,7 @@ export interface LocaleDefinition {
       description: string;
       createNew: string;
       importFromGitHub: string;
+      importFromLocal: string;
       refresh: string;
       searchPlaceholder: string;
       allCategories: string;

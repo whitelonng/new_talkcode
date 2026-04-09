@@ -306,6 +306,7 @@ const en: LocaleDefinition = {
       customProviders: 'Custom Providers',
       models: 'Models',
       terminal: 'Terminal',
+      font: 'Font Size',
       lint: 'Lint',
       lsp: 'LSP',
       worktree: 'Worktree',
@@ -584,6 +585,16 @@ const en: LocaleDefinition = {
       fontSize: 'Font Size',
       placeholder:
         'Menlo, Monaco, "DejaVu Sans Mono", "Ubuntu Mono", "Liberation Mono", "Droid Sans Mono", "Courier New", monospace',
+    },
+    fontSettings: {
+      title: 'Font Size',
+      description: 'Configure font sizes for different areas of the application',
+      appFontSize: 'Application Font Size',
+      appFontSizeHint: 'Controls the overall UI text size (12-20px)',
+      chatFontSize: 'Chat Font Size',
+      chatFontSizeHint: 'Controls chat message text size (12-24px)',
+      codeFontSize: 'Code Block Font Size',
+      codeFontSizeHint: 'Controls code block text size (10-20px)',
     },
     theme: {
       title: 'Theme',
@@ -1130,6 +1141,7 @@ const en: LocaleDefinition = {
       description: 'Discover domain knowledge packages for your projects',
       createNew: 'Create New Skill',
       importFromGitHub: 'Import from GitHub',
+      importFromLocal: 'Import from Local',
       refresh: 'Refresh',
       searchPlaceholder: 'Search skills...',
       allCategories: 'All Categories',

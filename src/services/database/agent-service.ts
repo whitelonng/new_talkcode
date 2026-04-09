@@ -5,6 +5,13 @@ import { agentDatabaseService } from '../agent-database-service';
 
 export class AgentService {
   async createAgent(data: CreateAgentData): Promise<Agent> {
+    if (!data.id || data.id.trim() === '') {
+      throw new Error('Agent ID cannot be empty');
+    }
+    if (!data.name || data.name.trim() === '') {
+      throw new Error('Agent name cannot be empty');
+    }
+
     const db = await agentDatabaseService.getDb();
     const now = Date.now();
 

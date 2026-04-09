@@ -13,6 +13,7 @@ import {
   Radar,
   Settings,
   Terminal,
+  Type,
   User,
   Wrench,
   Zap,
@@ -22,6 +23,7 @@ import { AboutSettings } from '@/components/settings/about-settings';
 import { AccountSettings } from '@/components/settings/account-settings';
 import { ApiKeysSettings } from '@/components/settings/api-keys-settings';
 import { CustomToolsSettings } from '@/components/settings/custom-tools-settings';
+import { FontSettings } from '@/components/settings/font-settings';
 import { GeneralSettings } from '@/components/settings/general-settings';
 import { HooksSettings } from '@/components/settings/hooks-settings';
 import { LintSettings } from '@/components/settings/lint-settings';
@@ -114,6 +116,10 @@ export function SettingsPage() {
               <Terminal className="size-4" />
               {t.Settings.tabs.terminal || 'Terminal'}
             </TabsTrigger>
+            <TabsTrigger value="font" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+              <Type className="size-4" />
+              {t.Settings.tabs.font || 'Font Size'}
+            </TabsTrigger>
             <TabsTrigger value="lint" className="w-full justify-start gap-2 rounded-md px-3 py-2">
               <FileCode className="size-4" />
               {t.Settings.tabs.lint || 'Lint'}
@@ -195,6 +201,9 @@ export function SettingsPage() {
             </TabsContent>
             <TabsContent value="terminal" className="mt-0 flex-none space-y-6">
               <TerminalSettings />
+            </TabsContent>
+            <TabsContent value="font" className="mt-0 flex-none space-y-6">
+              <FontSettings />
             </TabsContent>
             <TabsContent value="lint" className="mt-0 flex-none space-y-6">
               <LintSettings />

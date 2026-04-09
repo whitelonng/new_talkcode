@@ -44,6 +44,9 @@
 
 :root {
   --radius: 0.625rem;
+  --app-font-size: 14px;
+  --chat-font-size: 14px;
+  --code-font-size: 13px;
   /* Default theme is now dark */
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -119,6 +122,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: var(--app-font-size, 14px);
     background-image:
       radial-gradient(circle at top, rgba(255, 255, 255, 0.06), transparent 28%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 22%);
@@ -301,4 +305,13 @@ body.find-widget-open .context-view {
 .monaco-editor .find-widget .button {
   position: relative;
   z-index: 10 !important;
+}
+
+/* Font size CSS variables */
+.prose {
+  font-size: var(--chat-font-size, 14px);
+}
+
+pre, code, .font-mono {
+  font-size: var(--code-font-size, 13px);
 }

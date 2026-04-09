@@ -296,6 +296,7 @@ const zh: LocaleDefinition = {
       customProviders: '自定义提供商',
       models: '模型',
       terminal: '终端',
+      font: '字体大小',
       lint: '代码检查',
       lsp: 'LSP',
       worktree: '工作树',
@@ -562,6 +563,16 @@ const zh: LocaleDefinition = {
       fontSize: '字体大小',
       placeholder:
         'Menlo, Monaco, "DejaVu Sans Mono", "Ubuntu Mono", "Liberation Mono", "Droid Sans Mono", "Courier New", monospace',
+    },
+    fontSettings: {
+      title: '字体大小',
+      description: '配置应用程序不同区域的字体大小',
+      appFontSize: '应用字体大小',
+      appFontSizeHint: '控制整体 UI 文字大小（12-20px）',
+      chatFontSize: '聊天字体大小',
+      chatFontSizeHint: '控制聊天消息文字大小（12-24px）',
+      codeFontSize: '代码块字体大小',
+      codeFontSizeHint: '控制代码块文字大小（10-20px）',
     },
     theme: {
       title: '主题',
@@ -1093,6 +1104,7 @@ const zh: LocaleDefinition = {
       description: '为您的项目发现领域知识包',
       createNew: '创建新技能',
       importFromGitHub: '从 GitHub 导入',
+      importFromLocal: '从本地导入',
       refresh: '刷新',
       searchPlaceholder: '搜索技能...',
       allCategories: '所有分类',

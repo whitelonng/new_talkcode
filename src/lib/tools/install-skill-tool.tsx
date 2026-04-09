@@ -6,6 +6,7 @@ import { createTool } from '@/lib/create-tool';
 import { logger } from '@/lib/logger';
 import { getAgentSkillService } from '@/services/skills/agent-skill-service';
 import { importSkillFromGitHub } from '@/services/skills/github-import-service';
+import { useSkillsStore } from '@/stores/skills-store';
 
 const inputSchema = z.object({
   repository: z.string().min(1).describe('GitHub repository in "owner/repo" format'),
@@ -52,6 +53,15 @@ export const installSkill = createTool({
       });
 
       const installedPath = await join(targetDir, derivedSkillId);
+
+      // Refresh skills store so the newly installed skill is discoverable
+      try {
+        await useSkillsStore.getState().refreshSkills();
+        logger.info('Skills store refreshed after installation');
+      } catch (refreshError) {
+        logger.warn('Failed to refresh skills store after installation:', refreshError);
+      }
+
       return {
         success: true,
         skillName: derivedSkillId,

@@ -3,6 +3,7 @@ import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './app';
+import { AppErrorBoundary } from './components/app-error-boundary';
 import './index.css';
 import { startKeepAwakeManager } from '@/services/keep-awake-manager';
 
@@ -24,9 +25,13 @@ startKeepAwakeManager();
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   isDevelopment ? (
     <React.StrictMode>
-      <App />
+      <AppErrorBoundary>
+        <App />
+      </AppErrorBoundary>
     </React.StrictMode>
   ) : (
-    <App />
+    <AppErrorBoundary>
+      <App />
+    </AppErrorBoundary>
   )
 );

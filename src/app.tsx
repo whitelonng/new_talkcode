@@ -52,6 +52,19 @@ function AppContent() {
     }, [setActiveView]),
   });
 
+  // Apply font size CSS variables
+  const appFontSize = useSettingsStore((state) => state.app_font_size);
+  const chatFontSize = useSettingsStore((state) => state.chat_font_size);
+  const codeFontSize = useSettingsStore((state) => state.code_font_size);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--app-font-size', `${appFontSize}px`);
+    root.style.setProperty('--chat-font-size', `${chatFontSize}px`);
+    root.style.setProperty('--code-font-size', `${codeFontSize}px`);
+    root.style.fontSize = `${appFontSize}px`;
+  }, [appFontSize, chatFontSize, codeFontSize]);
+
   // Unified initialization on app startup - optimized for fast startup
   useEffect(() => {
     const initializeApp = async () => {

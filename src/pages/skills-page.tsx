@@ -1,6 +1,6 @@
 // Skills Marketplace page for discovering and installing skills
 
-import { Download, Plus, RefreshCw, Search, Zap } from 'lucide-react';
+import { Download, FolderOpen, Plus, RefreshCw, Search, Zap } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { ImportGitHubDialog } from '@/components/skills/import-github-dialog';
@@ -312,6 +312,27 @@ export function SkillsPage() {
     }
   };
 
+  const handleLocalImport = async () => {
+    try {
+      const { importSkillFromLocal } = await import('@/services/skills/local-importer');
+      const result = await importSkillFromLocal();
+      if (result.success) {
+        toast.success(result.message);
+        refreshLocal();
+        // Also refresh skills store
+        const { useSkillsStore } = await import('@/stores/skills-store');
+        await useSkillsStore.getState().refreshSkills();
+      } else if (result.message !== 'No directory selected') {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      logger.error('Failed to import local skill:', error);
+      toast.error(
+        t.Skills.page.installFailed(error instanceof Error ? error.message : 'Unknown error')
+      );
+    }
+  };
+
   const handleShare = (skill: Skill) => {
     // TODO: Implement share functionality
     logger.info('Share skill:', skill.name);
@@ -355,6 +376,10 @@ export function SkillsPage() {
             <Button variant="outline" size="sm" onClick={() => setIsGitHubImportOpen(true)}>
               <Download className="h-4 w-4 mr-2" />
               {t.Skills.page.importFromGitHub}
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleLocalImport}>
+              <FolderOpen className="h-4 w-4 mr-2" />
+              {t.Skills.page.importFromLocal}
             </Button>
             <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />

@@ -135,6 +135,10 @@ class AgentRegistry {
     });
 
     for (const dbAgent of dbAgents) {
+      if (!dbAgent.id || dbAgent.id.trim() === '') {
+        logger.warn('loadPersistentAgents: Skipping agent with empty ID, name:', dbAgent.name);
+        continue;
+      }
       try {
         const agentDef = await this.dbAgentToDefinition(dbAgent);
         this.persistentAgents.set(agentDef.id, agentDef);
@@ -254,6 +258,9 @@ class AgentRegistry {
   }
 
   async register(agent: AgentDefinition): Promise<void> {
+    if (!agent.id || agent.id.trim() === '') {
+      throw new Error('Cannot register agent with empty ID');
+    }
     // Convert tools to register UI renderers if tools are present
     let convertedAgent = agent;
     if (agent.tools && Object.keys(agent.tools).length > 0) {
