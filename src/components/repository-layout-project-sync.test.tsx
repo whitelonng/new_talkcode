@@ -755,6 +755,7 @@ describe('RepositoryLayout - Project Sync Bug Fix', () => {
     render(<RepositoryLayout />);
 
     expect(screen.queryByText('No Repository Open')).not.toBeInTheDocument();
-    expect(screen.getByPlaceholderText(mockTranslations.Chat.searchTasks)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /新任务\s*TalkCody/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /选择新任务后端，当前/i })).toBeInTheDocument();
   });
 });

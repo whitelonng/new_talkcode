@@ -285,21 +285,25 @@ export class LlmClient {
     return invoke('llm_openai_oauth_refresh', { request: params });
   }
 
-  async refreshOpenAIOAuthFromStore(): Promise<{
+  async refreshOpenAIOAuthFromStore(params?: { accountId?: string }): Promise<{
     accessToken: string;
     refreshToken: string;
     expiresAt: number;
     accountId?: string;
   }> {
-    return invoke('llm_openai_oauth_refresh_from_store');
+    return invoke('llm_openai_oauth_refresh_from_store', {
+      request: params?.accountId ? { accountId: params.accountId } : undefined,
+    });
   }
 
   async disconnectClaudeOAuth(): Promise<void> {
     await invoke('llm_claude_oauth_disconnect');
   }
 
-  async disconnectOpenAIOAuth(): Promise<void> {
-    await invoke('llm_openai_oauth_disconnect');
+  async disconnectOpenAIOAuth(params?: { accountId?: string }): Promise<void> {
+    await invoke('llm_openai_oauth_disconnect', {
+      request: params?.accountId ? { accountId: params.accountId } : undefined,
+    });
   }
 
   async startGitHubCopilotOAuthDeviceCode(params: { enterpriseUrl?: string }): Promise<{
@@ -360,6 +364,12 @@ export class LlmClient {
       accountId?: string | null;
       isConnected?: boolean | null;
       hasRefreshToken?: boolean | null;
+      accounts?: Array<{
+        accountId?: string | null;
+        expiresAt?: number | null;
+        isConnected?: boolean | null;
+        hasRefreshToken?: boolean | null;
+      }>;
     } | null;
     githubCopilot?: {
       isConnected?: boolean | null;

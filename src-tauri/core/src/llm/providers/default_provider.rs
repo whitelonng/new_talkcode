@@ -2,7 +2,6 @@
 // For generic providers that don't have special logic
 // Uses standard protocol implementations without overrides
 
-use crate::llm::auth::api_key_manager::ApiKeyManager;
 use crate::llm::protocols::{
     claude_protocol::ClaudeProtocol, header_builder::HeaderBuildContext,
     openai_protocol::OpenAiProtocol,
@@ -15,6 +14,19 @@ use crate::llm::types::ProviderConfig;
 use async_trait::async_trait;
 use serde_json::Value;
 use std::collections::HashMap;
+
+fn extract_credential_override(ctx: &ProviderContext<'_>) -> Option<(String, String, Option<String>)> {
+    let provider_options = ctx.provider_options?;
+    let provider_specific = provider_options.get(&ctx.provider_config.id)?;
+    let override_value = provider_specific.get("credentialOverride")?;
+    let account_id = override_value.get("accountId")?.as_str()?.to_string();
+    let auth_type = override_value.get("authType")?.as_str()?.to_string();
+    let api_key = override_value
+        .get("apiKey")
+        .and_then(|value| value.as_str())
+        .map(|value| value.to_string());
+    Some((account_id, auth_type, api_key))
+}
 
 /// Default provider that uses standard protocol implementations
 pub struct DefaultProvider {
@@ -181,10 +193,21 @@ impl Provider for DefaultProvider {
             .await
     }
 
-    async fn get_credentials(&self, api_key_manager: &ApiKeyManager) -> Result<Creds, String> {
+    async fn get_credentials(&self, ctx: &ProviderContext<'_>) -> Result<Creds, String> {
         use crate::llm::auth::api_key_manager::ProviderCredentials as AkmCreds;
 
-        let creds = api_key_manager.get_credentials(&self.base.config).await?;
+        if let Some((_account_id, auth_type, api_key)) = extract_credential_override(ctx) {
+            if auth_type == "api_key" {
+                if let Some(api_key) = api_key {
+                    return Ok(match self.base.config.auth_type {
+                        crate::llm::types::AuthType::ApiKey => Creds::ApiKey(api_key),
+                        _ => Creds::Token(api_key),
+                    });
+                }
+            }
+        }
+
+        let creds = ctx.api_key_manager.get_credentials(&self.base.config).await?;
         match creds {
             AkmCreds::None => Ok(Creds::None),
             AkmCreds::Token(token) => match self.base.config.auth_type {
@@ -222,6 +245,7 @@ mod tests {
     use super::*;
     use crate::database::Database;
     use crate::llm::auth::api_key_manager::ApiKeyManager;
+    use crate::llm::providers::provider::ProviderContext;
     use crate::llm::types::{AuthType, ProtocolType, ProviderConfig};
     use std::sync::Arc;
     use tempfile::TempDir;
@@ -274,10 +298,23 @@ mod tests {
 
         // Create the provider with TalkCodyJwt auth type
         let config = create_test_config(AuthType::TalkCodyJwt);
-        let provider = DefaultProvider::new(config);
+        let provider = DefaultProvider::new(config.clone());
+        let ctx = ProviderContext {
+            provider_config: &config,
+            api_key_manager: &api_key_manager,
+            model: "test-model",
+            messages: &[],
+            tools: None,
+            temperature: None,
+            max_tokens: None,
+            top_p: None,
+            top_k: None,
+            provider_options: None,
+            trace_context: None,
+        };
 
         // Get credentials
-        let creds = provider.get_credentials(&api_key_manager).await.unwrap();
+        let creds = provider.get_credentials(&ctx).await.unwrap();
 
         // Verify that we get a Token credential
         match creds {
@@ -312,10 +349,23 @@ mod tests {
 
         // Create the provider with TalkCodyJwt auth type
         let config = create_test_config(AuthType::TalkCodyJwt);
-        let provider = DefaultProvider::new(config);
+        let provider = DefaultProvider::new(config.clone());
+        let ctx = ProviderContext {
+            provider_config: &config,
+            api_key_manager: &api_key_manager,
+            model: "test-model",
+            messages: &[],
+            tools: None,
+            temperature: None,
+            max_tokens: None,
+            top_p: None,
+            top_k: None,
+            provider_options: None,
+            trace_context: None,
+        };
 
         // Get credentials - should fail because token is not set
-        let result = provider.get_credentials(&api_key_manager).await;
+        let result = provider.get_credentials(&ctx).await;
 
         // Verify that we get an error about authentication being required
         assert!(result.is_err());

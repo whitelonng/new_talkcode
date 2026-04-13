@@ -14,14 +14,17 @@
  */
 
 import { logger } from '@/lib/logger';
+import { formatExternalAgentErrorContent } from '@/lib/external-agent-error';
 import { autoCodeReviewHookService } from '@/services/agents/auto-code-review-hook-service';
 import { completionHookPipeline } from '@/services/agents/llm-completion-hooks';
 import { createLLMService, type LLMService } from '@/services/agents/llm-service';
 import { ralphLoopService } from '@/services/agents/ralph-loop-service';
 import { stopHookService } from '@/services/agents/stop-hook-service';
+import { externalAgentService } from '@/services/external-agent-service';
 import { messageService } from '@/services/message-service';
 import { notificationService } from '@/services/notification-service';
 import { taskService } from '@/services/task-service';
+import { getEffectiveWorkspaceRoot } from '@/services/workspace-root-service';
 import { useExecutionStore } from '@/stores/execution-store';
 import { useTaskStore } from '@/stores/task-store';
 import { useWorktreeStore } from '@/stores/worktree-store';
@@ -83,6 +86,9 @@ class ExecutionService {
     const { taskId, messages, model, systemPrompt, tools, agentId } = config;
 
     const executionStore = useExecutionStore.getState();
+    const task = useTaskStore.getState().getTask(taskId);
+    const taskSettings = task?.settings ? JSON.parse(task.settings) : undefined;
+    const externalBackend = task?.backend ?? taskSettings?.externalAgent?.backend ?? 'native';
 
     // 1. Check concurrency limit and start execution tracking
     const { success, abortController, error } = executionStore.startExecution(taskId);
@@ -111,8 +117,24 @@ class ExecutionService {
     let currentMessageId = '';
     let streamedContent = '';
     let llmService: LLMService | undefined;
+    let externalCwd: string | undefined;
+    const userPrompt =
+      config.userMessage ??
+      [...messages].reverse().find((message) => message.role === 'user')?.content?.toString() ??
+      '';
 
     try {
+      if (externalBackend !== 'native') {
+        try {
+          externalCwd = (await getEffectiveWorkspaceRoot(taskId)) || undefined;
+        } catch (error) {
+          logger.warn('[ExecutionService] Failed to resolve external agent cwd', {
+            taskId,
+            error,
+          });
+        }
+      }
+
       // 3. Create independent LLMService instance for this task
       llmService = createLLMService(taskId);
       this.llmServiceInstances.set(taskId, llmService);
@@ -168,6 +190,62 @@ class ExecutionService {
 
         callbacks?.onComplete?.({ success, fullText });
       };
+
+      const persistExternalErrorMessage = async (error: Error) => {
+        if (!currentMessageId || abortController.signal.aborted) {
+          return;
+        }
+
+        const fallbackText = error.message?.trim() || 'External agent execution failed.';
+        const errorText = streamedContent
+          ? `${streamedContent.trim()}\n\n${fallbackText}`.trim()
+          : fallbackText;
+
+        streamedContent = formatExternalAgentErrorContent({
+          backend: externalBackend,
+          message: errorText,
+        });
+        await messageService.finalizeMessage(taskId, currentMessageId, streamedContent);
+      };
+
+      if (externalBackend !== 'native') {
+        if (externalBackend !== 'codex') {
+          throw new Error(`${externalBackend} backend is not implemented yet`);
+        }
+
+        currentMessageId = messageService.createAssistantMessage(taskId, agentId);
+        executionStore.setIsStreaming(taskId, true);
+        executionStore.setServerStatus(taskId, `${externalBackend} starting…`);
+
+        await externalAgentService.runCodexSession({
+          taskId,
+          prompt: userPrompt,
+          cwd: externalCwd ?? worktreePath ?? undefined,
+          model,
+          signal: abortController.signal,
+          onStatus: (status) => {
+            if (!abortController.signal.aborted) {
+              executionStore.setServerStatus(taskId, status);
+            }
+          },
+          onChunk: (chunk) => {
+            if (abortController.signal.aborted) return;
+            streamedContent += chunk;
+            if (currentMessageId) {
+              messageService.updateStreamingContent(taskId, currentMessageId, streamedContent);
+            }
+          },
+          onComplete: async (fullText) => {
+            executionStore.setIsStreaming(taskId, false);
+            await handleCompletion(fullText);
+          },
+          onError: async (error) => {
+            executionStore.setIsStreaming(taskId, false);
+            await persistExternalErrorMessage(error);
+          },
+        });
+        return;
+      }
 
       // Run agent loop with callbacks that route through services
       // Completion hooks (stop hook, ralph loop, auto review) are handled internally by LLMService

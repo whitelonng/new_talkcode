@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { invoke } from '@tauri-apps/api/core';
 import { WindowManagerService } from './window-manager-service';
 
 vi.mock('@tauri-apps/api/core', () => ({
@@ -12,56 +13,29 @@ vi.mock('@/lib/logger', () => ({
   },
 }));
 
-describe('WindowManagerService.openProjectInWindow', () => {
+describe('WindowManagerService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('does not focus existing window when suppressFocus is true', async () => {
-    const checkSpy = vi
-      .spyOn(WindowManagerService, 'checkProjectWindowExists')
-      .mockResolvedValue('window-1');
-    const focusSpy = vi
-      .spyOn(WindowManagerService, 'focusWindow')
-      .mockResolvedValue(undefined);
-    const createSpy = vi
-      .spyOn(WindowManagerService, 'createProjectWindow')
-      .mockResolvedValue('window-2');
+  it('gets current window label from backend', async () => {
+    vi.mocked(invoke).mockResolvedValue('main');
 
-    const label = await WindowManagerService.openProjectInWindow(
-      '/path/to/project',
-      'project-1',
-      false,
-      true
-    );
+    const label = await WindowManagerService.getCurrentWindowLabel();
 
-    expect(checkSpy).toHaveBeenCalledWith('/path/to/project');
-    expect(focusSpy).not.toHaveBeenCalled();
-    expect(createSpy).not.toHaveBeenCalled();
-    expect(label).toBe('window-1');
+    expect(invoke).toHaveBeenCalledWith('get_current_window_label');
+    expect(label).toBe('main');
   });
 
-  it('focuses existing window when suppressFocus is false', async () => {
-    const checkSpy = vi
-      .spyOn(WindowManagerService, 'checkProjectWindowExists')
-      .mockResolvedValue('window-3');
-    const focusSpy = vi
-      .spyOn(WindowManagerService, 'focusWindow')
-      .mockResolvedValue(undefined);
-    const createSpy = vi
-      .spyOn(WindowManagerService, 'createProjectWindow')
-      .mockResolvedValue('window-4');
+  it('updates window project metadata through backend', async () => {
+    vi.mocked(invoke).mockResolvedValue(undefined);
 
-    const label = await WindowManagerService.openProjectInWindow(
-      '/path/to/project',
-      'project-2',
-      false,
-      false
-    );
+    await WindowManagerService.updateWindowProject('main', 'project-1', '/repo');
 
-    expect(checkSpy).toHaveBeenCalledWith('/path/to/project');
-    expect(focusSpy).toHaveBeenCalledWith('window-3');
-    expect(createSpy).not.toHaveBeenCalled();
-    expect(label).toBe('window-3');
+    expect(invoke).toHaveBeenCalledWith('update_window_project', {
+      label: 'main',
+      projectId: 'project-1',
+      rootPath: '/repo',
+    });
   });
 });

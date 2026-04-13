@@ -85,7 +85,7 @@ pub trait Provider: Send + Sync {
     /// Get credentials for the provider
     async fn get_credentials(
         &self,
-        api_key_manager: &ApiKeyManager,
+        ctx: &ProviderContext<'_>,
     ) -> Result<ProviderCredentials, String>;
 
     /// Build headers for the request
@@ -203,7 +203,7 @@ pub trait Provider: Send + Sync {
         let base_url = self.resolve_base_url(ctx).await?;
         let endpoint_path = self.resolve_endpoint_path(ctx).await;
         let normalized_base_url = normalize_provider_base_url(&base_url, ctx.provider_config);
-        let credentials = self.get_credentials(ctx.api_key_manager).await?;
+        let credentials = self.get_credentials(ctx).await?;
         let headers = self.build_headers(ctx, &credentials).await?;
         let body = self.build_request(ctx).await?;
 

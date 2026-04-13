@@ -1,7 +1,7 @@
 // OpenAI Provider Implementation
 // Handles both standard OpenAI API and OAuth (Codex) modes
 
-use crate::llm::auth::api_key_manager::{ApiKeyManager, ProviderCredentials};
+use crate::llm::auth::api_key_manager::ProviderCredentials;
 use crate::llm::protocols::header_builder::HeaderBuildContext;
 use crate::llm::protocols::openai_protocol::OpenAiProtocol;
 use crate::llm::protocols::openai_responses_protocol::OpenAiResponsesProtocol;
@@ -18,6 +18,35 @@ use crate::llm::types::{ProviderConfig, StreamEvent};
 use async_trait::async_trait;
 use serde_json::Value;
 use std::collections::HashMap;
+
+fn extract_openai_credential_override(
+    ctx: &ProviderContext<'_>,
+) -> Option<(String, String, Option<String>, bool, Option<String>)> {
+    let provider_options = ctx.provider_options?;
+    let openai_options = provider_options.get("openai")?;
+    let override_value = openai_options.get("credentialOverride")?;
+    let account_id = override_value.get("accountId")?.as_str()?.to_string();
+    let auth_type = override_value.get("authType")?.as_str()?.to_string();
+    let api_key = override_value
+        .get("apiKey")
+        .and_then(|value| value.as_str())
+        .map(|value| value.to_string());
+    let use_stored_oauth = override_value
+        .get("useStoredOAuth")
+        .and_then(|value| value.as_bool())
+        .unwrap_or(false);
+    let oauth_account_id = override_value
+        .get("oauthAccountId")
+        .and_then(|value| value.as_str())
+        .map(|value| value.to_string());
+    Some((
+        account_id,
+        auth_type,
+        api_key,
+        use_stored_oauth,
+        oauth_account_id,
+    ))
+}
 
 pub struct OpenAiProvider {
     base: BaseProvider,
@@ -54,9 +83,19 @@ impl OpenAiProvider {
             || normalized.starts_with("gpt-5.4-pro")
     }
 
-    async fn is_oauth_mode(&self, api_key_manager: &ApiKeyManager) -> bool {
-        // Check if OAuth token is available
-        api_key_manager
+    async fn is_oauth_mode(&self, ctx: &ProviderContext<'_>) -> bool {
+        if let Some((_account_id, auth_type, _api_key, use_stored_oauth, _oauth_account_id)) =
+            extract_openai_credential_override(ctx)
+        {
+            if auth_type == "oauth" {
+                return use_stored_oauth;
+            }
+            if auth_type == "api_key" {
+                return false;
+            }
+        }
+
+        ctx.api_key_manager
             .has_oauth_token("openai")
             .await
             .unwrap_or(false)
@@ -100,7 +139,7 @@ impl Provider for OpenAiProvider {
 
     async fn resolve_base_url(&self, ctx: &ProviderContext<'_>) -> Result<String, String> {
         // If using OAuth, use ChatGPT backend API
-        if self.is_oauth_mode(ctx.api_key_manager).await {
+        if self.is_oauth_mode(ctx).await {
             return Ok("https://chatgpt.com/backend-api".to_string());
         }
 
@@ -111,7 +150,7 @@ impl Provider for OpenAiProvider {
     }
 
     async fn resolve_endpoint_path(&self, ctx: &ProviderContext<'_>) -> String {
-        if self.is_oauth_mode(ctx.api_key_manager).await {
+        if self.is_oauth_mode(ctx).await {
             "codex/responses".to_string()
         } else if Self::is_responses_model(ctx.model) {
             "responses".to_string()
@@ -120,13 +159,50 @@ impl Provider for OpenAiProvider {
         }
     }
 
-    async fn get_credentials(&self, api_key_manager: &ApiKeyManager) -> Result<Creds, String> {
-        if self.is_oauth_mode(api_key_manager).await {
+    async fn get_credentials(&self, ctx: &ProviderContext<'_>) -> Result<Creds, String> {
+        if let Some((_account_id, auth_type, api_key, use_stored_oauth, oauth_account_id)) =
+            extract_openai_credential_override(ctx)
+        {
+            if auth_type == "api_key" {
+                if let Some(api_key) = api_key {
+                    return Ok(Creds::ApiKey(api_key));
+                }
+            }
+
+            if auth_type == "oauth" && use_stored_oauth {
+                let target_account_id = oauth_account_id.as_deref().or(Some(_account_id.as_str()));
+                if let Some(target_account_id) = target_account_id {
+                    if let Some(token) = ctx
+                        .api_key_manager
+                        .get_openai_oauth_token_for_account(target_account_id)
+                        .await?
+                    {
+                        return Ok(Creds::OAuth {
+                            token,
+                            account_id: Some(target_account_id.to_string()),
+                        });
+                    }
+                }
+
+                let creds = ctx.api_key_manager.get_credentials(&self.base.config).await?;
+                if let ProviderCredentials::Token(token) = creds {
+                    let account_id = ctx
+                        .api_key_manager
+                        .get_setting("openai_oauth_account_id")
+                        .await?
+                        .or(None);
+                    return Ok(Creds::OAuth { token, account_id });
+                }
+            }
+        }
+
+        if self.is_oauth_mode(ctx).await {
             // Get OAuth token
-            let creds = api_key_manager.get_credentials(&self.base.config).await?;
+            let creds = ctx.api_key_manager.get_credentials(&self.base.config).await?;
             match creds {
                 ProviderCredentials::Token(token) => {
-                    let account_id = api_key_manager
+                    let account_id = ctx
+                        .api_key_manager
                         .get_setting("openai_oauth_account_id")
                         .await?
                         .or(None);
@@ -136,7 +212,7 @@ impl Provider for OpenAiProvider {
             }
         } else {
             // Standard API key
-            let creds = api_key_manager.get_credentials(&self.base.config).await?;
+            let creds = ctx.api_key_manager.get_credentials(&self.base.config).await?;
             match creds {
                 ProviderCredentials::Token(token) => Ok(Creds::ApiKey(token)),
                 ProviderCredentials::None => Ok(Creds::None),
@@ -149,17 +225,25 @@ impl Provider for OpenAiProvider {
         ctx: &ProviderContext<'_>,
         headers: &mut HashMap<String, String>,
     ) -> Result<(), String> {
-        if self.is_oauth_mode(ctx.api_key_manager).await {
-            headers.insert(
-                "OpenAI-Beta".to_string(),
-                "responses=experimental".to_string(),
-            );
-            headers.insert("originator".to_string(), "codex_cli_rs".to_string());
+        if let Some((_account_id, auth_type, _api_key, use_stored_oauth, oauth_account_id)) =
+            extract_openai_credential_override(ctx)
+        {
+            if auth_type == "oauth" && use_stored_oauth {
+                ctx.api_key_manager
+                    .maybe_set_openai_account_header(
+                        "openai",
+                        oauth_account_id.as_deref().or(Some(_account_id.as_str())),
+                        headers,
+                    )
+                    .await?;
+                return Ok(());
+            }
+        }
 
-            // Add account header if available
+        if self.is_oauth_mode(ctx).await {
             if let Some(account_id) = ctx
                 .api_key_manager
-                .get_setting("openai_oauth_account_id")
+                .get_openai_oauth_account_header(None)
                 .await?
             {
                 if !account_id.is_empty() {
@@ -171,7 +255,7 @@ impl Provider for OpenAiProvider {
     }
 
     async fn build_request(&self, ctx: &ProviderContext<'_>) -> Result<Value, String> {
-        if self.is_oauth_mode(ctx.api_key_manager).await || Self::is_responses_model(ctx.model) {
+        if self.is_oauth_mode(ctx).await || Self::is_responses_model(ctx.model) {
             let request_ctx = RequestBuildContext {
                 model: ctx.model,
                 messages: ctx.messages,
@@ -215,7 +299,7 @@ impl Provider for OpenAiProvider {
         data: &str,
         state: &mut StreamParseState,
     ) -> Result<Option<StreamEvent>, String> {
-        if self.is_oauth_mode(ctx.api_key_manager).await || Self::is_responses_model(ctx.model) {
+        if self.is_oauth_mode(ctx).await || Self::is_responses_model(ctx.model) {
             let parse_ctx = StreamParseContext { event_type, data };
             self.responses_protocol.parse_stream_event(parse_ctx, state)
         } else {

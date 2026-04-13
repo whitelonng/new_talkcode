@@ -29,6 +29,36 @@ describe('useGlobalShortcuts', () => {
     vi.mocked(settingsManager.getAllShortcuts).mockResolvedValue(DEFAULT_SHORTCUTS);
   });
 
+  it('should trigger the default workspace creation flow when new workspace shortcut is pressed', async () => {
+    const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+    const dispatchEventSpy = vi.spyOn(window, 'dispatchEvent');
+
+    const { result } = renderHook(() => useGlobalShortcuts());
+
+    await vi.waitFor(() => {
+      expect(result.current.shortcuts).toBeTruthy();
+    });
+
+    const event = new KeyboardEvent('keydown', {
+      key: 'N',
+      metaKey: true,
+      shiftKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+
+    document.dispatchEvent(event);
+
+    expect(dispatchEventSpy).toHaveBeenCalled();
+    const workspaceEvent = dispatchEventSpy.mock.calls.find(
+      ([dispatched]) => dispatched instanceof CustomEvent && dispatched.type === 'workspace:create'
+    );
+    expect(workspaceEvent).toBeTruthy();
+
+    addEventListenerSpy.mockRestore();
+    dispatchEventSpy.mockRestore();
+  });
+
   describe('Monaco Editor shortcuts', () => {
     it('should trigger globalFileSearch (cmd+o) when inside Monaco Editor', async () => {
       const globalFileSearchHandler = vi.fn();

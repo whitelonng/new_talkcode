@@ -1,20 +1,15 @@
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { logger } from '@/lib/logger';
 import { type WindowState, WindowStateStore } from '@/lib/window-state-store';
-import { WindowManagerService } from './window-manager-service';
 
 export class WindowRestoreService {
   private constructor() {}
 
-  /**
-   * Save current window state
-   */
   static async saveCurrentWindowState(projectId?: string, rootPath?: string): Promise<void> {
     try {
       const currentWindow = getCurrentWindow();
       const label = currentWindow.label;
 
-      // Get window position and size
       const position = await currentWindow.outerPosition();
       const size = await currentWindow.outerSize();
 
@@ -35,87 +30,6 @@ export class WindowRestoreService {
     }
   }
 
-  /**
-   * Restore all windows from last session
-   * This should be called on app startup
-   */
-  static async restoreWindows(): Promise<void> {
-    try {
-      const windowsToRestore = await WindowStateStore.getWindowsToRestore();
-
-      if (windowsToRestore.length === 0) {
-        logger.info('No windows to restore');
-        return;
-      }
-
-      logger.info(`Restoring ${windowsToRestore.length} windows`);
-
-      // Restore windows in parallel to avoid one slow window blocking others
-      const results = await Promise.allSettled(
-        windowsToRestore
-          .filter((windowState) => windowState.rootPath)
-          .map((windowState) =>
-            WindowManagerService.openProjectInWindow(
-              windowState.rootPath!,
-              windowState.projectId,
-              false,
-              true
-            ).then(() => {
-              logger.info(`Restored window for: ${windowState.rootPath}`);
-            })
-          )
-      );
-
-      for (const result of results) {
-        if (result.status === 'rejected') {
-          logger.error('Failed to restore a window:', result.reason);
-        }
-      }
-    } catch (error) {
-      logger.error('Failed to restore windows:', error);
-    }
-  }
-
-  /**
-   * Save all open windows state before closing
-   * Uses replacement strategy: clears all existing states then saves only currently open windows
-   * This ensures the saved state matches exactly what windows are actually open
-   */
-  static async saveAllWindowsState(): Promise<void> {
-    try {
-      const windows = await WindowManagerService.getAllWindows();
-
-      // Filter to get only project windows (exclude main window)
-      const projectWindows = windows.filter(
-        (window) => window.label !== 'main' && window.root_path
-      );
-
-      logger.info(`Saving ${projectWindows.length} window states (clearing old states first)`);
-
-      // IMPORTANT: Clear all existing window states first
-      // This prevents accumulation of closed window states
-      await WindowStateStore.clearAll();
-
-      // Save only currently open windows
-      for (const window of projectWindows) {
-        const state: WindowState = {
-          label: window.label,
-          projectId: window.project_id,
-          rootPath: window.root_path,
-        };
-        await WindowStateStore.saveWindowState(state);
-        logger.info(`Saved window state: ${window.root_path}`);
-      }
-
-      logger.info(`All window states saved: ${projectWindows.length} windows`);
-    } catch (error) {
-      logger.error('Failed to save all window states:', error);
-    }
-  }
-
-  /**
-   * Clean up window state when a window is closed
-   */
   static async onWindowClosed(label: string): Promise<void> {
     try {
       await WindowStateStore.removeWindowState(label);

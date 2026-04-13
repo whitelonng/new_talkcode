@@ -1,6 +1,18 @@
+import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { getCurrent as getCurrentDeepLinkUrls, onOpenUrl } from '@tauri-apps/plugin-deep-link';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { CustomTitlebar } from '@/components/custom-titlebar';
 import { InitializationScreen } from '@/components/initialization-screen';
 import { LspDownloadPrompt } from '@/components/lsp-download-prompt';
@@ -11,15 +23,15 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { WhatsNewDialog } from '@/components/whats-new-dialog';
 import { UiNavigationProvider, useUiNavigation } from '@/contexts/ui-navigation';
-import { useWindowContext, WindowProvider } from '@/contexts/window-context';
 import { useGlobalShortcuts } from '@/hooks/use-global-shortcuts';
+import { useLocale } from '@/hooks/use-locale';
 import { useTheme } from '@/hooks/use-theme';
 import { useWindowTitle } from '@/hooks/use-window-title';
 import { logger } from '@/lib/logger';
 import { initializationManager } from '@/services/initialization-manager';
-import { WindowManagerService } from '@/services/window-manager-service';
-import { WindowRestoreService } from '@/services/window-restore-service';
 import { useAuthStore } from '@/stores/auth-store';
+import { useExecutionStore } from '@/stores/execution-store';
+import { useProjectStore } from '@/stores/project-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import {
   RepositoryStoreProvider,
@@ -29,8 +41,8 @@ import { NavigationView } from '@/types/navigation';
 
 function AppContent() {
   const { activeView, setActiveView } = useUiNavigation();
+  const { t } = useLocale();
   const { handleOAuthCallback } = useAuthStore();
-  const { isMainWindow } = useWindowContext();
 
   // Initialize theme sync from database to localStorage
   useTheme();
@@ -42,6 +54,9 @@ function AppContent() {
   const [isInitializing, setIsInitializing] = useState(true);
   const [initError, setInitError] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showRunningTasksExitDialog, setShowRunningTasksExitDialog] = useState(false);
+  const [runningTasksExitDialogCount, setRunningTasksExitDialogCount] = useState(0);
+  const allowCloseRef = useRef(false);
 
   // Register global keyboard shortcuts
   useGlobalShortcuts({
@@ -57,6 +72,34 @@ function AppContent() {
   const chatFontSize = useSettingsStore((state) => state.chat_font_size);
   const codeFontSize = useSettingsStore((state) => state.code_font_size);
 
+  // Sync close-to-tray setting to Rust backend
+  const closeToTray = useSettingsStore((state) => state.close_to_tray);
+  const isInitialized = useSettingsStore((state) => state.isInitialized);
+  const runningTaskCount = useExecutionStore((state) => state.getRunningTaskIds().length);
+  const activeCloseBlockerCount = useExecutionStore(
+    useCallback(
+      (state) =>
+        Array.from(state.executions.values()).filter(
+          (execution) => execution.status === 'running' || execution.isStreaming
+        ).length,
+      []
+    )
+  );
+
+  useEffect(() => {
+    if (isInitialized) {
+      invoke('set_close_to_tray', { enabled: closeToTray }).catch((err) => {
+        logger.warn('Failed to sync close_to_tray to backend:', err);
+      });
+    }
+  }, [closeToTray, isInitialized]);
+
+  useEffect(() => {
+    invoke('set_active_task_count', { count: activeCloseBlockerCount }).catch((err) => {
+      logger.warn('Failed to sync active task count to backend:', err);
+    });
+  }, [activeCloseBlockerCount, closeToTray]);
+
   useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty('--app-font-size', `${appFontSize}px`);
@@ -64,6 +107,31 @@ function AppContent() {
     root.style.setProperty('--code-font-size', `${codeFontSize}px`);
     root.style.fontSize = `${appFontSize}px`;
   }, [appFontSize, chatFontSize, codeFontSize]);
+
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+
+    const setupRunningTasksExitDialogListener = async () => {
+      try {
+        unlisten = await listen<{ count?: number }>('show-running-tasks-exit-dialog', (event) => {
+          if (allowCloseRef.current) {
+            return;
+          }
+
+          setRunningTasksExitDialogCount(event.payload?.count ?? activeCloseBlockerCount);
+          setShowRunningTasksExitDialog(true);
+        });
+      } catch (error) {
+        logger.error('Failed to listen for running tasks exit dialog event:', error);
+      }
+    };
+
+    setupRunningTasksExitDialogListener();
+
+    return () => {
+      unlisten?.();
+    };
+  }, [activeCloseBlockerCount]);
 
   // Unified initialization on app startup - optimized for fast startup
   useEffect(() => {
@@ -240,24 +308,6 @@ function AppContent() {
   // This saves ~1 second on startup by not connecting to MCP servers immediately
   // The multiMCPAdapter.getAdaptedTools() will call initialize() on first use
 
-  // Restore windows on app startup (only for main window)
-  // Executes immediately after main UI is displayed (isInitializing becomes false)
-  useEffect(() => {
-    if (!isMainWindow || isInitializing) return;
-
-    const restoreWindows = async () => {
-      try {
-        logger.info('Restoring windows from last session...');
-        await WindowRestoreService.restoreWindows();
-        logger.info('Windows restored successfully');
-      } catch (error) {
-        logger.error('Failed to restore windows:', error);
-      }
-    };
-
-    restoreWindows();
-  }, [isMainWindow, isInitializing]);
-
   // Store ref for dynamic dependencies to avoid infinite loops
   const repositoryDepsRef = useRef<{
     openRepository: (path: string, projectId: string) => Promise<void>;
@@ -271,7 +321,7 @@ function AppContent() {
   // Update the ref on every render
   repositoryDepsRef.current = { openRepository, rootPath };
 
-  // Track if we've already loaded window project
+  // Track if we've already loaded the initial workspace project
   const projectLoadedRef = useRef(false);
 
   // Track when repository becomes ready (has a rootPath)
@@ -282,62 +332,88 @@ function AppContent() {
     }
   }, [rootPath]);
 
-  // Load window-associated project on startup (for all windows)
-  // This handles the case where a window is created from dock menu with a specific project
+  // Load the persisted workspace project once initialization completes.
   useEffect(() => {
-    const loadWindowProject = async () => {
-      // Wait for initialization to complete
-      if (isInitializing) return;
-      // Skip if already loaded or repository already ready
+    if (isInitializing) return;
+
+    const loadInitialProject = async () => {
       if (projectLoadedRef.current || repositoryReadyRef.current) return;
 
-      const isNewWindow = await WindowManagerService.checkNewWindowFlag();
-
       try {
-        const windowInfo = await WindowManagerService.getWindowInfo();
+        const projectId = useSettingsStore.getState().project;
         const { openRepository: repoOpenFn, rootPath: currentRootPath } = repositoryDepsRef.current;
 
-        if (windowInfo?.projectId && windowInfo?.rootPath && !currentRootPath) {
-          logger.info('[app.tsx] Loading window-associated project:', windowInfo.rootPath);
-          projectLoadedRef.current = true;
-          await repoOpenFn(windowInfo.rootPath, windowInfo.projectId);
-
-          if (isNewWindow) {
-            await WindowManagerService.clearNewWindowFlag();
-          }
-          return;
-        }
-
-        if (isNewWindow) {
-          logger.info(
-            '[app.tsx] New window detected without associated project - skipping auto-load'
-          );
-          await WindowManagerService.clearNewWindowFlag();
+        if (!projectId || projectId === 'default' || currentRootPath) {
+          logger.info('[app.tsx] No persisted repository project to load');
           projectLoadedRef.current = true;
           return;
         }
 
-        logger.info('[app.tsx] No window-associated project, delegating to repository-layout');
+        await useProjectStore.getState().refreshProjects();
+        const project = useProjectStore.getState().projects.find((item) => item.id === projectId);
+
+        if (project?.root_path) {
+          logger.info('[app.tsx] Loading persisted project:', project.root_path);
+          projectLoadedRef.current = true;
+          await repoOpenFn(project.root_path, project.id);
+          return;
+        }
+
+        logger.info('[app.tsx] Persisted project has no repository path, skipping repository load');
         projectLoadedRef.current = true;
       } catch (error) {
-        logger.error('[app.tsx] Failed to load window project:', error);
+        logger.error('[app.tsx] Failed to load initial project:', error);
         projectLoadedRef.current = true;
       }
     };
 
-    loadWindowProject();
-  }, [isInitializing]);
+    loadInitialProject();
+  }, [isInitializing, rootPath]);
+
+  // Handle dock menu project reveal/open inside the single main window.
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+
+    const setupDockProjectListener = async () => {
+      try {
+        unlisten = await listen<string>('dock-open-project', async (event) => {
+          const rootPathFromDock = event.payload;
+          if (!rootPathFromDock) return;
+
+          try {
+            await useProjectStore.getState().refreshProjects();
+            const matchedProject = useProjectStore
+              .getState()
+              .projects.find((project) => project.root_path === rootPathFromDock);
+
+            if (matchedProject) {
+              await repositoryDepsRef.current.openRepository(
+                rootPathFromDock,
+                matchedProject.id
+              );
+            } else {
+              logger.warn('[app.tsx] Dock requested unknown project path:', rootPathFromDock);
+            }
+          } catch (error) {
+            logger.error('[app.tsx] Failed to open project from dock menu:', error);
+          }
+        });
+      } catch (error) {
+        logger.error('[app.tsx] Failed to listen for dock-open-project:', error);
+      }
+    };
+
+    setupDockProjectListener();
+
+    return () => {
+      unlisten?.();
+    };
+  }, []);
 
   // Save window state before closing
   useEffect(() => {
     const handleBeforeUnload = async () => {
-      try {
-        if (isMainWindow) {
-          await WindowRestoreService.saveAllWindowsState();
-        }
-      } catch (error) {
-        logger.error('Failed to save window state on close:', error);
-      }
+      // Workspace state is already persisted during repository switches.
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -345,7 +421,49 @@ function AppContent() {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [isMainWindow]);
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    let unlisten: (() => void) | undefined;
+
+    const setupCloseRequestedHandler = async () => {
+      try {
+        unlisten = await getCurrentWindow().onCloseRequested(async (event) => {
+          if (allowCloseRef.current) {
+            return;
+          }
+
+          if (activeCloseBlockerCount > 0) {
+            event.preventDefault();
+            if (isMounted) {
+              setRunningTasksExitDialogCount(activeCloseBlockerCount);
+              setShowRunningTasksExitDialog(true);
+            }
+            return;
+          }
+
+          if (closeToTray) {
+            event.preventDefault();
+            try {
+              await getCurrentWindow().hide();
+            } catch (error) {
+              logger.error('Failed to hide main window to tray from frontend close handler:', error);
+            }
+          }
+        });
+      } catch (error) {
+        logger.error('Failed to register close requested handler:', error);
+      }
+    };
+
+    setupCloseRequestedHandler();
+
+    return () => {
+      isMounted = false;
+      unlisten?.();
+    };
+  }, [activeCloseBlockerCount, closeToTray]);
 
   // Global drag/drop event handlers to prevent browser default behavior
   // This is required for Tauri's file-drop events to work properly
@@ -393,6 +511,24 @@ function AppContent() {
     };
   }, []);
 
+  const handleConfirmExitWithRunningTasks = useCallback(async () => {
+    try {
+      allowCloseRef.current = true;
+      await invoke('set_force_exit_on_close', { enabled: true });
+      setShowRunningTasksExitDialog(false);
+      await getCurrentWindow().close();
+    } catch (error) {
+      allowCloseRef.current = false;
+      logger.error('Failed to close app after running task confirmation:', error);
+    }
+  }, []);
+
+  const handleCancelExitWithRunningTasks = useCallback(() => {
+    allowCloseRef.current = false;
+    setShowRunningTasksExitDialog(false);
+    setRunningTasksExitDialogCount(0);
+  }, []);
+
   // Show initialization screen while loading or if there's an error
   if (isInitializing || initError) {
     return <InitializationScreen error={initError} />;
@@ -413,6 +549,27 @@ function AppContent() {
         <MainContent activeView={activeView} />
       </div>
 
+      <AlertDialog open={showRunningTasksExitDialog} onOpenChange={setShowRunningTasksExitDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t.App.runningTasksExitTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t.App.runningTasksExitDescription(
+                runningTasksExitDialogCount || activeCloseBlockerCount || runningTaskCount
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelExitWithRunningTasks}>
+              {t.Common.cancel}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmExitWithRunningTasks}>
+              {t.App.confirmExit}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Toast Notifications */}
       <RemoteServiceRunner />
       <Toaster richColors />
@@ -429,13 +586,11 @@ function AppContent() {
 function App() {
   return (
     <ThemeProvider defaultTheme="system">
-      <WindowProvider>
-        <RepositoryStoreProvider>
-          <UiNavigationProvider>
-            <AppContent />
-          </UiNavigationProvider>
-        </RepositoryStoreProvider>
-      </WindowProvider>
+      <RepositoryStoreProvider>
+        <UiNavigationProvider>
+          <AppContent />
+        </UiNavigationProvider>
+      </RepositoryStoreProvider>
     </ThemeProvider>
   );
 }

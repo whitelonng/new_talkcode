@@ -1,7 +1,7 @@
 // src/services/agents/llm-stream-params.ts
 
 import { parseModelIdentifier } from '@/providers/core/provider-utils';
-import type { ProviderOptions } from '@/services/llm/types';
+import type { CredentialOverride, ProviderOptions } from '@/services/llm/types';
 
 type ReasoningEffort = string;
 
@@ -9,6 +9,7 @@ type StreamParamOptions = {
   modelIdentifier: string;
   reasoningEffort: ReasoningEffort;
   enableReasoningOptions: boolean;
+  credentialOverride?: CredentialOverride;
 };
 
 type StreamParams = {
@@ -25,6 +26,7 @@ export class LLMStreamParams {
       modelIdentifier,
       reasoningEffort,
       enableReasoningOptions,
+      credentialOverride: options.credentialOverride,
     });
 
     return {
@@ -36,40 +38,63 @@ export class LLMStreamParams {
   }
 
   static buildProviderOptions(options: StreamParamOptions): ProviderOptions | undefined {
-    if (!options.enableReasoningOptions) {
-      return undefined;
-    }
-
     const { providerId } = parseModelIdentifier(options.modelIdentifier);
     const normalizedProviderId = providerId?.toLowerCase();
     const includeOpenAI = !normalizedProviderId || normalizedProviderId === 'openai';
     const includeOpenRouter = normalizedProviderId === 'openrouter';
 
-    const providerOptionsMap: ProviderOptions = {
-      google: {
-        thinkingConfig: {
-          thinkingBudget: 8192,
-          includeThoughts: true,
-        },
-      },
-      anthropic: {
-        thinking: { type: 'enabled', budgetTokens: 12_000 },
-      },
-      moonshot: {
-        thinking: { type: 'enabled' },
-        temperature: 1.0,
-      },
-    };
+    const providerOptionsMap: ProviderOptions = {};
 
-    if (includeOpenAI) {
-      providerOptionsMap.openai = {
-        reasoningEffort: options.reasoningEffort,
-      };
+    if (options.enableReasoningOptions) {
+      Object.assign(providerOptionsMap, {
+        google: {
+          thinkingConfig: {
+            thinkingBudget: 8192,
+            includeThoughts: true,
+          },
+        },
+        anthropic: {
+          thinking: { type: 'enabled', budgetTokens: 12_000 },
+        },
+        moonshot: {
+          thinking: { type: 'enabled' },
+          temperature: 1.0,
+        },
+      });
+
+      if (includeOpenAI) {
+        providerOptionsMap.openai = {
+          reasoningEffort: options.reasoningEffort,
+        };
+      }
+
+      if (includeOpenRouter) {
+        providerOptionsMap.openrouter = {
+          effort: options.reasoningEffort,
+        };
+      }
     }
 
-    if (includeOpenRouter) {
-      providerOptionsMap.openrouter = {
-        effort: options.reasoningEffort,
+    if (options.credentialOverride) {
+      const {
+        providerId: overrideProviderId,
+        accountId,
+        authType,
+        apiKey,
+        useStoredOAuth,
+        oauthAccountId,
+      } = options.credentialOverride;
+      const existing =
+        (providerOptionsMap[overrideProviderId] as Record<string, unknown> | undefined) || {};
+      providerOptionsMap[overrideProviderId] = {
+        ...existing,
+        credentialOverride: {
+          accountId,
+          authType,
+          ...(apiKey ? { apiKey } : {}),
+          ...(useStoredOAuth ? { useStoredOAuth } : {}),
+          ...(oauthAccountId ? { oauthAccountId } : {}),
+        },
       };
     }
 

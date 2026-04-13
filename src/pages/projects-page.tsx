@@ -1,5 +1,5 @@
 import { ask } from '@tauri-apps/plugin-dialog';
-import { ExternalLink, FolderOpen, MoreVertical, Plus, Trash2 } from 'lucide-react';
+import { FolderOpen, MoreVertical, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -14,8 +14,6 @@ import {
 import { useUiNavigation } from '@/contexts/ui-navigation';
 import { useTranslation } from '@/hooks/use-locale';
 import { logger } from '@/lib/logger';
-import { databaseService } from '@/services/database-service';
-import { WindowManagerService } from '@/services/window-manager-service';
 import { useProjectStore } from '@/stores/project-store';
 import { settingsManager } from '@/stores/settings-store';
 import { useRepositoryStore } from '@/stores/window-scoped-repository-store';
@@ -41,21 +39,17 @@ export function ProjectsPage() {
     loadProjects();
   }, [loadProjects]);
 
-  const handleProjectSelect = async (projectId: string) => {
+  const handleProjectSelect = async (project: Project) => {
     try {
-      const project = await databaseService.getProject(projectId);
-      if (project) {
-        setCurrentProjectId(projectId);
+      setCurrentProjectId(project.id);
 
-        if (project.root_path) {
-          // Project has root_path: open repository and navigate to EXPLORER
-          await openRepository(project.root_path, projectId);
-        } else {
-          // Project has no root_path: set as current project and navigate to CHAT
-          await settingsManager.setCurrentProjectId(projectId);
-        }
-        setActiveView(NavigationView.EXPLORER);
+      if (project.root_path) {
+        await openRepository(project.root_path, project.id);
+      } else {
+        await settingsManager.setCurrentProjectId(project.id);
       }
+
+      setActiveView(NavigationView.EXPLORER);
     } catch (error) {
       logger.error('Failed to open project:', error);
     }
@@ -70,22 +64,6 @@ export function ProjectsPage() {
       }
     } catch (error) {
       logger.error('Failed to import repository:', error);
-    }
-  };
-
-  const handleOpenInNewWindow = async (event: React.MouseEvent, project: Project) => {
-    event.stopPropagation(); // Prevent card click
-    try {
-      if (!project.root_path) {
-        toast.error(t.Projects.page.noRepositoryPath);
-        return;
-      }
-
-      await WindowManagerService.openProjectInWindow(project.root_path, project.id);
-      toast.success(t.Projects.page.openedInNewWindow(project.name));
-    } catch (error) {
-      logger.error('Failed to open project in new window:', error);
-      toast.error(t.Projects.page.failedToOpenInWindow);
     }
   };
 
@@ -157,7 +135,7 @@ export function ProjectsPage() {
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-950'
                     : ''
                 }`}
-                onClick={() => handleProjectSelect(project.id)}
+                onClick={() => handleProjectSelect(project)}
               >
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center justify-between text-lg">
@@ -176,16 +154,6 @@ export function ProjectsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {project.root_path && (
-                          <DropdownMenuItem
-                            onClick={(e) => handleOpenInNewWindow(e, project)}
-                            className="flex items-center gap-2"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                            {t.Projects.page.openInNewWindow}
-                          </DropdownMenuItem>
-                        )}
-                        {project.root_path && <DropdownMenuSeparator />}
                         <DropdownMenuItem
                           onClick={(e) => handleDeleteProject(e, project)}
                           className="flex items-center gap-2 text-red-600 focus:text-red-600"

@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "dev:tauri": "export LLM_TEST_MODE=record && export LLM_FIXTURE_DIR=.llm-fixtures && CARGO_TARGET_DIR=./target-dev tauri dev --config ./src-tauri/tauri.conf.dev.json",
+    "dev:tauri:nowatch": "tauri dev --no-watch",
     "lint": "biome check src apps/api/src --diagnostic-level=error",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",

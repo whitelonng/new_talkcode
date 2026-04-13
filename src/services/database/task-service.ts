@@ -2,7 +2,7 @@
 import { logger } from '@/lib/logger';
 import { timedMethod } from '@/lib/timer';
 import { generateId } from '@/lib/utils';
-import type { StoredAttachment, StoredMessage, Task } from '@/types';
+import type { ExternalAgentBackend, StoredAttachment, StoredMessage, Task } from '@/types';
 import type { MessageAttachment } from '@/types/agent';
 import { fileService } from '../file-service';
 import type { TursoClient } from './turso-client';
@@ -15,15 +15,16 @@ export class TaskService {
     title: string,
     taskId: string,
     projectId = 'default',
-    model?: string
+    model?: string,
+    backend: ExternalAgentBackend = 'native'
   ): Promise<string> {
     const now = Date.now();
 
     logger.info('createTask', taskId, title, projectId, now);
 
     await this.db.execute(
-      'INSERT INTO conversations (id, title, project_id, created_at, updated_at, message_count, request_count, model) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-      [taskId, title, projectId, now, now, 0, 0, model || null]
+      'INSERT INTO conversations (id, title, project_id, created_at, updated_at, message_count, request_count, model, backend) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
+      [taskId, title, projectId, now, now, 0, 0, model || null, backend]
     );
 
     return taskId;
@@ -345,6 +346,15 @@ export class TaskService {
   async updateTaskSettings(taskId: string, settings: string): Promise<void> {
     await this.db.execute('UPDATE conversations SET settings = $1, updated_at = $2 WHERE id = $3', [
       settings,
+      Date.now(),
+      taskId,
+    ]);
+  }
+
+  @timedMethod('updateTaskBackend')
+  async updateTaskBackend(taskId: string, backend: ExternalAgentBackend): Promise<void> {
+    await this.db.execute('UPDATE conversations SET backend = $1, updated_at = $2 WHERE id = $3', [
+      backend,
       Date.now(),
       taskId,
     ]);

@@ -1,6 +1,18 @@
-import { render, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useSettingsStore } from '@/stores/settings-store';
 import App from './app';
+
+const { mockClose, mockHide, mockOnCloseRequested, mockInvoke, mockExecutionState } = vi.hoisted(() => ({
+  mockClose: vi.fn(() => Promise.resolve()),
+  mockHide: vi.fn(() => Promise.resolve()),
+  mockOnCloseRequested: vi.fn(() => Promise.resolve(() => {})),
+  mockInvoke: vi.fn(() => Promise.resolve(undefined)),
+  mockExecutionState: {
+    getRunningTaskIds: () => [] as string[],
+    executions: new Map(),
+  },
+}));
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -21,11 +33,18 @@ Object.defineProperty(window, 'matchMedia', {
 vi.mock('@tauri-apps/api/window', () => ({
   getCurrentWindow: vi.fn(() => ({
     show: vi.fn(),
+    hide: mockHide,
     setFocus: vi.fn(),
     listen: vi.fn(() => Promise.resolve(() => {})),
+    onCloseRequested: mockOnCloseRequested,
+    close: mockClose,
     isMainWindow: vi.fn(() => Promise.resolve(true)),
     label: 'main',
   })),
+}));
+
+vi.mock('@tauri-apps/api/core', () => ({
+  invoke: mockInvoke,
 }));
 
 vi.mock('@tauri-apps/plugin-deep-link', () => ({
@@ -39,34 +58,73 @@ vi.mock('@/services/initialization-manager', () => ({
   },
 }));
 
-vi.mock('@/stores/settings-store', () => ({
-  useSettingsStore: vi.fn((selector) => {
-    const state = {
-      onboarding_completed: true,
-      language: 'en',
-      setLanguage: vi.fn(),
-      getAutoApproveEditsGlobal: vi.fn(() => false),
-      setAutoApproveEditsGlobal: vi.fn(),
-    };
-    return selector ? selector(state) : state;
-  }),
-  settingsManager: {
-    getAllShortcuts: vi.fn(() =>
-      Promise.resolve({
-        globalFileSearch: { key: 'p', ctrlKey: true },
-        globalContentSearch: { key: 'g', ctrlKey: true },
-        fileSearch: { key: 'f', ctrlKey: true },
-        saveFile: { key: 's', ctrlKey: true },
-        newWindow: { key: 'n', ctrlKey: true },
-        openModelSettings: { key: 'm', ctrlKey: true },
-        toggleTerminal: { key: 'j', ctrlKey: true },
-        nextTerminalTab: { key: 'Tab', ctrlKey: true },
-        previousTerminalTab: { key: 'Tab', ctrlKey: true, shiftKey: true },
-        newTerminalTab: { key: 't', ctrlKey: true },
-      })
-    ),
+vi.mock('@/stores/settings-store', () => {
+  const state = {
+    onboarding_completed: true,
+    language: 'en',
+    setLanguage: vi.fn(),
     getAutoApproveEditsGlobal: vi.fn(() => false),
-  },
+    setAutoApproveEditsGlobal: vi.fn(),
+    app_font_size: 14,
+    chat_font_size: 14,
+    code_font_size: 13,
+    close_to_tray: false,
+    isInitialized: true,
+  };
+
+  const useSettingsStore = vi.fn((selector) => {
+    return selector ? selector(state) : state;
+  });
+  (useSettingsStore as typeof useSettingsStore & { getState: () => typeof state }).getState = () =>
+    state;
+
+  return {
+    useSettingsStore,
+    __mockState: state,
+    DEFAULT_PROJECT: 'planner',
+    settingsManager: {
+      getAllShortcuts: vi.fn(() =>
+        Promise.resolve({
+          globalFileSearch: { key: 'p', ctrlKey: true },
+          globalContentSearch: { key: 'g', ctrlKey: true },
+          fileSearch: { key: 'f', ctrlKey: true },
+          saveFile: { key: 's', ctrlKey: true },
+          newWindow: { key: 'n', ctrlKey: true },
+          openModelSettings: { key: 'm', ctrlKey: true },
+          toggleTerminal: { key: 'j', ctrlKey: true },
+          nextTerminalTab: { key: 'Tab', ctrlKey: true },
+          previousTerminalTab: { key: 'Tab', ctrlKey: true, shiftKey: true },
+          newTerminalTab: { key: 't', ctrlKey: true },
+        })
+      ),
+      getAutoApproveEditsGlobal: vi.fn(() => false),
+    },
+  };
+});
+
+vi.mock('@/stores/execution-store', () => ({
+  useExecutionStore: vi.fn((selector) => (selector ? selector(mockExecutionState) : mockExecutionState)),
+}));
+
+vi.mock('@/hooks/use-locale', () => ({
+  useLocale: vi.fn(() => ({
+    t: {
+      App: {
+        runningTasksExitTitle: 'Tasks are still running',
+        runningTasksExitDescription: (count: number) =>
+          `${count} task${count === 1 ? '' : 's'} still running. Are you sure you want to exit TalkCody?`,
+        confirmExit: 'Exit anyway',
+      },
+      Common: {
+        cancel: 'Cancel',
+      },
+    },
+  })),
+  useTranslation: vi.fn(() => ({
+    Common: {
+      cancel: 'Cancel',
+    },
+  })),
 }));
 
 vi.mock('@/stores/auth-store', () => ({
@@ -75,9 +133,46 @@ vi.mock('@/stores/auth-store', () => ({
   })),
 }));
 
+vi.mock('@/components/lsp-download-prompt', () => ({
+  LspDownloadPrompt: () => null,
+}));
+
+vi.mock('@/components/remote/telegram-remote-runner', () => ({
+  RemoteServiceRunner: () => null,
+}));
+
+vi.mock('@/components/whats-new-dialog', () => ({
+  WhatsNewDialog: () => null,
+}));
+
+vi.mock('@/components/main-content', () => ({
+  MainContent: () => <div data-testid="main-content" />,
+}));
+
+vi.mock('@/components/custom-titlebar', () => ({
+  CustomTitlebar: () => <div data-testid="custom-titlebar" />,
+}));
+
 vi.mock('@/stores/window-scoped-repository-store', () => ({
   RepositoryStoreProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   useWindowScopedRepositoryStore: vi.fn(),
+  useRepositoryStore: vi.fn((selector) => {
+    const state = {
+      rootPath: null,
+      hasRepository: false,
+      isLoading: false,
+      selectedFile: null,
+      openFiles: [],
+      expandedDirs: new Set<string>(),
+      fileTree: [],
+      openRepository: vi.fn(),
+      closeRepository: vi.fn(),
+      setSelectedFile: vi.fn(),
+      toggleDirectory: vi.fn(),
+      refreshFileTree: vi.fn(),
+    };
+    return selector ? selector(state) : state;
+  }),
 }));
 
 vi.mock('@/contexts/window-context', () => ({
@@ -97,25 +192,34 @@ vi.mock('@/contexts/ui-navigation', () => ({
 }));
 
 vi.mock('@/hooks/use-theme', () => ({
-  useTheme: vi.fn(),
+  useTheme: vi.fn(() => ({
+    theme: 'system',
+    resolvedTheme: 'light',
+    isAppleTheme: false,
+    setTheme: vi.fn(),
+  })),
 }));
 
 vi.mock('@/services/window-manager-service', () => ({
   WindowManagerService: {
-    createProjectWindow: vi.fn(),
-    checkNewWindowFlag: vi.fn(() => Promise.resolve(false)),
-  },
-}));
-
-vi.mock('@/services/window-restore-service', () => ({
-  WindowRestoreService: {
-    restoreWindowState: vi.fn(),
+    getCurrentWindowLabel: vi.fn(() => Promise.resolve('main')),
   },
 }));
 
 describe('App - Shift+Esc Prevention', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    const settingsState = (useSettingsStore as typeof useSettingsStore & { getState: () => { close_to_tray: boolean } }).getState();
+    settingsState.close_to_tray = false;
+    mockExecutionState.getRunningTaskIds = () => [];
+    mockExecutionState.executions = new Map();
+    mockClose.mockResolvedValue(undefined);
+    mockHide.mockResolvedValue(undefined);
+    mockInvoke.mockResolvedValue(undefined);
+    mockOnCloseRequested.mockImplementation((handler) => {
+      (mockOnCloseRequested as unknown as { handler?: unknown }).handler = handler;
+      return Promise.resolve(() => {});
+    });
   });
 
   afterEach(() => {
@@ -238,39 +342,83 @@ describe('App - Shift+Esc Prevention', () => {
     expect(preventDefaultSpy3).not.toHaveBeenCalled();
   });
 
-  it('should prevent Shift+Esc even when focus is on different elements', async () => {
+  it('should sync close-to-tray setting to backend after initialization', async () => {
     render(<App />);
 
-    // Wait for app to initialize
     await waitFor(() => {
-      expect(document.querySelector('.flex')).toBeInTheDocument();
+      expect(mockInvoke).toHaveBeenCalledWith('set_close_to_tray', { enabled: false });
+    });
+  });
+
+  it('should hide main window instead of closing when close-to-tray is enabled', async () => {
+    const settingsState = (useSettingsStore as typeof useSettingsStore & {
+      getState: () => { close_to_tray: boolean };
+    }).getState();
+    settingsState.close_to_tray = true;
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(mockOnCloseRequested).toHaveBeenCalled();
     });
 
-    // Create a div to simulate different focus targets
-    const testDiv = document.createElement('div');
-    document.body.appendChild(testDiv);
-    testDiv.focus();
+    const handler = (mockOnCloseRequested as unknown as {
+      handler?: (event: { preventDefault: () => void }) => Promise<void>;
+    }).handler;
+    const preventDefault = vi.fn();
 
-    // Create a Shift+Esc keyboard event
-    const shiftEscEvent = new KeyboardEvent('keydown', {
-      key: 'Escape',
-      shiftKey: true,
-      ctrlKey: false,
-      metaKey: false,
-      altKey: false,
-      bubbles: true,
-      cancelable: true,
+    await handler?.({ preventDefault });
+
+    expect(preventDefault).toHaveBeenCalled();
+    expect(mockHide).toHaveBeenCalled();
+    expect(mockClose).not.toHaveBeenCalled();
+  });
+
+  it('should prevent close and show confirmation when tasks are running', async () => {
+    mockExecutionState.getRunningTaskIds = () => ['task-1', 'task-2'];
+    mockExecutionState.executions = new Map([
+      ['task-1', { status: 'running', isStreaming: false }],
+      ['task-2', { status: 'running', isStreaming: false }],
+    ]);
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(mockOnCloseRequested).toHaveBeenCalled();
     });
 
-    const preventDefaultSpy = vi.spyOn(shiftEscEvent, 'preventDefault');
+    const handler = (mockOnCloseRequested as unknown as { handler?: (event: { preventDefault: () => void }) => Promise<void> }).handler;
+    const preventDefault = vi.fn();
 
-    // Dispatch from the test div
-    testDiv.dispatchEvent(shiftEscEvent);
+    await handler?.({ preventDefault });
 
-    // Verify that preventDefault was called even when focus is elsewhere
-    expect(preventDefaultSpy).toHaveBeenCalled();
+    expect(preventDefault).toHaveBeenCalled();
+    expect(await screen.findByText('Tasks are still running')).toBeInTheDocument();
+    expect(
+      screen.getByText('2 tasks still running. Are you sure you want to exit TalkCody?')
+    ).toBeInTheDocument();
+  });
 
-    // Cleanup
-    document.body.removeChild(testDiv);
+  it('should force close after user confirms exit with running tasks', async () => {
+    mockExecutionState.getRunningTaskIds = () => ['task-1'];
+    mockExecutionState.executions = new Map([
+      ['task-1', { status: 'running', isStreaming: false }],
+    ]);
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(mockOnCloseRequested).toHaveBeenCalled();
+    });
+
+    const handler = (mockOnCloseRequested as unknown as { handler?: (event: { preventDefault: () => void }) => Promise<void> }).handler;
+    await handler?.({ preventDefault: vi.fn() });
+
+    fireEvent.click(await screen.findByText('Exit anyway'));
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith('set_force_exit_on_close', { enabled: true });
+      expect(mockClose).toHaveBeenCalled();
+    });
   });
 });

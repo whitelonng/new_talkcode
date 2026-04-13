@@ -54,6 +54,13 @@ const en: LocaleDefinition = {
     discard: 'Discard',
   },
 
+  App: {
+    runningTasksExitTitle: 'Tasks are still running',
+    runningTasksExitDescription: (count) =>
+      `${count} task${count === 1 ? '' : 's'} still running. Are you sure you want to exit TalkCody?`,
+    confirmExit: 'Exit anyway',
+  },
+
   Chat: {
     placeholder: 'Ask any question... / for commands, # add files to context',
     placeholderWithContext: 'Continue the conversation...',
@@ -295,6 +302,14 @@ const en: LocaleDefinition = {
     restore: 'Restore',
     close: 'Close',
     backToExplorer: 'Back to Explorer',
+    workspaceTabs: {
+      newTab: 'New Workspace',
+      closeTab: 'Close Workspace',
+      selectProject: 'Select Project',
+      noProject: 'No Project',
+      maxTabsReached: 'Maximum 3 workspaces',
+      importRepository: 'Import Repository',
+    },
   },
 
   Settings: {
@@ -322,6 +337,7 @@ const en: LocaleDefinition = {
       toolsPlayground: 'Tools Playground',
       tracing: 'LLM Tracing',
       github: 'GitHub',
+      tray: 'System Tray',
     },
     account: {
       title: 'Account Settings',
@@ -385,6 +401,17 @@ const en: LocaleDefinition = {
         'API keys are required to access AI models from different providers. Configure your API keys here to enable model access.',
       viewDocumentation: 'View documentation',
       baseUrlPlaceholder: (url) => `${url} (leave empty for default)`,
+      multiAccount: {
+        title: 'Multi-account rotation',
+        description:
+          'Manage multiple accounts for OpenAI and Anthropic. Requests will switch to the next enabled account after auth/quota failures.',
+        addAccount: 'Add API key account',
+        accountNamePlaceholder: 'Account name',
+        oauthAccount: 'OAuth account',
+        apiKeyAccount: 'API key account',
+        oauthConnected: 'OAuth connected',
+        oauthNotConnected: 'OAuth not connected',
+      },
     },
     claudeOAuth: {
       title: 'Claude Pro/Max',
@@ -421,6 +448,8 @@ const en: LocaleDefinition = {
       title: 'ChatGPT Plus/Pro',
       description: 'Sign in with your ChatGPT Plus or Pro subscription to use OpenAI models',
       signIn: 'Sign in with ChatGPT',
+      addAccount: 'Add OAuth account',
+      connectedAccounts: (count) => `${count} OAuth accounts connected`,
       step1: 'Step 1: Open authorization link',
       step1Hint: 'Click the link above to open OpenAI authorization page in your browser',
       step2: 'Step 2: Paste the callback URL',
@@ -677,7 +706,7 @@ const en: LocaleDefinition = {
       fileSearch: 'Search in File',
       saveFile: 'Save File',
       openModelSettings: 'Open Model Settings',
-      newWindow: 'Open New Window',
+      newWindow: 'New Workspace Tab',
       toggleTerminal: 'Toggle Terminal',
       nextTerminalTab: 'Next Terminal Tab',
       previousTerminalTab: 'Previous Terminal Tab',
@@ -816,6 +845,13 @@ const en: LocaleDefinition = {
       blockedPrompt: 'Prompt blocked by hook.',
     },
     hooksScopeHint: 'Scopes are merged in the order: user -> project.',
+    tray: {
+      title: 'System Tray',
+      description: 'Configure system tray behavior when closing the application',
+      closeToTray: 'Minimize to tray on close',
+      closeToTrayDescription:
+        'When enabled, closing the window will minimize the app to the system tray instead of quitting',
+    },
   },
 
   Agents: {
@@ -947,10 +983,6 @@ const en: LocaleDefinition = {
       importRepository: 'Import Repository',
       emptyTitle: 'No projects yet',
       emptyDescription: 'Import your first repository to get started with TalkCody',
-      openInNewWindow: 'Open in New Window',
-      noRepositoryPath: 'This project has no repository path',
-      openedInNewWindow: (name) => `Opened ${name} in new window`,
-      failedToOpenInWindow: 'Failed to open project in new window',
       deleteProject: 'Delete Project',
       deleteProjectTitle: 'Delete Project',
       deleteProjectDescription: (name) =>

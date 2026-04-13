@@ -2,7 +2,7 @@
 // OAuth login component for OpenAI ChatGPT Plus/Pro authentication
 
 import { open as shellOpen } from '@tauri-apps/plugin-shell';
-import { Check, Copy, ExternalLink, Loader2, LogOut, X } from 'lucide-react';
+import { Check, Copy, ExternalLink, Loader2, Plus, X } from 'lucide-react';
 import { useCallback, useEffect, useId, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -41,10 +41,10 @@ export function OpenAIOAuthLogin() {
     isConnected,
     isLoading,
     error: storeError,
+    accounts,
     initialize,
     startOAuthWithAutoCallback,
     completeOAuth,
-    disconnect,
     cleanupCallbackListener,
   } = useOpenAIOAuthStore();
 
@@ -65,8 +65,11 @@ export function OpenAIOAuthLogin() {
         toast.success(t.Settings.openaiOAuth.connected);
         // Refresh provider store to pick up new OAuth credentials
         useProviderStore.getState().refresh();
+        setFlowState('connected');
+      } else if (flowState === 'idle') {
+        // Only sync to connected from idle (not during active OAuth flows)
+        setFlowState('connected');
       }
-      setFlowState('connected');
     } else if (flowState === 'connected') {
       setFlowState('idle');
     }
@@ -163,24 +166,6 @@ export function OpenAIOAuthLogin() {
     }
   }, [authInput, completeOAuth, t]);
 
-  // Handle disconnecting
-  const handleDisconnect = useCallback(async () => {
-    setError(null);
-
-    try {
-      await disconnect();
-
-      // Refresh provider store to remove OAuth credentials
-      await useProviderStore.getState().refresh();
-
-      toast.success(t.Settings.openaiOAuth.disconnected);
-      setFlowState('idle');
-    } catch (err) {
-      logger.error('[OpenAIOAuthLogin] Failed to disconnect:', err);
-      setError(err instanceof Error ? err.message : 'Failed to disconnect');
-    }
-  }, [disconnect, t]);
-
   // Handle cancel during code entry
   const handleCancel = useCallback(() => {
     cleanupCallbackListener();
@@ -208,28 +193,87 @@ export function OpenAIOAuthLogin() {
     }
   }, [authUrl]);
 
+  // Disclaimer dialog (rendered in all states)
+  const disclaimerDialog = (
+    <Dialog open={showDisclaimer} onOpenChange={setShowDisclaimer}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t.Settings.openaiOAuth.disclaimer.dialogTitle}</DialogTitle>
+          <DialogDescription>
+            {t.Settings.openaiOAuth.disclaimer.dialogDescription}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="rounded-md bg-muted p-4 text-sm space-y-3">
+            <p>
+              Please read the{' '}
+              <a
+                href={t.Settings.openaiOAuth.disclaimer.termsLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-medium"
+              >
+                Terms of Use & Disclaimer
+              </a>{' '}
+              before proceeding.
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id={disclaimerCheckboxId}
+              checked={disclaimerAgreed}
+              onCheckedChange={(checked) => setDisclaimerAgreed(checked === true)}
+            />
+            <label
+              htmlFor={disclaimerCheckboxId}
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              {t.Settings.openaiOAuth.disclaimer.checkboxLabel}
+            </label>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setShowDisclaimer(false)}>
+            {t.Settings.openaiOAuth.disclaimer.cancelButton}
+          </Button>
+          <Button onClick={handleDisclaimerConfirm} disabled={!disclaimerAgreed}>
+            {t.Settings.openaiOAuth.disclaimer.confirmButton}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
   // Connected state
   if (flowState === 'connected' || isConnected) {
     return (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
-            <span className="text-sm text-green-600 dark:text-green-400">
-              {t.Settings.openaiOAuth.connectedWithPlan}
-            </span>
+      <>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <span className="text-sm text-green-600 dark:text-green-400">
+                {t.Settings.openaiOAuth.connectedWithPlan}
+              </span>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleStartOAuth} disabled={isLoading}>
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="mr-2 h-4 w-4" />
+              )}
+              {t.Settings.openaiOAuth.addAccount}
+            </Button>
           </div>
-          <Button variant="outline" size="sm" onClick={handleDisconnect} disabled={isLoading}>
-            {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <LogOut className="mr-2 h-4 w-4" />
-            )}
-            {t.Settings.openaiOAuth.disconnect}
-          </Button>
+          {accounts.length > 0 && (
+            <div className="text-xs text-muted-foreground">
+              {t.Settings.openaiOAuth.connectedAccounts(accounts.length)}
+            </div>
+          )}
+          {(error || storeError) && <p className="text-sm text-red-500">{error || storeError}</p>}
         </div>
-        {(error || storeError) && <p className="text-sm text-red-500">{error || storeError}</p>}
-      </div>
+        {disclaimerDialog}
+      </>
     );
   }
 
@@ -373,53 +417,7 @@ export function OpenAIOAuthLogin() {
       </div>
 
       {/* Disclaimer Dialog */}
-      <Dialog open={showDisclaimer} onOpenChange={setShowDisclaimer}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{t.Settings.openaiOAuth.disclaimer.dialogTitle}</DialogTitle>
-            <DialogDescription>
-              {t.Settings.openaiOAuth.disclaimer.dialogDescription}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="rounded-md bg-muted p-4 text-sm space-y-3">
-              <p>
-                Please read the{' '}
-                <a
-                  href={t.Settings.openaiOAuth.disclaimer.termsLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline font-medium"
-                >
-                  Terms of Use & Disclaimer
-                </a>{' '}
-                before proceeding.
-              </p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id={disclaimerCheckboxId}
-                checked={disclaimerAgreed}
-                onCheckedChange={(checked) => setDisclaimerAgreed(checked === true)}
-              />
-              <label
-                htmlFor={disclaimerCheckboxId}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {t.Settings.openaiOAuth.disclaimer.checkboxLabel}
-              </label>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDisclaimer(false)}>
-              {t.Settings.openaiOAuth.disclaimer.cancelButton}
-            </Button>
-            <Button onClick={handleDisclaimerConfirm} disabled={!disclaimerAgreed}>
-              {t.Settings.openaiOAuth.disclaimer.confirmButton}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {disclaimerDialog}
     </>
   );
 }

@@ -158,7 +158,12 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
 
       if (!activeTaskId) {
         try {
-          activeTaskId = await createTask(userMessage);
+          const selectedBackend = currentTaskId
+            ? ((useTaskStore.getState().getTask(currentTaskId || '')?.backend as
+                | import('@/types').ExternalAgentBackend
+                | undefined) ?? 'native')
+            : useTaskStore.getState().selectedNewTaskBackend;
+          activeTaskId = await createTask(userMessage, { backend: selectedBackend });
           isNewTask = true;
         } catch (error) {
           logger.error('Failed to create task:', error);

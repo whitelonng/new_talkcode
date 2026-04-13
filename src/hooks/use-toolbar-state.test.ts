@@ -1,5 +1,6 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ExternalAgentBackend } from '@/types';
 import type { Task } from '@/types/task';
 import { useToolbarState } from './use-toolbar-state';
 
@@ -113,15 +114,45 @@ describe('useToolbarState', () => {
     expect(result.current.inputTokens).toBe(42);
   });
 
-  it('falls back to input_token when last_request_input_token is missing', () => {
+  it('shows backend name only for codex and claude tasks', async () => {
     setTask(
       createTask({
-        input_token: 300,
+        backend: 'codex' satisfies ExternalAgentBackend,
+        model: 'claude-opus-4-6@claude',
+      })
+    );
+
+    const { result, rerender } = renderHook(() => useToolbarState());
+
+    await waitFor(() => {
+      expect(result.current.modelName).toBe('codex');
+    });
+
+    setTask(
+      createTask({
+        backend: 'claude' satisfies ExternalAgentBackend,
+        model: 'claude-opus-4-6@claude',
+      })
+    );
+    rerender();
+
+    await waitFor(() => {
+      expect(result.current.modelName).toBe('claude');
+    });
+  });
+
+  it('shows full model and provider for talkcody tasks', async () => {
+    setTask(
+      createTask({
+        backend: 'native' satisfies ExternalAgentBackend,
+        model: 'gpt@openai',
       })
     );
 
     const { result } = renderHook(() => useToolbarState());
 
-    expect(result.current.inputTokens).toBe(300);
+    await waitFor(() => {
+      expect(result.current.modelName).toBe('GPT@OpenAI');
+    });
   });
 });

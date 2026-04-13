@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
-import { WindowManagerService } from '@/services/window-manager-service';
 import { settingsManager } from '@/stores/settings-store';
 import { type ShortcutAction, type ShortcutSettings, shortcutMatches } from '@/types/shortcuts';
 
@@ -10,7 +9,7 @@ export interface ShortcutHandlers {
   globalContentSearch?: () => void;
   fileSearch?: () => void;
   saveFile?: () => void;
-  newWindow?: () => void;
+  newWorkspace?: () => void;
   openModelSettings?: () => void;
   toggleTerminal?: () => void;
   nextTerminalTab?: () => void;
@@ -64,13 +63,13 @@ export function useGlobalShortcuts(handlers: ShortcutHandlers = {}) {
     [shortcuts]
   );
 
-  const handleNewWindow = useCallback(async () => {
+  const handleNewWorkspace = useCallback(async () => {
     try {
-      await WindowManagerService.createProjectWindow(undefined, undefined, true);
-      toast.success('New window created');
+      window.dispatchEvent(new CustomEvent('workspace:create'));
+      toast.success('New workspace tab created');
     } catch (error) {
-      logger.error('Failed to create new window:', error);
-      toast.error('Failed to create new window');
+      logger.error('Failed to create workspace tab:', error);
+      toast.error('Failed to create workspace tab');
     }
   }, []);
 
@@ -91,15 +90,15 @@ export function useGlobalShortcuts(handlers: ShortcutHandlers = {}) {
       // Skip if shortcuts are not loaded yet
       if (!shortcuts) return;
 
-      // Check for new window shortcut first (works everywhere, including input fields)
+      // Check for new workspace shortcut first (works everywhere, including input fields)
       if (shortcutMatches(event, shortcuts.newWindow)) {
-        logger.info('New window shortcut triggered - creating new window');
+        logger.info('New workspace shortcut triggered - creating workspace tab');
         event.preventDefault();
         event.stopPropagation();
-        if (handlers.newWindow) {
-          handlers.newWindow();
+        if (handlers.newWorkspace) {
+          handlers.newWorkspace();
         } else {
-          handleNewWindow();
+          handleNewWorkspace();
         }
         return;
       }
@@ -288,7 +287,7 @@ export function useGlobalShortcuts(handlers: ShortcutHandlers = {}) {
     return () => {
       document.removeEventListener('keydown', handleKeyDown, true);
     };
-  }, [shortcuts, handlers, handleNewWindow]);
+  }, [shortcuts, handlers, handleNewWorkspace]);
 
   // Load shortcuts on mount
   useEffect(() => {

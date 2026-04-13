@@ -158,11 +158,12 @@ export class DatabaseService {
     title: string,
     taskId: string,
     projectId = 'default',
-    model?: string
+    model?: string,
+    backend?: import('@/types').ExternalAgentBackend
   ): Promise<string> {
     await this.ensureInitialized();
     if (!this.taskService) throw new Error('Task service not initialized');
-    return this.taskService.createTask(title, taskId, projectId, model);
+    return this.taskService.createTask(title, taskId, projectId, model, backend);
   }
 
   async getTasks(projectId?: string): Promise<import('@/types').Task[]> {
@@ -202,6 +203,15 @@ export class DatabaseService {
     await this.ensureInitialized();
     if (!this.taskService) throw new Error('Task service not initialized');
     return this.taskService.updateTaskTitle(taskId, title);
+  }
+
+  async updateTaskBackend(
+    taskId: string,
+    backend: import('@/types').ExternalAgentBackend
+  ): Promise<void> {
+    await this.ensureInitialized();
+    if (!this.taskService) throw new Error('Task service not initialized');
+    return this.taskService.updateTaskBackend(taskId, backend);
   }
 
   async updateTaskProject(taskId: string, projectId: string): Promise<void> {

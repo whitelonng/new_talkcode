@@ -124,7 +124,7 @@ tree-sitter-typescript = "0.23"
 streaming-iterator = "0.1"
 
 # Tauri (desktop only)
-tauri = { version = "2.10", features = ["protocol-asset"] }
+tauri = { version = "2.10", features = ["protocol-asset", "tray-icon"] }
 tauri-build = { version = "2" }
 tauri-plugin-opener = "2.5"
 tauri-plugin-log = "2.8"

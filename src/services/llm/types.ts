@@ -1,5 +1,14 @@
 export type ProviderOptions = Record<string, unknown> | null;
 
+export type CredentialOverride = {
+  providerId: 'openai' | 'anthropic';
+  accountId: string;
+  authType: 'api_key' | 'oauth';
+  apiKey?: string;
+  useStoredOAuth?: boolean;
+  oauthAccountId?: string | null;
+};
+
 export type MessageContent = string | ContentPart[];
 
 export type Message =

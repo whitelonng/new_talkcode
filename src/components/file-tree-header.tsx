@@ -1,28 +1,16 @@
-import { FileSearch, Search } from 'lucide-react';
+import { FileSearch, FolderTree, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslation } from '@/hooks/use-locale';
 import { useTheme } from '@/hooks/use-theme';
 import { cn } from '@/lib/utils';
-import { ProjectDropdown } from './project-dropdown';
 
 interface FileTreeHeaderProps {
-  currentProjectId?: string | null;
-  onProjectSelect?: (projectId: string) => Promise<void>;
-  onImportRepository?: () => Promise<void>;
-  isLoadingProject?: boolean;
   onOpenFileSearch?: () => void;
   onOpenContentSearch?: () => void;
 }
 
-export function FileTreeHeader({
-  currentProjectId,
-  onProjectSelect,
-  onImportRepository,
-  isLoadingProject,
-  onOpenFileSearch,
-  onOpenContentSearch,
-}: FileTreeHeaderProps) {
+export function FileTreeHeader({ onOpenFileSearch, onOpenContentSearch }: FileTreeHeaderProps) {
   const t = useTranslation();
   const { isAppleTheme } = useTheme();
 
@@ -31,25 +19,18 @@ export function FileTreeHeader({
       className={cn(
         'flex flex-shrink-0 items-center justify-between border-b px-3',
         isAppleTheme
-          ? 'h-[46px] border-white/10 bg-black/20 backdrop-blur-xl dark:bg-white/5'
-          : 'h-[42px] bg-gray-50 dark:bg-gray-900'
+          ? 'h-[36px] border-white/10 bg-black/20 backdrop-blur-xl dark:bg-white/5'
+          : 'h-[32px] bg-gray-50 dark:bg-gray-900'
       )}
     >
-      {/* Left: Project Dropdown */}
-      <div className="flex min-w-0 flex-1 items-center">
-        {onProjectSelect && onImportRepository && (
-          <ProjectDropdown
-            currentProjectId={currentProjectId || null}
-            onProjectSelect={onProjectSelect}
-            onImportRepository={onImportRepository}
-            isLoading={isLoadingProject || false}
-          />
-        )}
+      <div className="flex min-w-0 items-center gap-2">
+        <FolderTree className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+        <span className="truncate font-medium text-muted-foreground text-xs uppercase tracking-wide">
+          {t.Sidebar.files}
+        </span>
       </div>
 
-      {/* Right: Search Actions */}
       <div className="flex items-center gap-1">
-        {/* File Search */}
         {onOpenFileSearch && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -73,7 +54,6 @@ export function FileTreeHeader({
           </Tooltip>
         )}
 
-        {/* Content Search */}
         {onOpenContentSearch && (
           <Tooltip>
             <TooltipTrigger asChild>

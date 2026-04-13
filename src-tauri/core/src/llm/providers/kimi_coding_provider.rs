@@ -1,7 +1,6 @@
 // Kimi Coding Plan Provider Implementation
 // Uses the coding plan endpoint with special KimiCLI User-Agent header
 
-use crate::llm::auth::api_key_manager::ApiKeyManager;
 use crate::llm::protocols::{
     header_builder::{HeaderBuildContext, ProtocolHeaderBuilder},
     openai_protocol::OpenAiProtocol,
@@ -55,16 +54,18 @@ impl Provider for KimiCodingProvider {
             .await
     }
 
-    async fn get_credentials(&self, api_key_manager: &ApiKeyManager) -> Result<Creds, String> {
+    async fn get_credentials(&self, ctx: &ProviderContext<'_>) -> Result<Creds, String> {
         // Try api_key_{provider_id} format first (standard storage format)
-        let key_value = api_key_manager
+        let key_value = ctx
+            .api_key_manager
             .get_setting(&format!("api_key_{}", self.base.config.id))
             .await?;
 
         // Fall back to api_key_name for backward compatibility
         let key_value = match key_value {
             Some(key) if !key.is_empty() => key,
-            _ => api_key_manager
+            _ => ctx
+                .api_key_manager
                 .get_setting(&self.base.config.api_key_name)
                 .await?
                 .ok_or_else(|| format!("API key '{}' not found", self.base.config.api_key_name))?,
@@ -108,6 +109,7 @@ mod tests {
     use super::*;
     use crate::database::Database;
     use crate::llm::auth::api_key_manager::ApiKeyManager;
+    use crate::llm::providers::provider::ProviderContext;
     use std::sync::Arc;
     use tempfile::TempDir;
 
@@ -129,7 +131,7 @@ mod tests {
         }
     }
 
-    async fn setup_test_context() -> (TempDir, ApiKeyManager, KimiCodingProvider) {
+    async fn setup_test_context() -> (TempDir, ApiKeyManager, KimiCodingProvider, ProviderConfig) {
         let dir = TempDir::new().expect("temp dir");
         let db_path = dir.path().join("test.db");
         let db = Arc::new(Database::new(db_path.to_string_lossy().to_string()));
@@ -142,23 +144,42 @@ mod tests {
         .expect("create settings");
 
         let api_keys = ApiKeyManager::new(db, dir.path().to_path_buf());
-        let provider = KimiCodingProvider::new(create_test_config());
+        let config = create_test_config();
+        let provider = KimiCodingProvider::new(config.clone());
 
-        (dir, api_keys, provider)
+        (dir, api_keys, provider, config)
+    }
+
+    fn provider_ctx<'a>(
+        config: &'a ProviderConfig,
+        api_keys: &'a ApiKeyManager,
+    ) -> ProviderContext<'a> {
+        ProviderContext {
+            provider_config: config,
+            api_key_manager: api_keys,
+            model: "test-model",
+            messages: &[],
+            tools: None,
+            temperature: None,
+            max_tokens: None,
+            top_p: None,
+            top_k: None,
+            provider_options: None,
+            trace_context: None,
+        }
     }
 
     #[tokio::test]
     async fn get_credentials_uses_api_key_provider_id_format() {
-        let (_dir, api_keys, provider) = setup_test_context().await;
+        let (_dir, api_keys, provider, config) = setup_test_context().await;
 
-        // Store API key using the standard format: api_key_{provider_id}
         api_keys
             .set_setting("api_key_kimi_coding", "test-kimi-coding-key")
             .await
             .expect("set api key");
 
         let creds = provider
-            .get_credentials(&api_keys)
+            .get_credentials(&provider_ctx(&config, &api_keys))
             .await
             .expect("get credentials");
 
@@ -170,16 +191,15 @@ mod tests {
 
     #[tokio::test]
     async fn get_credentials_falls_back_to_api_key_name() {
-        let (_dir, api_keys, provider) = setup_test_context().await;
+        let (_dir, api_keys, provider, config) = setup_test_context().await;
 
-        // Store API key using the legacy format: api_key_name (KIMI_CODING_API_KEY)
         api_keys
             .set_setting("KIMI_CODING_API_KEY", "legacy-kimi-coding-key")
             .await
             .expect("set api key");
 
         let creds = provider
-            .get_credentials(&api_keys)
+            .get_credentials(&provider_ctx(&config, &api_keys))
             .await
             .expect("get credentials");
 
@@ -191,9 +211,8 @@ mod tests {
 
     #[tokio::test]
     async fn get_credentials_prefers_provider_id_format_over_api_key_name() {
-        let (_dir, api_keys, provider) = setup_test_context().await;
+        let (_dir, api_keys, provider, config) = setup_test_context().await;
 
-        // Store API keys in both formats
         api_keys
             .set_setting("api_key_kimi_coding", "new-format-key")
             .await
@@ -204,11 +223,10 @@ mod tests {
             .expect("set legacy api key");
 
         let creds = provider
-            .get_credentials(&api_keys)
+            .get_credentials(&provider_ctx(&config, &api_keys))
             .await
             .expect("get credentials");
 
-        // Should prefer the new format (api_key_kimi_coding)
         match creds {
             Creds::ApiKey(key) => assert_eq!(key, "new-format-key"),
             _ => panic!("Expected ApiKey credential"),
@@ -217,10 +235,11 @@ mod tests {
 
     #[tokio::test]
     async fn get_credentials_returns_error_when_no_key_found() {
-        let (_dir, api_keys, provider) = setup_test_context().await;
+        let (_dir, api_keys, provider, config) = setup_test_context().await;
 
-        // Don't set any API key
-        let result = provider.get_credentials(&api_keys).await;
+        let result = provider
+            .get_credentials(&provider_ctx(&config, &api_keys))
+            .await;
 
         assert!(result.is_err());
         let error_msg = result.unwrap_err();

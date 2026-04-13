@@ -23,9 +23,14 @@ const mockTaskStoreState = {
   }),
 };
 
-vi.mock('@/stores/task-store', () => ({
-  useTaskStore: vi.fn((selector) => selector(mockTaskStoreState)),
-}));
+vi.mock('@/stores/task-store', () => {
+  const mockedUseTaskStore = vi.fn((selector) => selector(mockTaskStoreState));
+  return {
+    useTaskStore: Object.assign(mockedUseTaskStore, {
+      getState: () => mockTaskStoreState,
+    }),
+  };
+});
 
 const mockUIStateStoreState = {
   editingTaskId: null as string | null,
@@ -141,6 +146,88 @@ describe('useTasks', () => {
     });
 
     expect(taskService.loadTasksWithPagination).toHaveBeenCalledWith('project1', 20, 0, true, true);
+  });
+
+  it('should auto select the first task when loading without an active task', async () => {
+    const { taskService } = await import('@/services/task-service');
+    const firstTask = {
+      id: 'task-1',
+      title: 'Task 1',
+      project_id: 'project1',
+      created_at: 1000,
+      updated_at: 1000,
+      message_count: 0,
+      request_count: 0,
+      cost: 0,
+      input_token: 0,
+      output_token: 0,
+    } satisfies Task;
+
+    (taskService.loadTasksWithPagination as unknown as { mockResolvedValueOnce: (value: Task[]) => void }).mockResolvedValueOnce([
+      firstTask,
+    ]);
+
+    const { result } = renderHook(() => useTasks());
+    await act(async () => {
+      await result.current.loadTasks('project1');
+    });
+
+    expect(taskService.selectTask).toHaveBeenCalledWith('task-1');
+  });
+
+  it('should not auto select when searching tasks', async () => {
+    const { taskService } = await import('@/services/task-service');
+    const firstTask = {
+      id: 'task-1',
+      title: 'Task 1',
+      project_id: 'project1',
+      created_at: 1000,
+      updated_at: 1000,
+      message_count: 0,
+      request_count: 0,
+      cost: 0,
+      input_token: 0,
+      output_token: 0,
+    } satisfies Task;
+
+    (taskService.loadTasksWithSearchPagination as unknown as { mockResolvedValueOnce: (value: Task[]) => void }).mockResolvedValueOnce([
+      firstTask,
+    ]);
+
+    const { result } = renderHook(() => useTasks());
+    await act(async () => {
+      await result.current.loadTasks('project1', 'demo');
+    });
+
+    expect(taskService.selectTask).not.toHaveBeenCalled();
+  });
+
+  it('should not auto select when an active task already exists', async () => {
+    const { taskService } = await import('@/services/task-service');
+    const firstTask = {
+      id: 'task-1',
+      title: 'Task 1',
+      project_id: 'project1',
+      created_at: 1000,
+      updated_at: 1000,
+      message_count: 0,
+      request_count: 0,
+      cost: 0,
+      input_token: 0,
+      output_token: 0,
+    } satisfies Task;
+
+    mockTaskStoreState.currentTaskId = 'existing-task';
+    (taskService.loadTasksWithPagination as unknown as { mockResolvedValueOnce: (value: Task[]) => void }).mockResolvedValueOnce([
+      firstTask,
+    ]);
+
+    const { result } = renderHook(() => useTasks());
+    await act(async () => {
+      await result.current.loadTasks('project1');
+    });
+
+    expect(taskService.selectTask).not.toHaveBeenCalled();
   });
 
   it('should load tasks with search term', async () => {

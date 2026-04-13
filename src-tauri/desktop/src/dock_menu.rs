@@ -1,38 +1,8 @@
 #![cfg_attr(target_os = "macos", allow(unexpected_cfgs))]
 
 use crate::database::Database;
-use crate::window_manager::create_window;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tauri::Manager;
-
-/// Common helper to create window from dock menu actions
-/// Uses spawn instead of block_on to avoid potential deadlocks when called from Cocoa main thread
-fn create_window_from_dock(
-    project_id: Option<String>,
-    root_path: Option<String>,
-    is_new_window: bool,
-) {
-    // Use spawn instead of block_on to avoid deadlock risk
-    // Cocoa menu callbacks may run on the main thread, and blocking would be dangerous
-    tauri::async_runtime::spawn(async move {
-        let app_handle = crate::get_app_handle();
-        let window_registry = app_handle
-            .state::<crate::AppState>()
-            .window_registry
-            .clone();
-
-        if let Err(e) = create_window(
-            app_handle,
-            &window_registry,
-            project_id,
-            root_path,
-            is_new_window,
-        ) {
-            log::error!("Failed to create window from dock menu: {}", e);
-        }
-    });
-}
 
 /// Query recent projects from database
 /// Uses the recent_projects table which tracks actual project open times
@@ -253,16 +223,9 @@ fn create_native_dock_menu(recent_projects: &[serde_json::Value]) {
             // SAFETY: ClassDecl::new is safe as long as class name is unique (guaranteed by Once)
             let mut decl = ClassDecl::new(class_name, Class::get("NSObject").unwrap()).unwrap();
 
-            // New window action callback
+            // Project reveal action callback
             // SAFETY: This extern "C" function matches Objective-C method signature requirements
-            extern "C" fn open_new_window_action(_this: &Object, _cmd: Sel, _sender: *mut Object) {
-                log::info!("Dock menu: New window action triggered");
-                create_window_from_dock(None, None, true);
-            }
-
-            // Project open action callback
-            // SAFETY: This extern "C" function matches Objective-C method signature requirements
-            extern "C" fn open_project_action(_this: &Object, _cmd: Sel, sender: *mut Object) {
+            extern "C" fn reveal_project_action(_this: &Object, _cmd: Sel, sender: *mut Object) {
                 // SAFETY: Calling Objective-C methods on menu item sender
                 unsafe {
                     // SAFETY: representedObject is set by us below, guaranteed to be NSString
@@ -272,25 +235,21 @@ fn create_native_dock_menu(recent_projects: &[serde_json::Value]) {
                     // SAFETY: UTF8String returns a null-terminated valid UTF-8 string
                     let payload = std::ffi::CStr::from_ptr(payload_cstr).to_string_lossy();
 
-                    log::info!("Dock menu: Open project action triggered: {}", payload);
+                    log::info!("Dock menu: Reveal project action triggered: {}", payload);
 
-                    let (project_id, path) = decode_dock_menu_payload(&payload);
-
-                    create_window_from_dock(project_id, Some(path), false);
+                    let (_project_id, path) = decode_dock_menu_payload(&payload);
+                    let app_handle = crate::get_app_handle();
+                    let _ = app_handle.emit("dock-open-project", path.to_string());
+                    crate::tray::show_main_window(app_handle);
                 }
             }
 
-            let new_window_selector = Sel::register("openNewWindowAction:");
-            decl.add_method(
-                new_window_selector,
-                open_new_window_action as extern "C" fn(&Object, Sel, *mut Object),
-            );
-
-            let project_selector = Sel::register("openProjectAction:");
+            let project_selector = Sel::register("revealProjectAction:");
             decl.add_method(
                 project_selector,
-                open_project_action as extern "C" fn(&Object, Sel, *mut Object),
+                reveal_project_action as extern "C" fn(&Object, Sel, *mut Object),
             );
+
 
             decl.register();
         });
@@ -304,7 +263,7 @@ fn create_native_dock_menu(recent_projects: &[serde_json::Value]) {
             for entry in menu_entries {
                 // SAFETY: Creating NSString from Rust &str - cocoa validates UTF-8
                 let title = NSString::alloc(nil).init_str(&entry.title);
-                let selector = Sel::register("openProjectAction:");
+                let selector = Sel::register("revealProjectAction:");
                 // SAFETY: Creating menu item with valid title, action, and empty key equivalent
                 let item: *mut Object = NSMenuItem::alloc(nil).initWithTitle_action_keyEquivalent_(
                     title,
@@ -333,24 +292,6 @@ fn create_native_dock_menu(recent_projects: &[serde_json::Value]) {
             // SAFETY: Adding system-provided separator menu item
             let _: () = msg_send![dock_menu, addItem: NSMenuItem::separatorItem(nil)];
         }
-
-        // Add "New Window" item (now at the bottom)
-        // SAFETY: Creating NSString from static string literal
-        let title = NSString::alloc(nil).init_str("New Window");
-        let selector = Sel::register("openNewWindowAction:");
-        // SAFETY: Creating menu item with valid parameters
-        let item: *mut Object = NSMenuItem::alloc(nil).initWithTitle_action_keyEquivalent_(
-            title,
-            selector,
-            NSString::alloc(nil).init_str(""),
-        );
-
-        // SAFETY: Creating new instance of our registered target class
-        let target: *mut Object = msg_send![target_class, new];
-        // SAFETY: Setting target and adding to menu - standard Cocoa operations
-        let _: () = msg_send![item, setTarget: target];
-        let _: () = msg_send![dock_menu, addItem: item];
-        let _: () = msg_send![item, setEnabled: true];
 
         // Set the dock menu on the application
         // SAFETY: Setting dock menu on NSApp - standard macOS API, menu is retained by app

@@ -63,6 +63,9 @@ export class TursoDatabaseInit {
       // Migration 9: Add model field to conversations table
       await TursoDatabaseInit.migrateConversationsModel(db);
 
+      // Migration 10: Add backend field to conversations table
+      await TursoDatabaseInit.migrateConversationsBackend(db);
+
       logger.info('✅ Database migrations check completed');
     } catch (error) {
       logger.error('❌ Database migration error:', error);
@@ -359,6 +362,32 @@ export class TursoDatabaseInit {
       }
     } catch (error) {
       logger.error('Error migrating conversations table model:', error);
+    }
+  }
+
+  /**
+   * Add backend field to conversations table for external runtime binding
+   */
+  private static async migrateConversationsBackend(db: TursoClient): Promise<void> {
+    try {
+      const result = await (db as any).execute(`
+        SELECT COUNT(*) as count
+        FROM pragma_table_info('conversations')
+        WHERE name = 'backend'
+      `);
+
+      const columnExists = result.rows[0]?.count > 0;
+
+      if (!columnExists) {
+        logger.info('Migrating conversations table to add backend field...');
+        await (db as any).execute(`ALTER TABLE conversations ADD COLUMN backend TEXT DEFAULT 'native'`);
+        await (db as any).execute(
+          `UPDATE conversations SET backend = 'native' WHERE backend IS NULL OR backend = ''`
+        );
+        logger.info('✅ Conversations table backend migration completed');
+      }
+    } catch (error) {
+      logger.error('Error migrating conversations table backend:', error);
     }
   }
 }

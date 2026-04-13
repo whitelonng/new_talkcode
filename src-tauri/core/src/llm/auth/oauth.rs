@@ -2,6 +2,7 @@ use crate::llm::auth::api_key_manager::{normalize_domain, ApiKeyManager, LlmStat
 use rand::RngCore;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use std::collections::HashMap;
 use std::sync::OnceLock;
 use std::time::{Duration, Instant};
 use tauri::State;
@@ -11,7 +12,8 @@ const OPENAI_CLIENT_ID: &str = "app_EMoamEEZ73f0CkXaXp7hrann";
 const OPENAI_REDIRECT_URI: &str = "http://localhost:1455/auth/callback";
 const OPENAI_AUTH_URL: &str = "https://auth.openai.com/oauth/authorize";
 const OPENAI_TOKEN_URL: &str = "https://auth.openai.com/oauth/token";
-const OPENAI_OAUTH_SCOPE: &str = "openid profile email offline_access";
+const OPENAI_OAUTH_SCOPE: &str =
+    "openid profile email offline_access api.connectors.read api.connectors.invoke";
 
 const CLAUDE_CLIENT_ID: &str = "app_01Kcx9v5mR2eGz4B2KG1hp6P";
 const CLAUDE_REDIRECT_URI: &str = "http://localhost:1455/auth/callback";
@@ -134,9 +136,110 @@ fn base64_url_decode(input: &str) -> Result<Vec<u8>, String> {
         .map_err(|e| format!("Base64 decode error: {}", e))
 }
 
-// ============================================================================
-// OpenAI OAuth
-// ============================================================================
+#[derive(Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct OpenAIOAuthAccountEntry {
+    pub account_id: String,
+    pub access_token: String,
+    pub refresh_token: String,
+    pub expires_at: i64,
+}
+
+fn openai_oauth_accounts_key() -> &'static str {
+    "openai_oauth_accounts"
+}
+
+async fn load_openai_oauth_accounts(
+    api_keys: &ApiKeyManager,
+) -> Result<HashMap<String, OpenAIOAuthAccountEntry>, String> {
+    let raw = api_keys
+        .get_setting(openai_oauth_accounts_key())
+        .await?
+        .unwrap_or_default();
+
+    if raw.trim().is_empty() {
+        return Ok(HashMap::new());
+    }
+
+    serde_json::from_str::<HashMap<String, OpenAIOAuthAccountEntry>>(&raw)
+        .map_err(|err| format!("Failed to parse OpenAI OAuth accounts: {}", err))
+}
+
+async fn save_openai_oauth_accounts(
+    api_keys: &ApiKeyManager,
+    accounts: &HashMap<String, OpenAIOAuthAccountEntry>,
+) -> Result<(), String> {
+    let serialized = serde_json::to_string(accounts)
+        .map_err(|err| format!("Failed to serialize OpenAI OAuth accounts: {}", err))?;
+    api_keys
+        .set_setting(openai_oauth_accounts_key(), &serialized)
+        .await
+}
+
+async fn set_active_openai_oauth_account(
+    api_keys: &ApiKeyManager,
+    entry: &OpenAIOAuthAccountEntry,
+) -> Result<(), String> {
+    api_keys
+        .set_setting("openai_oauth_access_token", &entry.access_token)
+        .await?;
+    api_keys
+        .set_setting("openai_oauth_refresh_token", &entry.refresh_token)
+        .await?;
+    api_keys
+        .set_setting("openai_oauth_expires_at", &entry.expires_at.to_string())
+        .await?;
+    api_keys
+        .set_setting("openai_oauth_account_id", &entry.account_id)
+        .await?;
+    Ok(())
+}
+
+async fn clear_active_openai_oauth_account(api_keys: &ApiKeyManager) -> Result<(), String> {
+    api_keys
+        .set_setting("openai_oauth_access_token", "")
+        .await?;
+    api_keys
+        .set_setting("openai_oauth_refresh_token", "")
+        .await?;
+    api_keys.set_setting("openai_oauth_expires_at", "").await?;
+    api_keys.set_setting("openai_oauth_account_id", "").await?;
+    Ok(())
+}
+
+async fn upsert_openai_oauth_account(
+    api_keys: &ApiKeyManager,
+    account_id: &str,
+    access_token: &str,
+    refresh_token: &str,
+    expires_at: i64,
+) -> Result<OpenAIOAuthAccountEntry, String> {
+    let mut accounts = load_openai_oauth_accounts(api_keys).await?;
+    let entry = OpenAIOAuthAccountEntry {
+        account_id: account_id.to_string(),
+        access_token: access_token.to_string(),
+        refresh_token: refresh_token.to_string(),
+        expires_at,
+    };
+    accounts.insert(account_id.to_string(), entry.clone());
+    save_openai_oauth_accounts(api_keys, &accounts).await?;
+    set_active_openai_oauth_account(api_keys, &entry).await?;
+    Ok(entry)
+}
+
+async fn get_openai_oauth_account(
+    api_keys: &ApiKeyManager,
+    account_id: &str,
+) -> Result<Option<OpenAIOAuthAccountEntry>, String> {
+    let accounts = load_openai_oauth_accounts(api_keys).await?;
+    Ok(accounts.get(account_id).cloned())
+}
+
+#[derive(Deserialize)]
+pub struct OpenAIOAuthAccountRequest {
+    #[serde(rename = "accountId")]
+    pub account_id: Option<String>,
+}
 
 fn build_openai_authorize_url(redirect_uri: &str, challenge: &str, state: &str) -> String {
     let mut url = url::Url::parse(OPENAI_AUTH_URL).expect("OPENAI_AUTH_URL is valid");
@@ -157,6 +260,33 @@ fn build_openai_authorize_url(redirect_uri: &str, challenge: &str, state: &str) 
 #[cfg(test)]
 mod openai_authorize_url_tests {
     use super::*;
+    use crate::database::Database;
+    use std::collections::HashMap;
+    use std::sync::Arc;
+    use tempfile::TempDir;
+
+    struct TestContext {
+        _dir: TempDir,
+        api_keys: ApiKeyManager,
+    }
+
+    async fn setup() -> TestContext {
+        let dir = TempDir::new().expect("temp dir");
+        let db_path = dir.path().join("oauth-settings.db");
+        let db = Arc::new(Database::new(db_path.to_string_lossy().to_string()));
+        db.connect().await.expect("db connect");
+        db.execute(
+            "CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT, updated_at INTEGER)",
+            vec![],
+        )
+        .await
+        .expect("create settings");
+
+        TestContext {
+            _dir: dir,
+            api_keys: ApiKeyManager::new(db, std::path::PathBuf::from("/tmp")),
+        }
+    }
 
     #[test]
     fn openai_authorize_url_uses_oauth_endpoints_and_scope() {
@@ -169,13 +299,114 @@ mod openai_authorize_url_tests {
         assert!(url.contains("response_type=code"));
         assert!(url.contains("client_id=app_EMoamEEZ73f0CkXaXp7hrann"));
         assert!(url.contains("redirect_uri=http%3A%2F%2Flocalhost%3A1455%2Fauth%2Fcallback"));
-        assert!(url.contains("scope=openid+profile+email+offline_access"));
+        assert!(url.contains(
+            "scope=openid+profile+email+offline_access+api.connectors.read+api.connectors.invoke"
+        ));
         assert!(url.contains("code_challenge=test_challenge"));
         assert!(url.contains("code_challenge_method=S256"));
         assert!(url.contains("state=test_state"));
         assert!(url.contains("id_token_add_organizations=true"));
         assert!(url.contains("codex_cli_simplified_flow=true"));
         assert!(url.contains("originator=codex_cli_rs"));
+    }
+
+    #[tokio::test]
+    async fn upsert_openai_oauth_account_persists_multi_account_map_and_active_account() {
+        let ctx = setup().await;
+
+        upsert_openai_oauth_account(
+            &ctx.api_keys,
+            "acct_primary",
+            "token-primary",
+            "refresh-primary",
+            111,
+        )
+        .await
+        .expect("upsert primary");
+        upsert_openai_oauth_account(
+            &ctx.api_keys,
+            "acct_backup",
+            "token-backup",
+            "refresh-backup",
+            222,
+        )
+        .await
+        .expect("upsert backup");
+
+        let accounts = load_openai_oauth_accounts(&ctx.api_keys)
+            .await
+            .expect("load accounts");
+        assert_eq!(accounts.len(), 2);
+        assert_eq!(
+            accounts.get("acct_primary").map(|entry| entry.access_token.as_str()),
+            Some("token-primary")
+        );
+        assert_eq!(
+            accounts.get("acct_backup").map(|entry| entry.refresh_token.as_str()),
+            Some("refresh-backup")
+        );
+
+        let active_account = ctx
+            .api_keys
+            .get_setting("openai_oauth_account_id")
+            .await
+            .expect("read active account")
+            .unwrap_or_default();
+        let active_token = ctx
+            .api_keys
+            .get_setting("openai_oauth_access_token")
+            .await
+            .expect("read active token")
+            .unwrap_or_default();
+        assert_eq!(active_account, "acct_backup");
+        assert_eq!(active_token, "token-backup");
+    }
+
+    #[tokio::test]
+    async fn clear_active_openai_oauth_account_clears_legacy_active_fields_only() {
+        let ctx = setup().await;
+
+        let mut accounts = HashMap::new();
+        accounts.insert(
+            "acct_primary".to_string(),
+            OpenAIOAuthAccountEntry {
+                account_id: "acct_primary".to_string(),
+                access_token: "token-primary".to_string(),
+                refresh_token: "refresh-primary".to_string(),
+                expires_at: 111,
+            },
+        );
+        save_openai_oauth_accounts(&ctx.api_keys, &accounts)
+            .await
+            .expect("save accounts");
+        set_active_openai_oauth_account(&ctx.api_keys, accounts.get("acct_primary").unwrap())
+            .await
+            .expect("set active");
+
+        clear_active_openai_oauth_account(&ctx.api_keys)
+            .await
+            .expect("clear active");
+
+        let reloaded = load_openai_oauth_accounts(&ctx.api_keys)
+            .await
+            .expect("reload accounts");
+        assert_eq!(reloaded.len(), 1);
+        assert_eq!(
+            ctx.api_keys
+                .get_setting("openai_oauth_access_token")
+                .await
+                .expect("access token")
+                .unwrap_or_default(),
+            ""
+        );
+        assert_eq!(
+            ctx.api_keys
+                .get_setting("openai_oauth_account_id")
+                .await
+                .expect("account id")
+                .unwrap_or_default(),
+            ""
+        );
     }
 }
 
@@ -314,17 +545,18 @@ pub async fn llm_openai_oauth_complete(
 
     // Save to settings
     let api_keys = state.api_keys.lock().await;
-    api_keys
-        .set_setting("openai_oauth_access_token", &access_token)
-        .await?;
-    api_keys
-        .set_setting("openai_oauth_refresh_token", &refresh_token)
-        .await?;
-    api_keys
-        .set_setting("openai_oauth_expires_at", &expires_at.to_string())
-        .await?;
     if let Some(ref id) = account_id {
-        api_keys.set_setting("openai_oauth_account_id", id).await?;
+        upsert_openai_oauth_account(&api_keys, id, &access_token, &refresh_token, expires_at).await?;
+    } else {
+        api_keys
+            .set_setting("openai_oauth_access_token", &access_token)
+            .await?;
+        api_keys
+            .set_setting("openai_oauth_refresh_token", &refresh_token)
+            .await?;
+        api_keys
+            .set_setting("openai_oauth_expires_at", &expires_at.to_string())
+            .await?;
     }
 
     Ok(OpenAIOAuthCompleteResponse {
@@ -353,6 +585,7 @@ pub struct OpenAIOAuthRefreshResponse {
 pub(crate) async fn refresh_openai_oauth_tokens(
     client: &reqwest::Client,
     refresh_token: &str,
+    account_id: Option<&str>,
     api_keys: &ApiKeyManager,
 ) -> Result<OpenAIOAuthRefreshResponse, String> {
     let params = [
@@ -397,19 +630,24 @@ pub(crate) async fn refresh_openai_oauth_tokens(
     let expires_in = token_response["expires_in"].as_i64().unwrap_or(3600);
     let expires_at = chrono::Utc::now().timestamp() + expires_in;
 
-    let account_id = extract_openai_account_id(&access_token);
+    let account_id = extract_openai_account_id(&access_token)
+        .or_else(|| account_id.map(|value| value.to_string()));
 
-    api_keys
-        .set_setting("openai_oauth_access_token", &access_token)
-        .await?;
-    api_keys
-        .set_setting("openai_oauth_refresh_token", &refresh_token)
-        .await?;
-    api_keys
-        .set_setting("openai_oauth_expires_at", &expires_at.to_string())
-        .await?;
     if let Some(ref id) = account_id {
-        api_keys.set_setting("openai_oauth_account_id", id).await?;
+        upsert_openai_oauth_account(api_keys, id, &access_token, &refresh_token, expires_at).await?;
+    } else {
+        api_keys
+            .set_setting("openai_oauth_access_token", &access_token)
+            .await?;
+        api_keys
+            .set_setting("openai_oauth_refresh_token", &refresh_token)
+            .await?;
+        api_keys
+            .set_setting("openai_oauth_expires_at", &expires_at.to_string())
+            .await?;
+        if let Some(ref id) = account_id {
+            api_keys.set_setting("openai_oauth_account_id", id).await?;
+        }
     }
 
     Ok(OpenAIOAuthRefreshResponse {
@@ -427,38 +665,74 @@ pub async fn llm_openai_oauth_refresh(
 ) -> Result<OpenAIOAuthRefreshResponse, String> {
     let api_keys = state.api_keys.lock().await;
     let client = reqwest::Client::new();
-    refresh_openai_oauth_tokens(&client, &request.refresh_token, &api_keys).await
+    refresh_openai_oauth_tokens(&client, &request.refresh_token, None, &api_keys).await
 }
 
 #[tauri::command]
 pub async fn llm_openai_oauth_refresh_from_store(
+    request: Option<OpenAIOAuthAccountRequest>,
     state: State<'_, LlmState>,
 ) -> Result<OpenAIOAuthRefreshResponse, String> {
     let api_keys = state.api_keys.lock().await;
-    let refresh_token = api_keys
-        .get_setting("openai_oauth_refresh_token")
-        .await?
-        .unwrap_or_default();
+
+    let target_account_id = request.and_then(|value| value.account_id);
+
+    let refresh_token = if let Some(ref account_id) = target_account_id {
+        get_openai_oauth_account(&api_keys, account_id)
+            .await?
+            .map(|entry| entry.refresh_token)
+            .unwrap_or_default()
+    } else {
+        api_keys
+            .get_setting("openai_oauth_refresh_token")
+            .await?
+            .unwrap_or_default()
+    };
 
     if refresh_token.trim().is_empty() {
         return Err("OpenAI OAuth refresh token missing".to_string());
     }
 
     let client = reqwest::Client::new();
-    refresh_openai_oauth_tokens(&client, &refresh_token, &api_keys).await
+    refresh_openai_oauth_tokens(
+        &client,
+        &refresh_token,
+        target_account_id.as_deref(),
+        &api_keys,
+    )
+    .await
 }
 
 #[tauri::command]
-pub async fn llm_openai_oauth_disconnect(state: State<'_, LlmState>) -> Result<(), String> {
+pub async fn llm_openai_oauth_disconnect(
+    request: Option<OpenAIOAuthAccountRequest>,
+    state: State<'_, LlmState>,
+) -> Result<(), String> {
     let api_keys = state.api_keys.lock().await;
-    api_keys
-        .set_setting("openai_oauth_access_token", "")
-        .await?;
-    api_keys
-        .set_setting("openai_oauth_refresh_token", "")
-        .await?;
-    api_keys.set_setting("openai_oauth_expires_at", "").await?;
-    api_keys.set_setting("openai_oauth_account_id", "").await?;
+
+    if let Some(account_id) = request.and_then(|value| value.account_id) {
+        let mut accounts = load_openai_oauth_accounts(&api_keys).await?;
+        accounts.remove(&account_id);
+        save_openai_oauth_accounts(&api_keys, &accounts).await?;
+
+        let active_account_id = api_keys
+            .get_setting("openai_oauth_account_id")
+            .await?
+            .unwrap_or_default();
+
+        if active_account_id == account_id {
+            if let Some(next_entry) = accounts.values().next() {
+                set_active_openai_oauth_account(&api_keys, next_entry).await?;
+            } else {
+                clear_active_openai_oauth_account(&api_keys).await?;
+            }
+        }
+
+        return Ok(());
+    }
+
+    save_openai_oauth_accounts(&api_keys, &HashMap::new()).await?;
+    clear_active_openai_oauth_account(&api_keys).await?;
     Ok(())
 }
 
@@ -1069,6 +1343,8 @@ pub struct OAuthProviderStatus {
     pub is_connected: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_refresh_token: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub accounts: Option<Vec<OAuthProviderStatus>>,
 }
 
 #[derive(Serialize)]
@@ -1104,12 +1380,29 @@ pub async fn llm_oauth_status(state: State<'_, LlmState>) -> Result<OAuthStatusR
         .await?
         .filter(|s| !s.is_empty());
 
-    let openai = if openai_access.is_some() || openai_refresh.is_some() {
+    let openai_accounts = load_openai_oauth_accounts(&api_keys).await?;
+    let openai_account_statuses: Vec<OAuthProviderStatus> = openai_accounts
+        .values()
+        .map(|entry| OAuthProviderStatus {
+            expires_at: Some(entry.expires_at),
+            account_id: Some(entry.account_id.clone()),
+            is_connected: Some(true),
+            has_refresh_token: Some(!entry.refresh_token.trim().is_empty()),
+            accounts: None,
+        })
+        .collect();
+
+    let openai = if openai_access.is_some() || openai_refresh.is_some() || !openai_account_statuses.is_empty() {
         Some(OAuthProviderStatus {
             expires_at: openai_expires,
             account_id: openai_account,
             is_connected: Some(true),
             has_refresh_token: Some(openai_refresh.is_some()),
+            accounts: if openai_account_statuses.is_empty() {
+                None
+            } else {
+                Some(openai_account_statuses)
+            },
         })
     } else {
         None
@@ -1131,6 +1424,7 @@ pub async fn llm_oauth_status(state: State<'_, LlmState>) -> Result<OAuthStatusR
             account_id: None,
             is_connected: Some(true),
             has_refresh_token: None,
+            accounts: None,
         })
     } else {
         None
@@ -1149,6 +1443,7 @@ pub async fn llm_oauth_status(state: State<'_, LlmState>) -> Result<OAuthStatusR
     let github_copilot = if copilot_access.is_some() || copilot_token.is_some() {
         Some(OAuthProviderStatus {
             is_connected: Some(true),
+            accounts: None,
             ..Default::default()
         })
     } else {

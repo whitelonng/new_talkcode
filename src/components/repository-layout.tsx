@@ -11,7 +11,6 @@ import type { LintDiagnostic } from '@/services/lint-service';
 import { repositoryService } from '@/services/repository-service';
 import { getRelativePath } from '@/services/repository-utils';
 import { taskService } from '@/services/task-service';
-import { WindowManagerService } from '@/services/window-manager-service';
 import { settingsManager } from '@/stores/settings-store';
 import { useTitlebarStore } from '@/stores/titlebar-store';
 import { SidebarView } from '@/types/navigation';
@@ -226,7 +225,7 @@ export const RepositoryLayout = memo(function RepositoryLayout() {
     refreshGitStatus();
   };
 
-  const handleProjectSelect = async (projectId: string) => {
+  const _handleProjectSelect = async (projectId: string) => {
     try {
       const project = await databaseService.getProject(projectId);
       if (project) {
@@ -359,27 +358,6 @@ export const RepositoryLayout = memo(function RepositoryLayout() {
     const loadSavedRepository = async () => {
       if (!isMounted || rootPath) return;
 
-      const isNewWindow = await WindowManagerService.checkNewWindowFlag();
-      const windowInfo = await WindowManagerService.getWindowInfo();
-
-      if (windowInfo?.rootPath) {
-        logger.info(
-          '[repository-layout] Window has associated project, skipping global saved repository restore'
-        );
-        if (isNewWindow) {
-          await WindowManagerService.clearNewWindowFlag();
-        }
-        return;
-      }
-
-      if (isNewWindow) {
-        logger.info(
-          '[repository-layout] New window detected without associated project - skipping auto-load'
-        );
-        await WindowManagerService.clearNewWindowFlag();
-        return;
-      }
-
       const savedPath = settingsManager.getCurrentRootPath();
       const projectId = await settingsManager.getProject();
 
@@ -442,13 +420,6 @@ export const RepositoryLayout = memo(function RepositoryLayout() {
                   settingsManager.setSidebarView(view);
                 }}
                 currentProjectId={currentProjectId}
-                onProjectSelect={handleProjectSelect}
-                onImportRepository={async () => {
-                  const newProject = await selectRepository();
-                  if (newProject) {
-                    await refreshProjects();
-                  }
-                }}
                 onSelectRepository={async () => {
                   const newProject = await selectRepository();
                   if (newProject) {

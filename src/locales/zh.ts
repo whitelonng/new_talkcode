@@ -54,6 +54,13 @@ const zh: LocaleDefinition = {
     discard: '放弃',
   },
 
+  App: {
+    runningTasksExitTitle: '仍有任务执行中',
+    runningTasksExitDescription: (count) =>
+      `当前仍有 ${count} 个任务未执行完，确定退出 TalkCody 吗？`,
+    confirmExit: '继续退出',
+  },
+
   Chat: {
     placeholder: '输入问题... / 命令，# 添加文件到上下文',
     placeholderWithContext: '继续对话...',
@@ -285,6 +292,14 @@ const zh: LocaleDefinition = {
     restore: '还原',
     close: '关闭',
     backToExplorer: '返回主界面',
+    workspaceTabs: {
+      newTab: '新工作区',
+      closeTab: '关闭工作区',
+      selectProject: '选择项目',
+      noProject: '无项目',
+      maxTabsReached: '最多 3 个工作区',
+      importRepository: '导入仓库',
+    },
   },
 
   Settings: {
@@ -312,6 +327,7 @@ const zh: LocaleDefinition = {
       toolsPlayground: '工具测试场',
       tracing: 'LLM 调用追踪',
       github: 'GitHub 源码',
+      tray: '系统托盘',
     },
     account: {
       title: '账户设置',
@@ -370,6 +386,17 @@ const zh: LocaleDefinition = {
         '需要 API 密钥才能访问不同供应商的 AI 模型。在此配置您的 API 密钥以启用模型访问。',
       viewDocumentation: '查看文档',
       baseUrlPlaceholder: (url) => `${url}（留空使用默认值）`,
+      multiAccount: {
+        title: '多账号轮换',
+        description:
+          '为 OpenAI 和 Anthropic 管理多个账号。认证或额度失败后，请求会自动切换到下一个已启用账号。',
+        addAccount: '添加 API Key 账号',
+        accountNamePlaceholder: '账号名称',
+        oauthAccount: 'OAuth 账号',
+        apiKeyAccount: 'API Key 账号',
+        oauthConnected: 'OAuth 已连接',
+        oauthNotConnected: 'OAuth 未连接',
+      },
     },
     claudeOAuth: {
       title: 'Claude Pro/Max',
@@ -404,6 +431,8 @@ const zh: LocaleDefinition = {
       title: 'ChatGPT Plus/Pro',
       description: '使用您的 ChatGPT Plus 或 Pro 订阅登录以使用 OpenAI 模型',
       signIn: '使用 ChatGPT 登录',
+      addAccount: '添加 OAuth 账号',
+      connectedAccounts: (count) => `已连接 ${count} 个 OAuth 账号`,
       step1: '步骤 1：打开授权链接',
       step1Hint: '点击上方链接在浏览器中打开 OpenAI 授权页面',
       step2: '步骤 2：粘贴回调 URL',
@@ -654,7 +683,7 @@ const zh: LocaleDefinition = {
       fileSearch: '文件内搜索',
       saveFile: '保存文件',
       openModelSettings: '打开模型设置',
-      newWindow: '打开新窗口',
+      newWindow: '新建工作区标签',
       toggleTerminal: '切换终端',
       nextTerminalTab: '下一个终端标签',
       previousTerminalTab: '上一个终端标签',
@@ -787,6 +816,12 @@ const zh: LocaleDefinition = {
       blockedPrompt: '提示被 Hooks 阻止。',
     },
     hooksScopeHint: '作用域合并顺序：用户 → 项目。',
+    tray: {
+      title: '系统托盘',
+      description: '配置关闭应用时的系统托盘行为',
+      closeToTray: '关闭时最小化到托盘',
+      closeToTrayDescription: '启用后，关闭窗口将最小化应用到系统托盘，而不是退出应用',
+    },
   },
 
   Agents: {
@@ -913,10 +948,6 @@ const zh: LocaleDefinition = {
       importRepository: '导入仓库',
       emptyTitle: '还没有项目',
       emptyDescription: '导入您的第一个仓库以开始使用 TalkCody',
-      openInNewWindow: '在新窗口中打开',
-      noRepositoryPath: '此项目没有关联的仓库路径',
-      openedInNewWindow: (name) => `已在新窗口中打开 ${name}`,
-      failedToOpenInWindow: '无法在新窗口中打开项目',
       deleteProject: '删除项目',
       deleteProjectTitle: '删除项目',
       deleteProjectDescription: (name) => `确定要删除项目 "${name}" 吗？此操作无法撤销。`,

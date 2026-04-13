@@ -7,7 +7,8 @@ import { llmClient } from '@/services/llm/llm-client';
 const CLIENT_ID = 'app_EMoamEEZ73f0CkXaXp7hrann';
 const OAUTH_REDIRECT_URI = 'http://localhost:1455/auth/callback';
 const OAUTH_AUTHORIZE_URL = 'https://auth.openai.com/oauth/authorize';
-const OAUTH_SCOPE = 'openid profile email offline_access';
+const OAUTH_SCOPE =
+  'openid profile email offline_access api.connectors.read api.connectors.invoke';
 
 export interface OpenAIOAuthTokens {
   accessToken: string;

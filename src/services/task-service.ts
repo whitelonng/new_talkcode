@@ -16,6 +16,7 @@ import { mapStoredMessagesToUI } from '@/lib/message-mapper';
 import { generateConversationTitle, generateId } from '@/lib/utils';
 import { aiTaskTitleService } from '@/services/ai/ai-task-title-service';
 import { databaseService } from '@/services/database-service';
+import { externalAgentService } from '@/services/external-agent-service';
 import { taskFileService } from '@/services/task-file-service';
 import { useEditReviewStore } from '@/stores/edit-review-store';
 import { useExecutionStore } from '@/stores/execution-store';
@@ -25,7 +26,7 @@ import { settingsManager, useSettingsStore } from '@/stores/settings-store';
 import { useTaskStore } from '@/stores/task-store';
 import { useUserQuestionStore } from '@/stores/user-question-store';
 import { useWorktreeStore } from '@/stores/worktree-store';
-import type { Task, TaskSettings } from '@/types';
+import type { ExternalAgentBackend, Task, TaskSettings } from '@/types';
 import type { UIMessage } from '@/types/agent';
 
 class TaskService {
@@ -34,21 +35,36 @@ class TaskService {
     options?: {
       projectId?: string;
       onTaskStart?: (taskId: string, title: string) => void;
+      backend?: ExternalAgentBackend;
     }
   ): Promise<string> {
     const taskId = generateId();
     const title = generateConversationTitle(userMessage);
     const projectId = options?.projectId || (await settingsManager.getProject());
+    const backend = options?.backend ?? 'native';
+
+    if (backend === 'codex') {
+      useWorktreeStore.getState().setWorktreeMode(true);
+    }
 
     const autoApproveEditsGlobal = await settingsManager.getAutoApproveEditsGlobal();
     const autoApprovePlanGlobal = await settingsManager.getAutoApprovePlanGlobal();
     const autoCodeReviewGlobal = await settingsManager.getAutoCodeReviewGlobal();
     const initialTaskSettings: TaskSettings | undefined =
-      autoApproveEditsGlobal || autoApprovePlanGlobal || autoCodeReviewGlobal
+      autoApproveEditsGlobal || autoApprovePlanGlobal || autoCodeReviewGlobal || backend !== 'native'
         ? {
             ...(autoApproveEditsGlobal ? { autoApproveEdits: true } : {}),
             ...(autoApprovePlanGlobal ? { autoApprovePlan: true } : {}),
             ...(autoCodeReviewGlobal ? { autoCodeReview: true } : {}),
+            ...(backend !== 'native'
+              ? {
+                  externalAgent: {
+                    backend,
+                    protocol: backend === 'codex' ? 'app-server' : 'json-stream',
+                    experimental: backend === 'claude',
+                  },
+                }
+              : {}),
           }
         : undefined;
     // Get current global model to bind to this task
@@ -65,6 +81,7 @@ class TaskService {
       input_token: 0,
       output_token: 0,
       model: currentModel,
+      backend,
       settings: initialTaskSettings ? JSON.stringify(initialTaskSettings) : undefined,
     };
 
@@ -74,7 +91,7 @@ class TaskService {
 
     // 2. Persist to database
     try {
-      await databaseService.createTask(title, taskId, projectId, currentModel);
+      await databaseService.createTask(title, taskId, projectId, currentModel, backend);
       logger.info('[TaskService] Task created', { taskId, title });
 
       if (initialTaskSettings) {
@@ -213,6 +230,9 @@ class TaskService {
       // Clean up execution state (only if not running)
       useExecutionStore.getState().cleanupExecution(taskId);
 
+      // Clean up external agent session (codex idle timer, etc.)
+      externalAgentService.destroySession(taskId);
+
       logger.info('[TaskService] Cleaned up all related stores for task', { taskId });
     } catch (error) {
       logger.warn('[TaskService] Error during store cleanup, continuing with deletion', error);
@@ -258,12 +278,52 @@ class TaskService {
     // 1. Update store
     useTaskStore.getState().updateTaskSettings(taskId, settings);
 
+    const backend = settings.externalAgent?.backend;
+    if (backend) {
+      useTaskStore.getState().updateTask(taskId, { backend });
+    }
+
     // 2. Persist to database
     try {
       await databaseService.updateTaskSettings(taskId, JSON.stringify(settings));
+      if (backend) {
+        await databaseService.updateTaskBackend(taskId, backend);
+      }
       logger.info('[TaskService] Task settings updated', { taskId, settings });
     } catch (error) {
       logger.error('[TaskService] Failed to update task settings:', error);
+      throw error;
+    }
+  }
+
+  async updateTaskBackend(taskId: string, backend: ExternalAgentBackend): Promise<void> {
+    if (backend === 'codex') {
+      useWorktreeStore.getState().setWorktreeMode(true);
+    }
+
+    const task = useTaskStore.getState().getTask(taskId);
+    const existingSettings: TaskSettings = task?.settings ? JSON.parse(task.settings) : {};
+    const nextSettings: TaskSettings = {
+      ...existingSettings,
+      externalAgent:
+        backend === 'native'
+          ? undefined
+          : {
+              backend,
+              protocol: backend === 'codex' ? 'app-server' : 'json-stream',
+              experimental: backend === 'claude',
+            },
+    };
+
+    useTaskStore.getState().updateTask(taskId, { backend });
+    useTaskStore.getState().updateTaskSettings(taskId, nextSettings);
+
+    try {
+      await databaseService.updateTaskBackend(taskId, backend);
+      await databaseService.updateTaskSettings(taskId, JSON.stringify(nextSettings));
+      logger.info('[TaskService] Task backend updated', { taskId, backend });
+    } catch (error) {
+      logger.error('[TaskService] Failed to update task backend:', error);
       throw error;
     }
   }

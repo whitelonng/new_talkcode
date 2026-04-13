@@ -7,9 +7,7 @@ import { taskService } from '@/services/task-service';
 import { useTaskStore } from '@/stores/task-store';
 import { useUIStateStore } from '@/stores/ui-state-store';
 import { useWorktreeStore } from '@/stores/worktree-store';
-
-// Import for local use
-import type { Task } from '@/types';
+import type { ExternalAgentBackend, Task } from '@/types';
 
 // Type for delete task result
 export interface DeleteTaskResult {
@@ -33,6 +31,7 @@ export function useTasks(onTaskStart?: (taskId: string, title: string) => void) 
   // Get task list from store (sorted with internal cache)
   const tasks = useTaskStore((state) => state.getTaskList());
   const currentTaskId = useTaskStore((state) => state.currentTaskId);
+  const selectedNewTaskBackend = useTaskStore((state) => state.selectedNewTaskBackend);
   const loadingTasks = useTaskStore((state) => state.loadingTasks);
 
   // UI state for editing
@@ -62,6 +61,13 @@ export function useTasks(onTaskStart?: (taskId: string, title: string) => void) 
               true
             )
           : await taskService.loadTasksWithPagination(projectId, limit, 0, true, true);
+
+        if (!normalizedSearch) {
+          const activeTaskId = useTaskStore.getState().currentTaskId;
+          if (!activeTaskId && tasks.length > 0) {
+            await taskService.selectTask(tasks[0]!.id);
+          }
+        }
         // Update offset for next load
         setOffset(tasks.length);
         // Check if there are more tasks
@@ -138,9 +144,13 @@ export function useTasks(onTaskStart?: (taskId: string, title: string) => void) 
 
   // Create task
   const createTask = useCallback(
-    async (userMessage: string): Promise<string> => {
+    async (
+      userMessage: string,
+      options?: { backend?: import('@/types').ExternalAgentBackend }
+    ): Promise<string> => {
       const taskId = await taskService.createTask(userMessage, {
         onTaskStart: onTaskStart,
+        backend: options?.backend,
       });
       return taskId;
     },
@@ -218,7 +228,10 @@ export function useTasks(onTaskStart?: (taskId: string, title: string) => void) 
   }, []);
 
   // Start new chat
-  const startNewTask = useCallback(() => {
+  const startNewTask = useCallback((backend?: ExternalAgentBackend) => {
+    if (backend) {
+      useTaskStore.getState().setSelectedNewTaskBackend(backend);
+    }
     taskService.startNewTask();
   }, []);
 
@@ -248,6 +261,7 @@ export function useTasks(onTaskStart?: (taskId: string, title: string) => void) 
     // Data
     tasks,
     currentTaskId: currentTaskId ?? undefined,
+    selectedNewTaskBackend,
     loading: loadingTasks,
     loadingMore,
     error,

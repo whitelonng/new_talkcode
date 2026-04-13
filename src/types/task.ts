@@ -24,6 +24,7 @@ export interface Task {
   model?: string; // Model identifier used for this task (e.g., modelKey@providerId)
   settings?: string; // JSON string for task-level settings
   context_usage?: number; // Percentage of context window used
+  backend?: string; // Task backend (native | codex | claude)
 }
 
 export interface TaskSettings {
@@ -31,6 +32,11 @@ export interface TaskSettings {
   autoApprovePlan?: boolean; // When true, auto-approve plan for this task
   autoCodeReview?: boolean; // When true, auto-run code review for this task
   ralphLoopEnabled?: boolean; // When true, run Ralph Loop for this task
+  externalAgent?: {
+    backend: 'native' | 'codex' | 'claude';
+    protocol?: 'pty' | 'json-stream' | 'app-server';
+    experimental?: boolean;
+  };
 }
 
 export interface CreateProjectData {

@@ -1,12 +1,13 @@
 // src/components/chat/message-item.tsx
 
-import { Check, CopyIcon, RefreshCcwIcon, Trash2 } from 'lucide-react';
+import { AlertCircle, Check, CopyIcon, RefreshCcwIcon, Trash2 } from 'lucide-react';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { CollapsibleReasoning } from '@/components/chat/collapsible-reasoning';
 import { FilePreview } from '@/components/chat/file-preview';
 import { ToolErrorBoundary } from '@/components/tools/tool-error-boundary';
 import { ToolErrorFallback } from '@/components/tools/tool-error-fallback';
 import { UnifiedToolResult } from '@/components/tools/unified-tool-result';
+import { parseExternalAgentErrorContent } from '@/lib/external-agent-error';
 import { logger } from '@/lib/logger';
 import { getToolUIRenderers } from '@/lib/tool-adapter';
 import type { StoredToolCall, StoredToolContent } from '@/types';
@@ -280,6 +281,10 @@ function MessageItemComponent({
   }, [message, message.content, message.role, message.renderDoingUI]);
 
   const outputFormat = (message.outputFormat || 'markdown') as OutputFormatType;
+  const externalAgentError =
+    message.role === 'assistant' && typeof message.content === 'string'
+      ? parseExternalAgentErrorContent(message.content)
+      : null;
   const assistantContentClass =
     outputFormat === 'web' || outputFormat === 'ppt'
       ? 'w-full max-w-none'
@@ -337,10 +342,24 @@ function MessageItemComponent({
           )}
           {message.role === 'assistant' && typeof message.content === 'string' && (
             <>
-              {reasoningText && (
-                <CollapsibleReasoning text={reasoningText} isStreaming={!!message.isStreaming} />
+              {externalAgentError ? (
+                <div className="my-3 rounded-xl border border-destructive/40 bg-destructive/8 p-4 text-destructive shadow-sm">
+                  <div className="mb-2 flex items-center gap-2 font-medium text-sm">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>执行失败 · {externalAgentError.backend}</span>
+                  </div>
+                  <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-md bg-background/70 p-3 text-xs text-foreground dark:bg-background/20">
+                    {externalAgentError.message}
+                  </pre>
+                </div>
+              ) : (
+                <>
+                  {reasoningText && (
+                    <CollapsibleReasoning text={reasoningText} isStreaming={!!message.isStreaming} />
+                  )}
+                  {mainText && <div className={assistantContentClass}>{assistantContent}</div>}
+                </>
               )}
-              {mainText && <div className={assistantContentClass}>{assistantContent}</div>}
             </>
           )}
           {message.role === 'tool' && Array.isArray(message.content) && (

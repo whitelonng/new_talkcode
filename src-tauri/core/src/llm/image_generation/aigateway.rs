@@ -159,7 +159,7 @@ impl AIGatewayImageClient {
         headers.insert("Content-Type".to_string(), "application/json".to_string());
         headers.insert("Authorization".to_string(), format!("Bearer {}", api_key));
         api_keys
-            .maybe_set_openai_account_header(&self.config.id, &mut headers)
+            .maybe_set_openai_account_header(&self.config.id, None, &mut headers)
             .await?;
 
         let mut header_map = reqwest::header::HeaderMap::new();

@@ -21,7 +21,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -37,10 +37,18 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useUiNavigation } from '@/contexts/ui-navigation';
 import { useLocale } from '@/hooks/use-locale';
 import { useTheme } from '@/hooks/use-theme';
+import { logger } from '@/lib/logger';
 import { cn } from '@/lib/utils';
+import { databaseService } from '@/services/database-service';
+import { taskService } from '@/services/task-service';
+import { useProjectStore } from '@/stores/project-store';
+import { DEFAULT_PROJECT, settingsManager, useSettingsStore } from '@/stores/settings-store';
+import { useTaskStore } from '@/stores/task-store';
 import { useTitlebarStore } from '@/stores/titlebar-store';
+import { useWindowScopedRepositoryStore } from '@/stores/window-scoped-repository-store';
 import { NavigationView } from '@/types/navigation';
 import talkCodyIcon from '../../src-tauri/icons/128x128.png';
+import { WorkspaceTabs } from './workspace-tabs';
 
 export function CustomTitlebar() {
   const { t } = useLocale();
@@ -48,6 +56,17 @@ export function CustomTitlebar() {
   const [osType, setOsType] = useState<string>('windows');
   const [isMaximized, setIsMaximized] = useState(false);
   const { activeView, setActiveView } = useUiNavigation();
+  const closeToTray = useSettingsStore((state) => state.close_to_tray);
+  const currentProjectId = useSettingsStore((state) => state.project);
+  const projects = useProjectStore((state) => state.projects);
+  const loadProjects = useProjectStore((state) => state.loadProjects);
+  const openRepository = useWindowScopedRepositoryStore((state) => state.openRepository);
+  const closeRepository = useWindowScopedRepositoryStore((state) => state.closeRepository);
+  const currentTaskId = useTaskStore((state) => state.currentTaskId);
+  const currentProjectName = useMemo(() => {
+    const currentProject = projects.find((project) => project.id === currentProjectId);
+    return currentProject?.name ?? '';
+  }, [projects, currentProjectId]);
 
   const {
     hasRepository,
@@ -58,6 +77,10 @@ export function CustomTitlebar() {
     toggleBrowser,
     toggleChatFullscreen,
   } = useTitlebarStore();
+
+  useEffect(() => {
+    loadProjects();
+  }, [loadProjects]);
 
   useEffect(() => {
     setOsType(getOsType());
@@ -80,9 +103,53 @@ export function CustomTitlebar() {
 
   const handleMinimize = () => getCurrentWindow().minimize();
   const handleMaximize = () => getCurrentWindow().toggleMaximize();
-  const handleClose = () => getCurrentWindow().close();
+  const handleClose = async () => {
+    if (closeToTray) {
+      await getCurrentWindow().hide();
+      return;
+    }
+
+    await getCurrentWindow().close();
+  };
 
   const isMac = osType === 'macos';
+
+  const switchProjectWorkspace = async (projectId: string | null, rootPath: string | null) => {
+    if (!projectId) {
+      closeRepository();
+      await settingsManager.setCurrentProjectId(DEFAULT_PROJECT);
+      useTaskStore.getState().setCurrentTaskId(null);
+      setActiveView(NavigationView.EXPLORER);
+      return;
+    }
+
+    if (rootPath) {
+      await openRepository(rootPath, projectId);
+    } else {
+      await settingsManager.setCurrentProjectId(projectId);
+      closeRepository();
+    }
+
+    await taskService.loadTasks(projectId);
+    const firstTaskId = useTaskStore.getState().getTaskList()[0]?.id ?? null;
+    useTaskStore.getState().setCurrentTaskId(firstTaskId);
+    setActiveView(NavigationView.EXPLORER);
+  };
+
+  const handleWorkspaceTabSelect = async (projectId: string | null, rootPath: string | null) => {
+    try {
+      await switchProjectWorkspace(projectId, rootPath);
+    } catch (error) {
+      logger.error('[CustomTitlebar] Failed to switch workspace tab:', error);
+
+      try {
+        const project = projectId ? await databaseService.getProject(projectId) : null;
+        await switchProjectWorkspace(project?.id ?? null, project?.root_path || null);
+      } catch (retryError) {
+        logger.error('[CustomTitlebar] Retry failed to switch workspace tab:', retryError);
+      }
+    }
+  };
 
   const menuItems = [
     { id: NavigationView.EXPLORER, icon: Files, label: t.Navigation.explorerTooltip },
@@ -226,6 +293,22 @@ export function CustomTitlebar() {
             </TooltipContent>
           </Tooltip>
         )}
+
+        {/* Workspace Tabs - separator + tabs */}
+        <div
+          className={cn(
+            'ml-2 h-5 w-px flex-shrink-0',
+            isAppleTheme ? 'bg-white/20' : 'bg-gray-300 dark:bg-gray-700'
+          )}
+        />
+        <div className="ml-2">
+          <WorkspaceTabs
+            currentProjectId={currentProjectId}
+            currentProjectName={currentProjectName}
+            currentTaskId={currentTaskId}
+            onTabSelect={handleWorkspaceTabSelect}
+          />
+        </div>
       </div>
 
       <div className="h-full flex-1" data-tauri-drag-region />

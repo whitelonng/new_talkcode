@@ -17,7 +17,7 @@ import { create } from 'zustand';
 import { logger } from '@/lib/logger';
 import { generateId } from '@/lib/utils';
 import { useExecutionStore } from '@/stores/execution-store';
-import type { Task, TaskSettings } from '@/types';
+import type { ExternalAgentBackend, Task, TaskSettings } from '@/types';
 import type { ToolMessageContent, UIMessage } from '@/types/agent';
 
 // Stable empty array reference to avoid unnecessary re-renders
@@ -196,6 +196,7 @@ interface TaskState {
   // Task list
   tasks: Task[];
   currentTaskId: string | null;
+  selectedNewTaskBackend: ExternalAgentBackend;
 
   // Runtime usage deltas for running tasks
   runningTaskUsage: Map<string, RunningTaskUsage>;
@@ -241,6 +242,11 @@ interface TaskState {
    * Set the current task ID
    */
   setCurrentTaskId: (taskId: string | null) => void;
+
+  /**
+   * Set default backend for newly created tasks
+   */
+  setSelectedNewTaskBackend: (backend: ExternalAgentBackend) => void;
 
   /**
    * Update task usage (cost, tokens) and context usage
@@ -361,6 +367,7 @@ interface TaskState {
 export const useTaskStore = create<TaskState>()((set, get) => ({
   tasks: [],
   currentTaskId: null,
+  selectedNewTaskBackend: 'native',
   runningTaskUsage: new Map(),
   messages: new Map(),
   loadingTasks: false,
@@ -428,6 +435,10 @@ export const useTaskStore = create<TaskState>()((set, get) => ({
 
   setCurrentTaskId: (taskId) => {
     set({ currentTaskId: taskId });
+  },
+
+  setSelectedNewTaskBackend: (backend) => {
+    set({ selectedNewTaskBackend: backend });
   },
 
   updateTaskUsage: (taskId, usage) => {

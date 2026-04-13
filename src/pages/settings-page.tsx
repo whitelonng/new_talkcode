@@ -1,5 +1,6 @@
 import { open } from '@tauri-apps/plugin-shell';
 import {
+  AppWindowMac,
   BookOpen,
   Bot,
   Code,
@@ -32,6 +33,7 @@ import { MemorySettings } from '@/components/settings/memory-settings';
 import { ModelTypeSettings } from '@/components/settings/model-type-settings';
 import { RemoteControlSettings } from '@/components/settings/remote-control-settings';
 import { TerminalSettings } from '@/components/settings/terminal-settings';
+import { TraySettings } from '@/components/settings/tray-settings';
 import { WorktreeSettings } from '@/components/settings/worktree-settings';
 import { ShortcutSettingsPanel } from '@/components/shortcuts/shortcut-settings';
 import { Button } from '@/components/ui/button';
@@ -135,6 +137,10 @@ export function SettingsPage() {
               <GitBranch className="size-4" />
               {t.Settings.tabs.worktree || 'Worktree'}
             </TabsTrigger>
+            <TabsTrigger value="tray" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+              <AppWindowMac className="size-4" />
+              {t.Settings.tabs.tray || 'System Tray'}
+            </TabsTrigger>
             <TabsTrigger
               value="custom-tools"
               className="w-full justify-start gap-2 rounded-md px-3 py-2"
@@ -213,6 +219,9 @@ export function SettingsPage() {
             </TabsContent>
             <TabsContent value="worktree" className="mt-0 flex-none space-y-6">
               <WorktreeSettings />
+            </TabsContent>
+            <TabsContent value="tray" className="mt-0 flex-none space-y-6">
+              <TraySettings />
             </TabsContent>
             <TabsContent value="custom-tools" className="mt-0 flex-none space-y-6">
               <CustomToolsSettings />

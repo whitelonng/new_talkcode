@@ -1,4 +1,4 @@
-import { Folder, GitBranch, ListTodo, Plus, Search } from 'lucide-react';
+import { Check, ChevronDown, Folder, GitBranch, ListTodo, Plus } from 'lucide-react';
 import type React from 'react';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
@@ -8,7 +8,7 @@ import { FileTreeHeader } from '@/components/file-tree-header';
 import { GitPanel } from '@/components/git/git-panel';
 import { TaskList } from '@/components/task-list';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ResizableHandle, ResizablePanel } from '@/components/ui/resizable';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -18,7 +18,9 @@ import { useTasks } from '@/hooks/use-tasks';
 import { useTheme } from '@/hooks/use-theme';
 import { cn } from '@/lib/utils';
 import { useExecutionStore } from '@/stores/execution-store';
+import { useTaskStore } from '@/stores/task-store';
 import { useWorktreeStore } from '@/stores/worktree-store';
+import type { ExternalAgentBackend } from '@/types';
 import type { FileNode } from '@/types/file-system';
 import { SidebarView } from '@/types/navigation';
 
@@ -30,8 +32,6 @@ interface RepositorySidebarProps {
   sidebarView: SidebarView;
   onSidebarViewChange: (view: SidebarView) => void;
   currentProjectId: string;
-  onProjectSelect: (projectId: string) => Promise<void>;
-  onImportRepository: () => Promise<void>;
   onSelectRepository: () => Promise<void>;
   onOpenRepository: (path: string, projectId: string) => Promise<void>;
   isLoadingProject: boolean;
@@ -61,8 +61,6 @@ export const RepositorySidebar = memo(function RepositorySidebar({
   sidebarView,
   onSidebarViewChange,
   currentProjectId,
-  onProjectSelect,
-  onImportRepository,
   onSelectRepository,
   onOpenRepository,
   isLoadingProject,
@@ -91,7 +89,7 @@ export const RepositorySidebar = memo(function RepositorySidebar({
     useShallow((state) => ({ isMaxReached: state.isMaxReached() }))
   );
 
-  const [sidebarTaskSearch, setSidebarTaskSearch] = useState('');
+  const [sidebarTaskSearch, _setSidebarTaskSearch] = useState('');
   const [debouncedTaskSearch, setDebouncedTaskSearch] = useState('');
   const stableRunningTaskIds = useStableRunningIds();
 
@@ -111,6 +109,7 @@ export const RepositorySidebar = memo(function RepositorySidebar({
     cancelEditing,
     selectTask,
     currentTaskId,
+    selectedNewTaskBackend,
     startNewTask,
     loadTasks,
   } = useTasks();
@@ -142,6 +141,21 @@ export const RepositorySidebar = memo(function RepositorySidebar({
     }
   }, [sidebarTaskSearch, taskSearchInputRef]);
 
+  const currentBackend = selectedNewTaskBackend ?? 'native';
+  const [backendMenuOpen, setBackendMenuOpen] = useState(false);
+
+  const backendItems: Array<{
+    value: ExternalAgentBackend;
+    label: string;
+  }> = [
+    { value: 'native', label: 'TalkCody' },
+    { value: 'claude', label: 'Claude' },
+    { value: 'codex', label: 'Codex' },
+  ];
+
+  const currentBackendLabel =
+    backendItems.find((item) => item.value === currentBackend)?.label ?? 'TalkCody';
+
   const taskScrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   return (
@@ -169,15 +183,6 @@ export const RepositorySidebar = memo(function RepositorySidebar({
               isAppleTheme && 'apple-panel apple-scrollbar min-h-0 overflow-hidden'
             )}
           >
-            <FileTreeHeader
-              currentProjectId={currentProjectId}
-              onProjectSelect={onProjectSelect}
-              onImportRepository={onImportRepository}
-              isLoadingProject={isLoadingProject}
-              onOpenFileSearch={hasRepository ? onOpenFileSearch : undefined}
-              onOpenContentSearch={hasRepository ? onOpenContentSearch : undefined}
-            />
-
             {hasRepository && (
               <div className={cn('border-b px-2 py-1', isAppleTheme && 'border-white/10')}>
                 <Tabs
@@ -247,31 +252,38 @@ export const RepositorySidebar = memo(function RepositorySidebar({
               <div
                 className={
                   sidebarView === SidebarView.FILES
-                    ? cn('flex-1 overflow-auto', isAppleTheme && 'apple-scrollbar')
+                    ? cn('flex flex-1 flex-col overflow-hidden', isAppleTheme && 'apple-scrollbar')
                     : 'hidden'
                 }
               >
-                {fileTree && rootPath && (
-                  <FileTree
-                    key={rootPath}
-                    fileTree={fileTree}
-                    repositoryPath={rootPath}
-                    expandedPaths={expandedPaths}
-                    onFileCreate={onFileCreate}
-                    onFileDelete={onFileDelete}
-                    onFileRename={onFileRename}
-                    onFileSelect={onFileSelect}
-                    onOpenInBrowser={onOpenFileInBrowser}
-                    onRefresh={onRefreshFileTree}
-                    selectedFile={selectedFilePath}
-                    onLoadChildren={async (node) => {
-                      await onLoadChildren(node);
-                      return node.children || [];
-                    }}
-                    onToggleExpansion={onToggleExpansion}
-                    onReferenceToChat={onReferenceToChat}
-                  />
-                )}
+                <FileTreeHeader
+                  onOpenFileSearch={onOpenFileSearch}
+                  onOpenContentSearch={onOpenContentSearch}
+                />
+
+                <div className={cn('flex-1 overflow-auto', isAppleTheme && 'apple-scrollbar')}>
+                  {fileTree && rootPath && (
+                    <FileTree
+                      key={rootPath}
+                      fileTree={fileTree}
+                      repositoryPath={rootPath}
+                      expandedPaths={expandedPaths}
+                      onFileCreate={onFileCreate}
+                      onFileDelete={onFileDelete}
+                      onFileRename={onFileRename}
+                      onFileSelect={onFileSelect}
+                      onOpenInBrowser={onOpenFileInBrowser}
+                      onRefresh={onRefreshFileTree}
+                      selectedFile={selectedFilePath}
+                      onLoadChildren={async (node) => {
+                        await onLoadChildren(node);
+                        return node.children || [];
+                      }}
+                      onToggleExpansion={onToggleExpansion}
+                      onReferenceToChat={onReferenceToChat}
+                    />
+                  )}
+                </div>
               </div>
             )}
 
@@ -294,38 +306,65 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                   : 'hidden'
               }
             >
-              <div className="flex items-center gap-2 border-b p-2">
-                <div className="relative flex-1">
-                  <Search className="-translate-y-1/2 absolute top-1/2 left-2.5 h-3.5 w-3.5 text-gray-400" />
-                  <Input
-                    ref={taskSearchInputRef}
-                    className="h-8 pl-8 text-xs"
-                    onChange={(event) => setSidebarTaskSearch(event.target.value)}
-                    placeholder={t.Chat.searchTasks}
-                    value={sidebarTaskSearch}
-                  />
+              <div className="border-b p-2">
+                <div className="relative overflow-hidden rounded-xl border bg-background">
+                  <Button
+                    className="h-9 w-full justify-between rounded-xl border-0 px-3 pr-10 shadow-none"
+                    disabled={isMaxReached}
+                    onClick={() => startNewTask(selectedNewTaskBackend)}
+                    size="sm"
+                    variant="ghost"
+                  >
+                    <span className="flex min-w-0 items-center gap-2">
+                      <Plus className="h-4 w-4 flex-shrink-0" />
+                      <span>新任务</span>
+                    </span>
+                    <span className="min-w-0 truncate pr-4 text-muted-foreground text-xs">
+                      {currentBackendLabel}
+                    </span>
+                  </Button>
+
+                  <Popover open={backendMenuOpen} onOpenChange={setBackendMenuOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        aria-label={`选择新任务后端，当前 ${currentBackendLabel}`}
+                        className="absolute top-1 right-1 h-7 w-7 rounded-lg p-0 shadow-none"
+                        disabled={isMaxReached}
+                        size="sm"
+                        variant="ghost"
+                      >
+                        <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="end" className="w-44 p-1" side="bottom" sideOffset={4}>
+                      <div className="space-y-0.5">
+                        {backendItems.map((item) => {
+                          const selected = item.value === currentBackend;
+                          return (
+                            <button
+                              key={item.value}
+                              type="button"
+                              className={cn(
+                                'flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent',
+                                selected && 'bg-accent'
+                              )}
+                              onClick={() => {
+                                useTaskStore.getState().setSelectedNewTaskBackend(item.value);
+                                if (item.value === 'codex') {
+                                  useWorktreeStore.getState().setWorktreeMode(true);
+                                }
+                                setBackendMenuOpen(false);
+                              }}
+                            >
+                              <span>{item.label}</span>
+                              {selected ? <Check className="h-4 w-4 text-primary" /> : null}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      className="h-8 w-8 p-0"
-                      disabled={isMaxReached}
-                      onClick={() => {
-                        setSidebarTaskSearch('');
-                        startNewTask();
-                      }}
-                      size="sm"
-                      variant="outline"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  {isMaxReached && (
-                    <TooltipContent>
-                      <p>{t.RepositoryLayout.maxConcurrentTasksReached}</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
               </div>
 
               <div ref={taskScrollContainerRef} className="flex-1 overflow-auto">

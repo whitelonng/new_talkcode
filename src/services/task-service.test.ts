@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Task } from '@/types';
+import type { ExternalAgentBackend, Task } from '@/types';
 
 const mockAddTask = vi.fn();
 const mockSetCurrentTaskId = vi.fn();
 const mockRemoveTask = vi.fn();
 const mockUpdateTaskSettings = vi.fn();
+const mockUpdateTask = vi.fn();
+const mockSetWorktreeMode = vi.fn();
 
 const mockTaskStoreState = {
   addTask: mockAddTask,
@@ -18,7 +20,7 @@ const mockTaskStoreState = {
   addTasks: vi.fn(),
   setLoadingTasks: vi.fn(),
   setError: vi.fn(),
-  updateTask: vi.fn(),
+  updateTask: mockUpdateTask,
   updateTaskUsage: vi.fn(),
 };
 
@@ -35,6 +37,7 @@ const mockSettingsManager = {
 const mockDatabaseService = {
   createTask: vi.fn(),
   updateTaskSettings: vi.fn(),
+  updateTaskBackend: vi.fn(),
   getTasks: vi.fn(),
   updateTaskTitle: vi.fn(),
   getTaskDetails: vi.fn(),
@@ -49,6 +52,7 @@ const mockWorktreeState = {
   acquireForTask: vi.fn(),
   releaseForTask: vi.fn(),
   isTaskUsingWorktree: vi.fn(() => false),
+  setWorktreeMode: mockSetWorktreeMode,
 };
 
 vi.mock('@/stores/task-store', () => ({
@@ -102,7 +106,6 @@ type TaskServiceExports = typeof import('@/services/task-service');
 
 let taskService: TaskServiceExports['taskService'];
 
-
 describe('TaskService.createTask', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -114,6 +117,7 @@ describe('TaskService.createTask', () => {
     mockSettingsManager.getAutoApprovePlanGlobal.mockResolvedValue(false);
     mockSettingsManager.getAutoCodeReviewGlobal.mockResolvedValue(false);
     mockDatabaseService.createTask.mockResolvedValue('task-123');
+    mockDatabaseService.updateTaskBackend.mockResolvedValue(undefined);
   });
 
   it('applies auto-approve settings when global setting is enabled', async () => {
@@ -132,7 +136,8 @@ describe('TaskService.createTask', () => {
       'Test Title',
       'task-123',
       'default',
-      undefined
+      undefined,
+      'native'
     );
 
     const createdTask = mockAddTask.mock.calls[0]?.[0] as Task;
@@ -143,10 +148,6 @@ describe('TaskService.createTask', () => {
   });
 
   it('does not apply auto-approve settings when global setting is disabled', async () => {
-    mockSettingsManager.getAutoApproveEditsGlobal.mockResolvedValue(false);
-    mockSettingsManager.getAutoApprovePlanGlobal.mockResolvedValue(false);
-    mockSettingsManager.getAutoCodeReviewGlobal.mockResolvedValue(false);
-
     const updateSpy = vi
       .spyOn(taskService, 'updateTaskSettings')
       .mockResolvedValue(undefined);
@@ -159,7 +160,8 @@ describe('TaskService.createTask', () => {
       'Test Title',
       'task-123',
       'default',
-      undefined
+      undefined,
+      'native'
     );
 
     const createdTask = mockAddTask.mock.calls[0]?.[0] as Task;
@@ -170,9 +172,7 @@ describe('TaskService.createTask', () => {
   });
 
   it('applies auto-approve plan when global setting is enabled', async () => {
-    mockSettingsManager.getAutoApproveEditsGlobal.mockResolvedValue(false);
     mockSettingsManager.getAutoApprovePlanGlobal.mockResolvedValue(true);
-    mockSettingsManager.getAutoCodeReviewGlobal.mockResolvedValue(false);
 
     const updateSpy = vi
       .spyOn(taskService, 'updateTaskSettings')
@@ -186,7 +186,8 @@ describe('TaskService.createTask', () => {
       'Test Title',
       'task-123',
       'default',
-      undefined
+      undefined,
+      'native'
     );
 
     const createdTask = mockAddTask.mock.calls[0]?.[0] as Task;
@@ -194,5 +195,59 @@ describe('TaskService.createTask', () => {
     expect(createdTask.settings).toBe(JSON.stringify({ autoApprovePlan: true }));
     expect(updateSpy).toHaveBeenCalledWith('task-123', { autoApprovePlan: true });
     expect(titleSpy).toHaveBeenCalledWith('task-123', 'Hello world');
+  });
+
+  it('binds codex backend to new task settings and persistence', async () => {
+    const updateSpy = vi
+      .spyOn(taskService, 'updateTaskSettings')
+      .mockResolvedValue(undefined);
+    vi.spyOn(taskService, 'generateAndUpdateTitle').mockResolvedValue(undefined);
+
+    const taskId = await taskService.createTask('Hello world', { backend: 'codex' });
+
+    expect(taskId).toBe('task-123');
+    expect(mockSetWorktreeMode).toHaveBeenCalledWith(true);
+    expect(mockDatabaseService.createTask).toHaveBeenCalledWith(
+      'Test Title',
+      'task-123',
+      'default',
+      undefined,
+      'codex'
+    );
+
+    const createdTask = mockAddTask.mock.calls[0]?.[0] as Task;
+    expect(createdTask.backend).toBe('codex');
+    expect(createdTask.settings).toBe(
+      JSON.stringify({
+        externalAgent: { backend: 'codex', protocol: 'app-server', experimental: false },
+      })
+    );
+    expect(updateSpy).toHaveBeenCalledWith('task-123', {
+      externalAgent: { backend: 'codex', protocol: 'app-server', experimental: false },
+    });
+  });
+
+  it('updates backend and synchronizes task settings', async () => {
+    mockTaskStoreState.getTask.mockReturnValue({
+      id: 'task-123',
+      settings: JSON.stringify({ autoApprovePlan: true }),
+    });
+
+    await taskService.updateTaskBackend('task-123', 'codex' as ExternalAgentBackend);
+
+    expect(mockSetWorktreeMode).toHaveBeenCalledWith(true);
+    expect(mockUpdateTask).toHaveBeenCalledWith('task-123', { backend: 'codex' });
+    expect(mockUpdateTaskSettings).toHaveBeenCalledWith('task-123', {
+      autoApprovePlan: true,
+      externalAgent: { backend: 'codex', protocol: 'app-server', experimental: false },
+    });
+    expect(mockDatabaseService.updateTaskBackend).toHaveBeenCalledWith('task-123', 'codex');
+    expect(mockDatabaseService.updateTaskSettings).toHaveBeenCalledWith(
+      'task-123',
+      JSON.stringify({
+        autoApprovePlan: true,
+        externalAgent: { backend: 'codex', protocol: 'app-server', experimental: false },
+      })
+    );
   });
 });

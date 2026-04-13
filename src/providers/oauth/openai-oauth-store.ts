@@ -6,6 +6,7 @@ import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { create } from 'zustand';
 import { logger } from '@/lib/logger';
 import { llmClient } from '@/services/llm/llm-client';
+import type { ProviderAccountItem } from '@/types/provider-accounts';
 import { exchangeCode, startOAuthFlow } from './openai-oauth-service';
 
 const OPENAI_OAUTH_CALLBACK_PATH = '/auth/callback';
@@ -27,6 +28,7 @@ interface OpenAIOAuthState {
   // Token metadata (in-memory)
   expiresAt: number | null;
   accountId: string | null;
+  accounts: ProviderAccountItem[];
   redirectUri: string | null;
 
   // OAuth flow state (temporary during flow)
@@ -49,12 +51,41 @@ interface OpenAIOAuthActions {
   startOAuth: () => Promise<string>;
   startOAuthWithAutoCallback: () => Promise<string>;
   completeOAuth: (code: string) => Promise<void>;
-  refreshTokens: () => Promise<boolean>;
-  disconnect: () => Promise<void>;
+  refreshTokens: (accountId?: string) => Promise<boolean>;
+  disconnect: (accountId?: string) => Promise<void>;
   cleanupCallbackListener: () => void;
 }
 
 type OpenAIOAuthStore = OpenAIOAuthState & OpenAIOAuthActions;
+
+function mapSnapshotAccounts(
+  snapshot:
+    | {
+        openai?: {
+          accounts?: Array<{
+            accountId?: string | null;
+            expiresAt?: number | null;
+            isConnected?: boolean | null;
+          }>;
+        } | null;
+      }
+    | null
+    | undefined
+): ProviderAccountItem[] {
+  const accounts = snapshot?.openai?.accounts ?? [];
+  const now = Date.now();
+  return accounts.map((account, index) => ({
+    id: `openai-oauth-${account.accountId ?? index}`,
+    providerId: 'openai',
+    authType: 'oauth',
+    name: account.accountId ? `ChatGPT OAuth (${account.accountId})` : `ChatGPT OAuth ${index + 1}`,
+    enabled: account.isConnected !== false,
+    priority: index,
+    oauthAccountId: account.accountId ?? null,
+    createdAt: now,
+    updatedAt: now,
+  }));
+}
 
 async function loadOAuthSnapshot() {
   try {
@@ -72,6 +103,7 @@ export const useOpenAIOAuthStore = create<OpenAIOAuthStore>((set, get) => ({
   error: null,
   expiresAt: null,
   accountId: null,
+  accounts: [],
   redirectUri: null,
   verifier: null,
   expectedState: null,
@@ -94,6 +126,7 @@ export const useOpenAIOAuthStore = create<OpenAIOAuthStore>((set, get) => ({
       const hasRefreshToken = snapshot?.openai?.hasRefreshToken || false;
       const expiresAt = snapshot?.openai?.expiresAt || null;
       const accountId = snapshot?.openai?.accountId || null;
+      const accounts = mapSnapshotAccounts(snapshot);
 
       logger.info('[OpenAIOAuth] Initialized', { isConnected, hasRefreshToken });
 
@@ -101,6 +134,7 @@ export const useOpenAIOAuthStore = create<OpenAIOAuthStore>((set, get) => ({
         isConnected: isConnected || hasRefreshToken,
         expiresAt,
         accountId,
+        accounts,
         redirectUri: null,
         isLoading: false,
         isInitialized: true,
@@ -263,10 +297,12 @@ export const useOpenAIOAuthStore = create<OpenAIOAuthStore>((set, get) => ({
 
       logger.info('[OpenAIOAuth] OAuth completed successfully');
 
+      const snapshot = await loadOAuthSnapshot();
       set({
         isConnected: true,
         expiresAt,
         accountId: accountId || null,
+        accounts: mapSnapshotAccounts(snapshot),
         verifier: null,
         expectedState: null,
         redirectUri: null,
@@ -286,7 +322,7 @@ export const useOpenAIOAuthStore = create<OpenAIOAuthStore>((set, get) => ({
   },
 
   // Refresh tokens via Rust
-  refreshTokens: async () => {
+  refreshTokens: async (accountId?: string) => {
     const { isLoading } = get();
 
     if (isLoading) {
@@ -297,14 +333,18 @@ export const useOpenAIOAuthStore = create<OpenAIOAuthStore>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const tokens = await llmClient.refreshOpenAIOAuthFromStore();
+      const tokens = await llmClient.refreshOpenAIOAuthFromStore(
+        accountId ? { accountId } : undefined
+      );
 
       logger.info('[OpenAIOAuth] Token refreshed successfully');
 
+      const snapshot = await loadOAuthSnapshot();
       set({
         isConnected: true,
         expiresAt: tokens.expiresAt,
         accountId: tokens.accountId || null,
+        accounts: mapSnapshotAccounts(snapshot),
         isLoading: false,
       });
 
@@ -320,18 +360,20 @@ export const useOpenAIOAuthStore = create<OpenAIOAuthStore>((set, get) => ({
   },
 
   // Disconnect and clear tokens
-  disconnect: async () => {
+  disconnect: async (accountId?: string) => {
     set({ isLoading: true, error: null });
 
     try {
-      await llmClient.disconnectOpenAIOAuth();
+      await llmClient.disconnectOpenAIOAuth(accountId ? { accountId } : undefined);
 
       logger.info('[OpenAIOAuth] Disconnected');
 
+      const snapshot = await loadOAuthSnapshot();
       set({
-        isConnected: false,
-        expiresAt: null,
-        accountId: null,
+        isConnected: snapshot?.openai?.isConnected || false,
+        expiresAt: snapshot?.openai?.expiresAt || null,
+        accountId: snapshot?.openai?.accountId || null,
+        accounts: mapSnapshotAccounts(snapshot),
         redirectUri: null,
         isLoading: false,
       });

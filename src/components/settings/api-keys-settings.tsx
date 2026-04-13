@@ -2,6 +2,7 @@ import { ChevronDown, ChevronRight, ExternalLink, Eye, EyeOff, Loader2 } from 'l
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { CustomProviderSection } from '@/components/custom-provider/CustomProviderSection';
+import { OpenAIOAuthLogin } from '@/components/settings/openai-oauth-login';
 import { OAuthProviderInput } from '@/components/settings/oauth-provider-input';
 import { ProviderIcon } from '@/components/settings/provider-icons';
 import { Button } from '@/components/ui/button';
@@ -23,10 +24,17 @@ import {
   PROVIDERS_WITH_INTERNATIONAL,
 } from '@/providers';
 import { customModelService, isLocalProvider } from '@/providers/custom/custom-model-service';
+import { useOpenAIOAuthStore } from '@/providers/oauth/openai-oauth-store';
 import { useProviderStore } from '@/providers/stores/provider-store';
 import { databaseService } from '@/services/database-service';
+import {
+  createEmptyApiKeyAccount,
+  maskApiKey,
+  moveAccount,
+} from '@/services/llm/provider-account-service';
 import { settingsManager } from '@/stores/settings-store';
 import type { ApiKeySettings } from '@/types/api-keys';
+import type { ProviderAccountItem } from '@/types/provider-accounts';
 
 interface ApiKeyVisibility {
   [key: string]: boolean;
@@ -55,6 +63,10 @@ export function ApiKeysSettings() {
   }>({});
   const [baseUrlExpanded, setBaseUrlExpanded] = useState<Record<string, boolean>>({});
   const [expandedProviders, setExpandedProviders] = useState<Record<string, boolean>>({});
+  const [providerAccounts, setProviderAccounts] = useState<Record<string, ProviderAccountItem[]>>(
+    {}
+  );
+  const openAiOAuthAccounts = useOpenAIOAuthStore((state) => state.accounts);
 
   // OAuth state
   // OAuth state (unified hook)
@@ -120,6 +132,7 @@ export function ApiKeysSettings() {
         const loadedUseCodingPlanSettings: Record<string, boolean> = {};
         const loadedUseInternationalSettings: Record<string, boolean> = {};
         const loadedCodingPlanApiKeys: CodingPlanApiKeySettings = {};
+        const loadedProviderAccounts: Record<string, ProviderAccountItem[]> = {};
         for (const providerId of Object.keys(PROVIDER_CONFIGS)) {
           const baseUrl = await settingsManager.getProviderBaseUrl(providerId);
           if (baseUrl) {
@@ -143,11 +156,17 @@ export function ApiKeysSettings() {
             const useInternational = await settingsManager.getProviderUseInternational(providerId);
             loadedUseInternationalSettings[providerId] = useInternational;
           }
+
+          if (providerId === 'openai' || providerId === 'anthropic') {
+            loadedProviderAccounts[providerId] =
+              await settingsManager.getProviderAccounts(providerId);
+          }
         }
         setBaseUrls(loadedBaseUrls);
         setUseCodingPlanSettings(loadedUseCodingPlanSettings);
         setUseInternationalSettings(loadedUseInternationalSettings);
         setCodingPlanApiKeys(loadedCodingPlanApiKeys);
+        setProviderAccounts(loadedProviderAccounts);
       } catch (error) {
         logger.error('Failed to load API keys settings:', error);
       }
@@ -155,6 +174,19 @@ export function ApiKeysSettings() {
 
     loadSettings();
   }, []);
+
+  useEffect(() => {
+    const syncOpenAIProviderAccounts = async () => {
+      try {
+        const accounts = await settingsManager.getProviderAccounts('openai');
+        setProviderAccounts((prev) => ({ ...prev, openai: accounts }));
+      } catch (error) {
+        logger.error('Failed to sync OpenAI provider accounts:', error);
+      }
+    };
+
+    syncOpenAIProviderAccounts();
+  }, [openAiOAuthAccounts]);
 
   const handleApiKeyChange = async (providerId: string, value: string) => {
     const updatedKeys = { ...apiKeys, [providerId]: value };
@@ -430,6 +462,62 @@ export function ApiKeysSettings() {
     }
   };
 
+  const persistProviderAccounts = async (
+    providerId: 'openai' | 'anthropic',
+    accounts: ProviderAccountItem[]
+  ) => {
+    const normalized = accounts.map((account, index) => ({
+      ...account,
+      priority: index,
+      updatedAt: Date.now(),
+    }));
+    setProviderAccounts((prev) => ({ ...prev, [providerId]: normalized }));
+    await settingsManager.setProviderAccounts(providerId, normalized);
+    await useProviderStore.getState().refresh();
+  };
+
+  const updateProviderAccount = async (
+    providerId: 'openai' | 'anthropic',
+    accountId: string,
+    updater: (account: ProviderAccountItem) => ProviderAccountItem
+  ) => {
+    const accounts = providerAccounts[providerId] || [];
+    await persistProviderAccounts(
+      providerId,
+      accounts.map((account) => (account.id === accountId ? updater(account) : account))
+    );
+  };
+
+  const addProviderAccount = async (providerId: 'openai' | 'anthropic') => {
+    const accounts = providerAccounts[providerId] || [];
+    await persistProviderAccounts(providerId, [...accounts, createEmptyApiKeyAccount(providerId)]);
+  };
+
+  const removeProviderAccount = async (providerId: 'openai' | 'anthropic', accountId: string) => {
+    const accounts = providerAccounts[providerId] || [];
+    const targetAccount = accounts.find((account) => account.id === accountId);
+
+    if (providerId === 'openai' && targetAccount?.authType === 'oauth') {
+      await useOpenAIOAuthStore
+        .getState()
+        .disconnect(targetAccount.oauthAccountId ?? targetAccount.id);
+    }
+
+    await persistProviderAccounts(
+      providerId,
+      accounts.filter((account) => account.id !== accountId)
+    );
+  };
+
+  const moveProviderAccount = async (
+    providerId: 'openai' | 'anthropic',
+    accountId: string,
+    direction: 'up' | 'down'
+  ) => {
+    const accounts = providerAccounts[providerId] || [];
+    await persistProviderAccounts(providerId, moveAccount(accounts, accountId, direction));
+  };
+
   return (
     <div className="space-y-6">
       {/* Built-in Providers */}
@@ -577,6 +665,121 @@ export function ApiKeysSettings() {
                               )}
                             </Button>
                           )}
+                        </div>
+                      ) : providerId === 'openai' || providerId === 'anthropic' ? (
+                        <div className="space-y-3">
+                          <div className="rounded-md border bg-muted/30 p-3 text-sm">
+                            <div className="font-medium">
+                              {t.Settings.apiKeys.multiAccount.title}
+                            </div>
+                            <div className="text-muted-foreground">
+                              {t.Settings.apiKeys.multiAccount.description}
+                            </div>
+                          </div>
+                          {providerId === 'openai' && <OpenAIOAuthLogin />}
+                          {(providerAccounts[providerId] || []).map((account) => (
+                            <div key={account.id} className="rounded-md border p-3 space-y-3">
+                              <div className="flex items-center justify-between gap-2">
+                                <div>
+                                  <div className="text-sm font-medium">{account.name}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {account.authType === 'oauth'
+                                      ? t.Settings.apiKeys.multiAccount.oauthAccount
+                                      : t.Settings.apiKeys.multiAccount.apiKeyAccount}
+                                    {account.authType === 'api_key' && account.apiKey
+                                      ? ` · ${maskApiKey(account.apiKey)}`
+                                      : ''}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Switch
+                                    checked={account.enabled}
+                                    onCheckedChange={(checked) =>
+                                      updateProviderAccount(providerId, account.id, (current) => ({
+                                        ...current,
+                                        enabled: checked,
+                                      }))
+                                    }
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      moveProviderAccount(providerId, account.id, 'up')
+                                    }
+                                  >
+                                    ↑
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      moveProviderAccount(providerId, account.id, 'down')
+                                    }
+                                  >
+                                    ↓
+                                  </Button>
+                                  {account.authType === 'oauth' ? (
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => removeProviderAccount(providerId, account.id)}
+                                    >
+                                      {t.Settings.openaiOAuth.disconnect}
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => removeProviderAccount(providerId, account.id)}
+                                    >
+                                      {t.Common.delete}
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                              <Input
+                                value={account.name}
+                                placeholder={t.Settings.apiKeys.multiAccount.accountNamePlaceholder}
+                                onChange={(e) =>
+                                  updateProviderAccount(providerId, account.id, (current) => ({
+                                    ...current,
+                                    name: e.target.value,
+                                  }))
+                                }
+                              />
+                              {account.authType === 'api_key' ? (
+                                <Input
+                                  value={account.apiKey || ''}
+                                  placeholder={t.Settings.apiKeys.enterKey(config.name)}
+                                  onChange={(e) =>
+                                    updateProviderAccount(providerId, account.id, (current) => ({
+                                      ...current,
+                                      apiKey: e.target.value,
+                                    }))
+                                  }
+                                />
+                              ) : (
+                                <div className="text-xs text-muted-foreground">
+                                  {account.oauthAccountId
+                                    ? `${t.Settings.apiKeys.multiAccount.oauthConnected} · ${account.oauthAccountId}`
+                                    : t.Settings.apiKeys.multiAccount.oauthNotConnected}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => addProviderAccount(providerId as 'openai' | 'anthropic')}
+                          >
+                            {t.Settings.apiKeys.multiAccount.addAccount}
+                          </Button>
                         </div>
                       ) : config.supportsOAuth ? (
                         // OAuth provider with API key fallback

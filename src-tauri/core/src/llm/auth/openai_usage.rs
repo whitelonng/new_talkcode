@@ -27,7 +27,7 @@ async fn fetch_usage_with_token(
     headers.insert("originator".to_string(), "codex_cli_rs".to_string());
 
     api_keys
-        .maybe_set_openai_account_header("openai", &mut headers)
+        .maybe_set_openai_account_header("openai", None, &mut headers)
         .await?;
 
     let mut request = client.get(OPENAI_USAGE_DEFAULT_URL);
@@ -65,7 +65,7 @@ async fn refresh_access_token(
     refresh_token: &str,
 ) -> Result<String, String> {
     let client = reqwest::Client::new();
-    let refreshed = refresh_openai_oauth_tokens(&client, refresh_token, api_keys).await?;
+    let refreshed = refresh_openai_oauth_tokens(&client, refresh_token, None, api_keys).await?;
     Ok(refreshed.access_token)
 }
 

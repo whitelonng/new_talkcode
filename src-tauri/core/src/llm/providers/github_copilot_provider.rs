@@ -1,7 +1,6 @@
 // GitHub Copilot Provider Implementation
 // Handles special headers required by GitHub Copilot API
 
-use crate::llm::auth::api_key_manager::ApiKeyManager;
 use crate::llm::protocols::{
     header_builder::{HeaderBuildContext, ProtocolHeaderBuilder},
     openai_protocol::OpenAiProtocol,
@@ -59,8 +58,8 @@ impl Provider for GithubCopilotProvider {
         "chat/completions".to_string()
     }
 
-    async fn get_credentials(&self, api_key_manager: &ApiKeyManager) -> Result<Creds, String> {
-        let creds = api_key_manager.get_credentials(&self.base.config).await?;
+    async fn get_credentials(&self, ctx: &ProviderContext<'_>) -> Result<Creds, String> {
+        let creds = ctx.api_key_manager.get_credentials(&self.base.config).await?;
         match creds {
             crate::llm::auth::api_key_manager::ProviderCredentials::Token(token) => {
                 Ok(Creds::Token(token))

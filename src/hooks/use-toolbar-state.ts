@@ -9,6 +9,7 @@ import { logger } from '@/lib/logger';
 import { modelService, useProviderStore } from '@/providers/stores/provider-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { useTaskStore } from '@/stores/task-store';
+import type { ExternalAgentBackend } from '@/types';
 
 // Formatting utilities
 export function formatTokens(tokens: number): string {
@@ -81,6 +82,12 @@ export function useToolbarState(): ToolbarState {
       // Priority: 1. Model associated with the current task
       //           2. Current global model from modelService
       let modelIdentifier = taskModel;
+      const backend = (currentTask?.backend as ExternalAgentBackend | undefined) ?? 'native';
+
+      if (backend === 'codex' || backend === 'claude') {
+        setModelName(backend);
+        return;
+      }
 
       if (!modelIdentifier) {
         modelIdentifier = await modelService.getCurrentModel();
@@ -110,7 +117,7 @@ export function useToolbarState(): ToolbarState {
       logger.error('Failed to get current model:', error);
       setModelName('');
     }
-  }, [availableModels, taskModel]);
+  }, [availableModels, currentTask?.backend, taskModel]);
 
   // Update model name when model type settings or task model change
   // biome-ignore lint/correctness/useExhaustiveDependencies: These dependencies trigger re-fetch when model settings change in the store

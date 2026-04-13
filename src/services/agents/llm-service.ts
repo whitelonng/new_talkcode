@@ -24,6 +24,11 @@ import { databaseService } from '@/services/database-service';
 import { hookService } from '@/services/hooks/hook-service';
 import { hookStateService } from '@/services/hooks/hook-state-service';
 import { llmClient, type StreamTextResult } from '@/services/llm/llm-client';
+import {
+  buildCredentialOverrides,
+  formatProviderSwitchError,
+  shouldSwitchAccount,
+} from '@/services/llm/provider-account-service';
 import type {
   ContentPart,
   Message as LlmMessage,
@@ -35,6 +40,7 @@ import { useSettingsStore } from '@/stores/settings-store';
 import { useTaskStore } from '@/stores/task-store';
 import type { ToolSummary } from '@/types/completion-hooks';
 import { ModelType } from '@/types/model-types';
+import type { ProviderSwitchAttempt } from '@/types/provider-accounts';
 import type {
   AgentLoopOptions,
   AgentLoopState,
@@ -594,6 +600,8 @@ export class LLMService {
           compacted = await this.loadCompactedMessages();
         }
         const { providerId } = parseModelIdentifier(model);
+        const multiAccountProviderId =
+          providerId === 'openai' || providerId === 'anthropic' ? providerId : null;
 
         if (compacted) {
           // Check inputMessages count vs sourceUIMessageCount
@@ -814,373 +822,414 @@ export class LLMService {
           let streamRetryCount = 0;
           let streamResult: StreamTextResult | null = null;
           let shouldAutoCompact = false;
+          const accountSwitchAttempts: ProviderSwitchAttempt[] = [];
+          const providerAccounts = multiAccountProviderId
+            ? await useSettingsStore.getState().getProviderAccounts(multiAccountProviderId)
+            : [];
+          const credentialOverrides = multiAccountProviderId
+            ? buildCredentialOverrides(multiAccountProviderId, providerAccounts)
+            : [];
+          const requestCredentialAttempts =
+            credentialOverrides.length > 0 ? credentialOverrides : [null];
 
-          while (streamRetryCount <= MAX_STREAM_RETRIES) {
-            try {
-              // Reset stream processor state before each attempt
-              if (streamRetryCount > 0) {
-                streamProcessor.resetState();
-                logger.info(`Stream retry attempt ${streamRetryCount}/${MAX_STREAM_RETRIES}`, {
-                  iteration: loopState.currentIteration,
-                });
-              }
+          for (
+            let credentialIndex = 0;
+            credentialIndex < requestCredentialAttempts.length;
+            credentialIndex++
+          ) {
+            const credentialOverride = requestCredentialAttempts[credentialIndex];
+            streamRetryCount = 0;
 
-              const { providerOptions, temperature, topP, topK } = LLMStreamParams.build({
-                modelIdentifier: model,
-                reasoningEffort,
-                enableReasoningOptions: isThink,
-              });
-
-              const llmMessages: LlmMessage[] = loopState.messages.map((msg) => {
-                if (msg.role === 'tool' && Array.isArray(msg.content)) {
-                  return {
-                    role: 'tool',
-                    content: (msg.content as Array<{ type: string }>).map((part) => {
-                      if (part.type === 'tool-result') {
-                        return {
-                          type: 'tool-result',
-                          toolCallId: (part as unknown as { toolCallId: string }).toolCallId,
-                          toolName: (part as unknown as { toolName: string }).toolName,
-                          output: (part as unknown as { output: unknown }).output,
-                        };
-                      }
-                      return part as unknown as LlmMessage['content'][number];
-                    }),
-                    providerOptions: (msg as { providerOptions?: Record<string, unknown> })
-                      .providerOptions,
-                  } as LlmMessage;
+            while (streamRetryCount <= MAX_STREAM_RETRIES) {
+              try {
+                // Reset stream processor state before each attempt
+                if (streamRetryCount > 0) {
+                  streamProcessor.resetState();
+                  logger.info(`Stream retry attempt ${streamRetryCount}/${MAX_STREAM_RETRIES}`, {
+                    iteration: loopState.currentIteration,
+                  });
                 }
 
-                if (msg.role === 'assistant' && Array.isArray(msg.content)) {
-                  return {
-                    role: 'assistant',
-                    content: (msg.content as Array<{ type: string }>).map((part) => {
-                      if (part.type === 'tool-call') {
-                        return {
-                          type: 'tool-call',
-                          toolCallId: (part as unknown as { toolCallId: string }).toolCallId,
-                          toolName: (part as unknown as { toolName: string }).toolName,
-                          input: (part as unknown as { input: unknown }).input,
-                        };
-                      }
-                      return part as unknown as LlmMessage['content'][number];
-                    }),
-                    providerOptions: (msg as { providerOptions?: Record<string, unknown> })
-                      .providerOptions,
-                  } as LlmMessage;
-                }
-
-                return {
-                  role: msg.role as LlmMessage['role'],
-                  content: msg.content as LlmMessage['content'],
-                  providerOptions: (msg as { providerOptions?: Record<string, unknown> })
-                    .providerOptions,
-                } as LlmMessage;
-              });
-
-              const tools = Object.entries(toolsForAI).map(([name, tool]) => {
-                const toolDef = tool as { description?: string; inputSchema?: unknown };
-                return toOpenAIToolDefinition(name, toolDef.description, toolDef.inputSchema, {
+                const { providerOptions, temperature, topP, topK } = LLMStreamParams.build({
                   modelIdentifier: model,
+                  reasoningEffort,
+                  enableReasoningOptions: isThink,
+                  credentialOverride: credentialOverride ?? undefined,
                 });
-              });
 
-              const traceEnabled = useSettingsStore.getState().getTraceEnabled?.() ?? true;
-              const traceContext = traceEnabled
-                ? createLlmTraceContext(traceId, model, loopState.currentIteration)
-                : null;
-
-              streamResult = await llmClient.streamText(
-                {
-                  model,
-                  messages: llmMessages,
-                  tools: tools.length > 0 ? tools : undefined,
-                  temperature,
-                  maxTokens: 15000,
-                  topP,
-                  topK,
-                  providerOptions: providerOptions ?? undefined,
-                  traceContext,
-                },
-                abortController?.signal
-              );
-
-              const streamCallbacks = { onChunk, onStatus, onAssistantMessageStart };
-              const streamContext = { suppressReasoning };
-
-              // Process current step stream
-              for await (const delta of streamResult.events) {
-                if (abortController?.signal.aborted) {
-                  rejectOnAbort('Agent loop aborted during streaming');
-                  return;
-                }
-
-                switch (delta.type) {
-                  case 'text-start':
-                    streamProcessor.processTextStart(streamCallbacks);
-                    break;
-                  case 'text-delta':
-                    if (delta.text) {
-                      streamProcessor.processTextDelta(delta.text, streamCallbacks);
-                    }
-                    break;
-                  case 'tool-call':
-                    streamProcessor.processToolCall(
-                      {
-                        toolCallId: delta.toolCallId,
-                        toolName: delta.toolName,
-                        input: delta.input,
-                        providerMetadata: delta.providerMetadata ?? undefined,
-                      },
-                      streamCallbacks
-                    );
-                    break;
-                  case 'reasoning-start':
-                    streamProcessor.processReasoningStart(
-                      delta.id,
-                      delta.providerMetadata ?? undefined,
-                      streamCallbacks
-                    );
-                    break;
-                  case 'reasoning-delta':
-                    streamProcessor.processReasoningDelta(
-                      delta.id || 'default',
-                      delta.text || '',
-                      delta.providerMetadata ?? undefined,
-                      streamContext,
-                      streamCallbacks
-                    );
-                    break;
-                  case 'reasoning-end':
-                    streamProcessor.processReasoningEnd(delta.id, streamCallbacks);
-                    break;
-                  case 'usage': {
-                    const requestDuration = Date.now() - requestStartTime;
-                    const normalizedUsage = UsageTokenUtils.normalizeUsageTokens(
-                      {
-                        inputTokens: delta.input_tokens,
-                        outputTokens: delta.output_tokens,
-                        cachedInputTokens: delta.cached_input_tokens ?? undefined,
-                        cacheCreationInputTokens: delta.cache_creation_input_tokens ?? undefined,
-                        totalTokens: delta.total_tokens ?? undefined,
-                      },
-                      undefined
-                    );
-
-                    if (normalizedUsage?.totalTokens) {
-                      if (loopState.lastRequestTokens > 0) {
-                        const tokenIncrease =
-                          normalizedUsage.totalTokens - loopState.lastRequestTokens;
-                        if (tokenIncrease > 10000) {
-                          logger.warn('Token count increased significantly', {
-                            currentTokens: normalizedUsage.totalTokens,
-                            previousTokens: loopState.lastRequestTokens,
-                            increase: tokenIncrease,
-                            iteration: loopState.currentIteration,
-                          });
+                const llmMessages: LlmMessage[] = loopState.messages.map((msg) => {
+                  if (msg.role === 'tool' && Array.isArray(msg.content)) {
+                    return {
+                      role: 'tool',
+                      content: (msg.content as Array<{ type: string }>).map((part) => {
+                        if (part.type === 'tool-result') {
+                          return {
+                            type: 'tool-result',
+                            toolCallId: (part as unknown as { toolCallId: string }).toolCallId,
+                            toolName: (part as unknown as { toolName: string }).toolName,
+                            output: (part as unknown as { output: unknown }).output,
+                          };
                         }
+                        return part as unknown as LlmMessage['content'][number];
+                      }),
+                      providerOptions: (msg as { providerOptions?: Record<string, unknown> })
+                        .providerOptions,
+                    } as LlmMessage;
+                  }
+
+                  if (msg.role === 'assistant' && Array.isArray(msg.content)) {
+                    return {
+                      role: 'assistant',
+                      content: (msg.content as Array<{ type: string }>).map((part) => {
+                        if (part.type === 'tool-call') {
+                          return {
+                            type: 'tool-call',
+                            toolCallId: (part as unknown as { toolCallId: string }).toolCallId,
+                            toolName: (part as unknown as { toolName: string }).toolName,
+                            input: (part as unknown as { input: unknown }).input,
+                          };
+                        }
+                        return part as unknown as LlmMessage['content'][number];
+                      }),
+                      providerOptions: (msg as { providerOptions?: Record<string, unknown> })
+                        .providerOptions,
+                    } as LlmMessage;
+                  }
+
+                  return {
+                    role: msg.role as LlmMessage['role'],
+                    content: msg.content as LlmMessage['content'],
+                    providerOptions: (msg as { providerOptions?: Record<string, unknown> })
+                      .providerOptions,
+                  } as LlmMessage;
+                });
+
+                const tools = Object.entries(toolsForAI).map(([name, tool]) => {
+                  const toolDef = tool as { description?: string; inputSchema?: unknown };
+                  return toOpenAIToolDefinition(name, toolDef.description, toolDef.inputSchema, {
+                    modelIdentifier: model,
+                  });
+                });
+
+                const traceEnabled = useSettingsStore.getState().getTraceEnabled?.() ?? true;
+                const traceContext = traceEnabled
+                  ? createLlmTraceContext(traceId, model, loopState.currentIteration)
+                  : null;
+
+                streamResult = await llmClient.streamText(
+                  {
+                    model,
+                    messages: llmMessages,
+                    tools: tools.length > 0 ? tools : undefined,
+                    temperature,
+                    maxTokens: 15000,
+                    topP,
+                    topK,
+                    providerOptions: providerOptions ?? undefined,
+                    traceContext,
+                  },
+                  abortController?.signal
+                );
+
+                const streamCallbacks = { onChunk, onStatus, onAssistantMessageStart };
+                const streamContext = { suppressReasoning };
+
+                // Process current step stream
+                for await (const delta of streamResult.events) {
+                  if (abortController?.signal.aborted) {
+                    rejectOnAbort('Agent loop aborted during streaming');
+                    return;
+                  }
+
+                  switch (delta.type) {
+                    case 'text-start':
+                      streamProcessor.processTextStart(streamCallbacks);
+                      break;
+                    case 'text-delta':
+                      if (delta.text) {
+                        streamProcessor.processTextDelta(delta.text, streamCallbacks);
                       }
-                      loopState.lastRequestTokens = normalizedUsage.totalTokens;
-                    }
+                      break;
+                    case 'tool-call':
+                      streamProcessor.processToolCall(
+                        {
+                          toolCallId: delta.toolCallId,
+                          toolName: delta.toolName,
+                          input: delta.input,
+                          providerMetadata: delta.providerMetadata ?? undefined,
+                        },
+                        streamCallbacks
+                      );
+                      break;
+                    case 'reasoning-start':
+                      streamProcessor.processReasoningStart(
+                        delta.id,
+                        delta.providerMetadata ?? undefined,
+                        streamCallbacks
+                      );
+                      break;
+                    case 'reasoning-delta':
+                      streamProcessor.processReasoningDelta(
+                        delta.id || 'default',
+                        delta.text || '',
+                        delta.providerMetadata ?? undefined,
+                        streamContext,
+                        streamCallbacks
+                      );
+                      break;
+                    case 'reasoning-end':
+                      streamProcessor.processReasoningEnd(delta.id, streamCallbacks);
+                      break;
+                    case 'usage': {
+                      const requestDuration = Date.now() - requestStartTime;
+                      const normalizedUsage = UsageTokenUtils.normalizeUsageTokens(
+                        {
+                          inputTokens: delta.input_tokens,
+                          outputTokens: delta.output_tokens,
+                          cachedInputTokens: delta.cached_input_tokens ?? undefined,
+                          cacheCreationInputTokens: delta.cache_creation_input_tokens ?? undefined,
+                          totalTokens: delta.total_tokens ?? undefined,
+                        },
+                        undefined
+                      );
 
-                    if (normalizedUsage) {
-                      const {
-                        inputTokens,
-                        outputTokens,
-                        cachedInputTokens,
-                        cacheCreationInputTokens,
-                      } = normalizedUsage;
-                      const cost = await aiPricingService.calculateCost(model, {
-                        inputTokens,
-                        outputTokens,
-                        cachedInputTokens,
-                        cacheCreationInputTokens,
-                      });
-
-                      let contextUsage: number | undefined;
-                      if (loopState.lastRequestTokens > 0) {
-                        const maxContextTokens = getContextLength(model);
-                        contextUsage = Math.min(
-                          100,
-                          (loopState.lastRequestTokens / maxContextTokens) * 100
-                        );
+                      if (normalizedUsage?.totalTokens) {
+                        if (loopState.lastRequestTokens > 0) {
+                          const tokenIncrease =
+                            normalizedUsage.totalTokens - loopState.lastRequestTokens;
+                          if (tokenIncrease > 10000) {
+                            logger.warn('Token count increased significantly', {
+                              currentTokens: normalizedUsage.totalTokens,
+                              previousTokens: loopState.lastRequestTokens,
+                              increase: tokenIncrease,
+                              iteration: loopState.currentIteration,
+                            });
+                          }
+                        }
+                        loopState.lastRequestTokens = normalizedUsage.totalTokens;
                       }
 
-                      if (this.taskId && !isSubagent) {
-                        const taskStore = useTaskStore.getState();
-                        taskStore.updateTask(this.taskId, {
-                          last_request_input_token: inputTokens,
-                        });
-                        taskStore.updateTaskUsage(this.taskId, {
-                          costDelta: cost,
-                          inputTokensDelta: inputTokens,
-                          outputTokensDelta: outputTokens,
-                          requestCountDelta: 1,
-                          contextUsage,
-                        });
-                      }
-
-                      databaseService
-                        .insertApiUsageEvent({
-                          id: generateId(),
-                          conversationId:
-                            this.taskId && this.taskId !== 'nested' ? this.taskId : null,
-                          model,
-                          providerId: providerId ?? null,
+                      if (normalizedUsage) {
+                        const {
                           inputTokens,
                           outputTokens,
-                          cost,
-                          createdAt: Date.now(),
-                        })
-                        .catch((error) => {
-                          logger.warn('[LLMService] Failed to insert usage event', error);
+                          cachedInputTokens,
+                          cacheCreationInputTokens,
+                        } = normalizedUsage;
+                        const cost = await aiPricingService.calculateCost(model, {
+                          inputTokens,
+                          outputTokens,
+                          cachedInputTokens,
+                          cacheCreationInputTokens,
                         });
-                    }
 
-                    logger.info('onFinish', {
-                      finishReason: delta.total_tokens ? 'stop' : 'unknown',
-                      requestDuration,
-                      totalUsage: delta.total_tokens,
-                      lastRequestTokens: loopState.lastRequestTokens,
-                      request: 'llm_stream_text',
-                    });
-                    break;
-                  }
-                  case 'done':
-                    loopState.lastFinishReason = delta.finish_reason ?? undefined;
-                    break;
-                  case 'raw': {
-                    if (!loopState.rawChunks) {
-                      loopState.rawChunks = [];
-                    }
-                    loopState.rawChunks.push(delta.raw_value);
-                    break;
-                  }
-                  case 'error': {
-                    streamProcessor.markError();
+                        let contextUsage: number | undefined;
+                        if (loopState.lastRequestTokens > 0) {
+                          const maxContextTokens = getContextLength(model);
+                          contextUsage = Math.min(
+                            100,
+                            (loopState.lastRequestTokens / maxContextTokens) * 100
+                          );
+                        }
 
-                    const errorObj = new Error(delta.message);
-                    if (delta.name) {
-                      errorObj.name = delta.name;
-                    }
+                        if (this.taskId && !isSubagent) {
+                          const taskStore = useTaskStore.getState();
+                          taskStore.updateTask(this.taskId, {
+                            last_request_input_token: inputTokens,
+                          });
+                          taskStore.updateTaskUsage(this.taskId, {
+                            costDelta: cost,
+                            inputTokensDelta: inputTokens,
+                            outputTokensDelta: outputTokens,
+                            requestCountDelta: 1,
+                            contextUsage,
+                          });
+                        }
 
-                    if (isContextLengthExceededError(errorObj)) {
-                      const MAX_AUTO_COMPACTIONS = 1;
-                      if (autoCompactionAttempts < MAX_AUTO_COMPACTIONS) {
-                        autoCompactionAttempts++;
-                        shouldAutoCompact = true;
-                        break;
+                        databaseService
+                          .insertApiUsageEvent({
+                            id: generateId(),
+                            conversationId:
+                              this.taskId && this.taskId !== 'nested' ? this.taskId : null,
+                            model,
+                            providerId: providerId ?? null,
+                            inputTokens,
+                            outputTokens,
+                            cost,
+                            createdAt: Date.now(),
+                          })
+                          .catch((error) => {
+                            logger.warn('[LLMService] Failed to insert usage event', error);
+                          });
                       }
 
-                      const errorMessage = t.LLMService.errors.contextTooLongCompactionFailed;
-                      const error = new Error(errorMessage);
-                      onError?.(error);
-                      reject(error);
-                      return;
+                      logger.info('onFinish', {
+                        finishReason: delta.total_tokens ? 'stop' : 'unknown',
+                        requestDuration,
+                        totalUsage: delta.total_tokens,
+                        lastRequestTokens: loopState.lastRequestTokens,
+                        request: 'llm_stream_text',
+                      });
+                      break;
                     }
-
-                    const visibleOutput = this.hasVisibleStreamOutput(streamProcessor.getState());
-                    const retryDecision = this.classifyStreamRetry(
-                      errorObj,
-                      model,
-                      loopState.currentIteration,
-                      visibleOutput
-                    );
-
-                    if (retryDecision.retryable) {
-                      throw new RetryableStreamError(retryDecision);
+                    case 'done':
+                      loopState.lastFinishReason = delta.finish_reason ?? undefined;
+                      break;
+                    case 'raw': {
+                      if (!loopState.rawChunks) {
+                        loopState.rawChunks = [];
+                      }
+                      loopState.rawChunks.push(delta.raw_value);
+                      break;
                     }
+                    case 'error': {
+                      streamProcessor.markError();
 
-                    const errorHandlerOptions = {
-                      model,
-                      tools: filteredTools,
-                      loopState,
-                      onError,
-                    };
+                      const errorObj = new Error(delta.message);
+                      if (delta.name) {
+                        errorObj.name = delta.name;
+                      }
 
-                    const errorResult = this.errorHandler.handleStreamError(
-                      errorObj,
-                      errorHandlerOptions
-                    );
+                      if (isContextLengthExceededError(errorObj)) {
+                        const MAX_AUTO_COMPACTIONS = 1;
+                        if (autoCompactionAttempts < MAX_AUTO_COMPACTIONS) {
+                          autoCompactionAttempts++;
+                          shouldAutoCompact = true;
+                          break;
+                        }
 
-                    if (errorResult.shouldStop) {
-                      const error =
-                        errorResult.error || new Error('Unknown error occurred during streaming');
-                      onError?.(error);
-                      reject(error);
-                      return;
+                        const errorMessage = t.LLMService.errors.contextTooLongCompactionFailed;
+                        const error = new Error(errorMessage);
+                        onError?.(error);
+                        reject(error);
+                        return;
+                      }
+
+                      const visibleOutput = this.hasVisibleStreamOutput(streamProcessor.getState());
+                      const retryDecision = this.classifyStreamRetry(
+                        errorObj,
+                        model,
+                        loopState.currentIteration,
+                        visibleOutput
+                      );
+
+                      if (retryDecision.retryable) {
+                        throw new RetryableStreamError(retryDecision);
+                      }
+
+                      const errorHandlerOptions = {
+                        model,
+                        tools: filteredTools,
+                        loopState,
+                        onError,
+                      };
+
+                      const errorResult = this.errorHandler.handleStreamError(
+                        errorObj,
+                        errorHandlerOptions
+                      );
+
+                      if (errorResult.shouldStop) {
+                        const error =
+                          errorResult.error || new Error('Unknown error occurred during streaming');
+                        onError?.(error);
+                        reject(error);
+                        return;
+                      }
+
+                      if (errorResult.error) {
+                        onError?.(errorResult.error);
+                      }
+
+                      const consecutiveErrors = streamProcessor.getConsecutiveToolErrors();
+                      this.errorHandler.addConsecutiveErrorGuidance(
+                        consecutiveErrors,
+                        errorHandlerOptions
+                      );
+
+                      break;
                     }
-
-                    if (errorResult.error) {
-                      onError?.(errorResult.error);
-                    }
-
-                    const consecutiveErrors = streamProcessor.getConsecutiveToolErrors();
-                    // Add guidance message when too many consecutive errors occur, but continue the loop
-                    this.errorHandler.addConsecutiveErrorGuidance(
-                      consecutiveErrors,
-                      errorHandlerOptions
-                    );
-
-                    break;
                   }
                 }
-              }
 
-              // Stream processing succeeded, exit retry loop
-              break;
-            } catch (streamError) {
-              if (isContextLengthExceededError(streamError)) {
-                const MAX_AUTO_COMPACTIONS = 1;
-                if (autoCompactionAttempts < MAX_AUTO_COMPACTIONS) {
-                  autoCompactionAttempts++;
-                  shouldAutoCompact = true;
+                // Stream processing succeeded, exit retry loop
+                break;
+              } catch (streamError) {
+                if (isContextLengthExceededError(streamError)) {
+                  const MAX_AUTO_COMPACTIONS = 1;
+                  if (autoCompactionAttempts < MAX_AUTO_COMPACTIONS) {
+                    autoCompactionAttempts++;
+                    shouldAutoCompact = true;
+                    break;
+                  }
+
+                  throw new Error(t.LLMService.errors.contextTooLongCompactionFailed);
+                }
+
+                const visibleOutput = this.hasVisibleStreamOutput(streamProcessor.getState());
+                const retryDecision =
+                  streamError instanceof RetryableStreamError
+                    ? streamError.decision
+                    : this.classifyStreamRetry(
+                        streamError,
+                        model,
+                        loopState.currentIteration,
+                        visibleOutput
+                      );
+
+                if (
+                  credentialOverride &&
+                  !visibleOutput &&
+                  shouldSwitchAccount(streamError) &&
+                  credentialIndex < requestCredentialAttempts.length - 1
+                ) {
+                  accountSwitchAttempts.push({
+                    accountId: credentialOverride.accountId,
+                    accountName: credentialOverride.accountId,
+                    reason: retryDecision.reason,
+                  });
                   break;
                 }
 
-                throw new Error(t.LLMService.errors.contextTooLongCompactionFailed);
+                if (retryDecision.retryable && streamRetryCount < MAX_STREAM_RETRIES) {
+                  streamRetryCount++;
+                  const sleepMs = STREAM_RETRY_BACKOFF_MS[streamRetryCount - 1] ?? 3000;
+
+                  logger.warn(
+                    `[LLMService] Retryable stream failure (${retryDecision.category || 'unknown'}) ` +
+                      `retry ${streamRetryCount}/${MAX_STREAM_RETRIES}`,
+                    {
+                      iteration: loopState.currentIteration,
+                      reason: retryDecision.reason,
+                      status: retryDecision.status,
+                      hasVisibleOutput: retryDecision.hasVisibleOutput,
+                    }
+                  );
+
+                  await new Promise((resolve) => setTimeout(resolve, sleepMs));
+                  continue;
+                }
+
+                if (retryDecision.retryable) {
+                  throw this.buildRetryExhaustedError(retryDecision, t);
+                }
+
+                throw streamError;
               }
-
-              const visibleOutput = this.hasVisibleStreamOutput(streamProcessor.getState());
-              const retryDecision =
-                streamError instanceof RetryableStreamError
-                  ? streamError.decision
-                  : this.classifyStreamRetry(
-                      streamError,
-                      model,
-                      loopState.currentIteration,
-                      visibleOutput
-                    );
-
-              if (retryDecision.retryable && streamRetryCount < MAX_STREAM_RETRIES) {
-                streamRetryCount++;
-                const sleepMs = STREAM_RETRY_BACKOFF_MS[streamRetryCount - 1] ?? 3000;
-
-                logger.warn(
-                  `[LLMService] Retryable stream failure (${retryDecision.category || 'unknown'}) ` +
-                    `retry ${streamRetryCount}/${MAX_STREAM_RETRIES}`,
-                  {
-                    iteration: loopState.currentIteration,
-                    reason: retryDecision.reason,
-                    status: retryDecision.status,
-                    hasVisibleOutput: retryDecision.hasVisibleOutput,
-                  }
-                );
-
-                await new Promise((resolve) => setTimeout(resolve, sleepMs));
-                continue;
-              }
-
-              if (retryDecision.retryable) {
-                throw this.buildRetryExhaustedError(retryDecision, t);
-              }
-
-              throw streamError;
             }
-          } // End of streamRetryLoop
+
+            if (streamResult) {
+              break;
+            }
+          }
 
           // This should never happen as the loop exits via break on success or throw on error
           if (!streamResult) {
+            if (accountSwitchAttempts.length > 0 && multiAccountProviderId) {
+              throw new Error(
+                formatProviderSwitchError(multiAccountProviderId, accountSwitchAttempts)
+              );
+            }
             throw new Error(t.LLMService.errors.streamResultNull);
           }
 

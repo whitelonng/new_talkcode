@@ -7,6 +7,7 @@ import type { TursoClient } from '@/services/database/turso-client';
 import { databaseService } from '@/services/database-service';
 import { taskStore } from '@/stores/task-store';
 import type { ApiKeySettings, CustomProviderApiKeys } from '@/types/api-keys';
+import type { MultiAccountProviderId, ProviderAccountItem } from '@/types/provider-accounts';
 import type { ShortcutAction, ShortcutConfig, ShortcutSettings } from '@/types/shortcuts';
 import { DEFAULT_SHORTCUTS } from '@/types/shortcuts';
 
@@ -117,6 +118,9 @@ interface SettingsState {
   prompt_enhancement_context_enabled: boolean;
   prompt_enhancement_model: string;
 
+  // Tray Settings
+  close_to_tray: boolean; // Minimize to system tray on close
+
   // Internal state
   loading: boolean;
   error: Error | null;
@@ -192,6 +196,11 @@ interface SettingsActions {
   getApiKeys: () => ApiKeySettings;
   setProviderApiKey: (providerId: string, apiKey: string) => Promise<void>;
   getProviderApiKey: (providerId: string) => string | undefined;
+  getProviderAccounts: (providerId: MultiAccountProviderId) => Promise<ProviderAccountItem[]>;
+  setProviderAccounts: (
+    providerId: MultiAccountProviderId,
+    accounts: ProviderAccountItem[]
+  ) => Promise<void>;
 
   // Base URLs
   setProviderBaseUrl: (providerId: string, baseUrl: string) => Promise<void>;
@@ -273,6 +282,10 @@ interface SettingsActions {
   setPromptEnhancementModel: (model: string) => Promise<void>;
   getPromptEnhancementModel: () => string;
 
+  // Tray Settings
+  setCloseToTray: (enabled: boolean) => Promise<void>;
+  getCloseToTray: () => boolean;
+
   // Convenience getters
   getModel: () => string;
   getAgentId: () => string;
@@ -353,6 +366,7 @@ const DEFAULT_SETTINGS: Omit<SettingsState, 'loading' | 'error' | 'isInitialized
   lsp_show_hints: false,
   prompt_enhancement_context_enabled: false,
   prompt_enhancement_model: '',
+  close_to_tray: true,
 };
 
 // Database persistence layer
@@ -450,6 +464,7 @@ class SettingsDatabase {
       lsp_show_hints: 'false',
       prompt_enhancement_context_enabled: 'false',
       prompt_enhancement_model: '',
+      close_to_tray: 'true',
     };
 
     const now = Date.now();
@@ -603,6 +618,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
         'lsp_show_hints',
         'prompt_enhancement_context_enabled',
         'prompt_enhancement_model',
+        'close_to_tray',
       ];
 
       // Add API key keys
@@ -710,6 +726,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
         prompt_enhancement_context_enabled:
           rawSettings.prompt_enhancement_context_enabled !== 'false',
         prompt_enhancement_model: rawSettings.prompt_enhancement_model || '',
+        close_to_tray: rawSettings.close_to_tray !== 'false',
         loading: false,
         isInitialized: true,
       });
@@ -1042,6 +1059,72 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     return state.apiKeys[providerId as keyof ApiKeySettings] as string | undefined;
   },
 
+  getProviderAccounts: async (providerId: MultiAccountProviderId) => {
+    const [{ getProviderAccounts }, { useOpenAIOAuthStore }] = await Promise.all([
+      import('@/services/llm/provider-account-service'),
+      import('@/providers/oauth/openai-oauth-store'),
+    ]);
+
+    await settingsDb.initialize();
+    const rawValue = await settingsDb.get(`provider_accounts_${providerId}`);
+    const legacyApiKey = get().apiKeys[providerId as keyof ApiKeySettings] as string | undefined;
+    const openAiOAuthState = useOpenAIOAuthStore.getState();
+
+    const parsedAccounts = await getProviderAccounts(providerId, {
+      legacyApiKey,
+      rawValue,
+      openAiOAuthConnected: false,
+      openAiOAuthAccountId: null,
+    });
+
+    if (providerId !== 'openai') {
+      return parsedAccounts;
+    }
+
+    const oauthAccounts = openAiOAuthState.accounts || [];
+    const mergedAccounts = [...parsedAccounts.filter((account) => account.authType !== 'oauth')];
+
+    for (const oauthAccount of oauthAccounts) {
+      const existingIndex = mergedAccounts.findIndex(
+        (account) => account.oauthAccountId === oauthAccount.oauthAccountId
+      );
+      if (existingIndex >= 0) {
+        mergedAccounts[existingIndex] = {
+          ...mergedAccounts[existingIndex],
+          ...oauthAccount,
+        };
+      } else {
+        mergedAccounts.unshift(oauthAccount);
+      }
+    }
+
+    return mergedAccounts.sort((a, b) => a.priority - b.priority);
+  },
+
+  setProviderAccounts: async (
+    providerId: MultiAccountProviderId,
+    accounts: ProviderAccountItem[]
+  ) => {
+    const { saveProviderAccounts } = await import('@/services/llm/provider-account-service');
+    await settingsDb.initialize();
+    const serialized = await saveProviderAccounts(providerId, accounts);
+    await settingsDb.set(`provider_accounts_${providerId}`, serialized || '');
+
+    const firstApiKeyAccount = accounts
+      .filter(
+        (account) => account.enabled && account.authType === 'api_key' && account.apiKey?.trim()
+      )
+      .sort((a, b) => a.priority - b.priority)[0];
+
+    await settingsDb.set(`api_key_${providerId}`, firstApiKeyAccount?.apiKey?.trim() || '');
+
+    const state = get();
+    const newApiKeys = { ...state.apiKeys };
+    newApiKeys[providerId as keyof ApiKeySettings] = (firstApiKeyAccount?.apiKey?.trim() ||
+      '') as never;
+    set({ apiKeys: newApiKeys });
+  },
+
   // Base URLs
   setProviderBaseUrl: async (providerId: string, baseUrl: string) => {
     await settingsDb.set(`base_url_${providerId}`, baseUrl);
@@ -1340,6 +1423,16 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     return get().prompt_enhancement_model || '';
   },
 
+  // Tray Settings
+  setCloseToTray: async (enabled: boolean) => {
+    await settingsDb.set('close_to_tray', enabled.toString());
+    set({ close_to_tray: enabled });
+  },
+
+  getCloseToTray: () => {
+    return get().close_to_tray;
+  },
+
   // Convenience getters
   getModel: () => {
     return get().model;
@@ -1510,6 +1603,10 @@ export const settingsManager = {
     useSettingsStore.getState().setProviderApiKey(providerId, apiKey),
   getProviderApiKey: (providerId: string) =>
     useSettingsStore.getState().getProviderApiKey(providerId),
+  getProviderAccounts: (providerId: MultiAccountProviderId) =>
+    useSettingsStore.getState().getProviderAccounts(providerId),
+  setProviderAccounts: (providerId: MultiAccountProviderId, accounts: ProviderAccountItem[]) =>
+    useSettingsStore.getState().setProviderAccounts(providerId, accounts),
   getProviderApiKeySync: (providerId: string) =>
     useSettingsStore.getState().getProviderApiKey(providerId),
 

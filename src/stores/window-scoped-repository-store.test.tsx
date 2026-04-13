@@ -67,12 +67,6 @@ vi.mock('@/services/window-manager-service', () => ({
   },
 }));
 
-vi.mock('@/services/window-restore-service', () => ({
-  WindowRestoreService: {
-    saveCurrentWindowState: vi.fn().mockResolvedValue(undefined),
-  },
-}));
-
 vi.mock('@/lib/logger', () => ({
   logger: {
     info: vi.fn(),

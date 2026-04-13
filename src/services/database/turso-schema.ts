@@ -51,6 +51,8 @@ export class TursoSchema {
         output_token INTEGER DEFAULT 0,
         context_usage REAL DEFAULT NULL,
         settings TEXT DEFAULT NULL,
+        model TEXT DEFAULT NULL,
+        backend TEXT DEFAULT 'native',
         FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
       )
     `);

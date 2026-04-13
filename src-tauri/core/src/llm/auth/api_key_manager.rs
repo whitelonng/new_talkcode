@@ -342,6 +342,38 @@ impl ApiKeyManager {
         }
     }
 
+    pub async fn get_openai_oauth_token_for_account(
+        &self,
+        account_id: &str,
+    ) -> Result<Option<String>, String> {
+        let raw = self
+            .get_setting("openai_oauth_accounts")
+            .await?
+            .unwrap_or_default();
+        if raw.trim().is_empty() {
+            return Ok(None);
+        }
+
+        let accounts: HashMap<String, serde_json::Value> = serde_json::from_str(&raw)
+            .map_err(|err| format!("Failed to parse OpenAI OAuth accounts: {}", err))?;
+
+        Ok(accounts
+            .get(account_id)
+            .and_then(|entry| entry.get("accessToken"))
+            .and_then(|value| value.as_str())
+            .map(|value| value.to_string()))
+    }
+
+    pub async fn get_openai_oauth_account_header(
+        &self,
+        account_id: Option<&str>,
+    ) -> Result<Option<String>, String> {
+        if let Some(account_id) = account_id {
+            return Ok(Some(account_id.to_string()));
+        }
+        self.get_setting("openai_oauth_account_id").await
+    }
+
     async fn get_valid_github_copilot_token(&self) -> Result<String, String> {
         let access_token = self
             .get_setting(GITHUB_COPILOT_ACCESS_TOKEN_KEY)
@@ -447,12 +479,13 @@ impl ApiKeyManager {
     pub async fn maybe_set_openai_account_header(
         &self,
         provider_id: &str,
+        account_id: Option<&str>,
         headers: &mut HashMap<String, String>,
     ) -> Result<(), String> {
         if provider_id != "openai" {
             return Ok(());
         }
-        if let Some(account_id) = self.get_setting("openai_oauth_account_id").await? {
+        if let Some(account_id) = self.get_openai_oauth_account_header(account_id).await? {
             if !account_id.trim().is_empty() {
                 headers.insert("chatgpt-account-id".to_string(), account_id);
             }
@@ -724,7 +757,7 @@ mod tests {
             .expect("set account id");
         let mut headers: HashMap<String, String> = HashMap::new();
         ctx.api_keys
-            .maybe_set_openai_account_header("openai", &mut headers)
+            .maybe_set_openai_account_header("openai", None, &mut headers)
             .await
             .expect("set header");
         assert_eq!(
@@ -734,9 +767,84 @@ mod tests {
 
         let mut other_headers: HashMap<String, String> = HashMap::new();
         ctx.api_keys
-            .maybe_set_openai_account_header("anthropic", &mut other_headers)
+            .maybe_set_openai_account_header("anthropic", None, &mut other_headers)
             .await
             .expect("no header");
         assert!(other_headers.get("chatgpt-account-id").is_none());
+    }
+
+    #[tokio::test]
+    async fn get_openai_oauth_token_for_account_reads_from_multi_account_store() {
+        let ctx = setup().await;
+        ctx.api_keys
+            .set_setting(
+                "openai_oauth_accounts",
+                r#"{"acct_primary":{"accountId":"acct_primary","accessToken":"token-primary","refreshToken":"refresh-primary","expiresAt":111},"acct_backup":{"accountId":"acct_backup","accessToken":"token-backup","refreshToken":"refresh-backup","expiresAt":222}}"#,
+            )
+            .await
+            .expect("set oauth accounts");
+
+        let primary = ctx
+            .api_keys
+            .get_openai_oauth_token_for_account("acct_primary")
+            .await
+            .expect("read primary token");
+        let backup = ctx
+            .api_keys
+            .get_openai_oauth_token_for_account("acct_backup")
+            .await
+            .expect("read backup token");
+        let missing = ctx
+            .api_keys
+            .get_openai_oauth_token_for_account("acct_missing")
+            .await
+            .expect("read missing token");
+
+        assert_eq!(primary.as_deref(), Some("token-primary"));
+        assert_eq!(backup.as_deref(), Some("token-backup"));
+        assert_eq!(missing, None);
+    }
+
+    #[tokio::test]
+    async fn get_openai_oauth_account_header_prefers_override_account_id() {
+        let ctx = setup().await;
+        ctx.api_keys
+            .set_setting("openai_oauth_account_id", "acct_active")
+            .await
+            .expect("set active account id");
+
+        let explicit = ctx
+            .api_keys
+            .get_openai_oauth_account_header(Some("acct_override"))
+            .await
+            .expect("explicit header");
+        let fallback = ctx
+            .api_keys
+            .get_openai_oauth_account_header(None)
+            .await
+            .expect("fallback header");
+
+        assert_eq!(explicit.as_deref(), Some("acct_override"));
+        assert_eq!(fallback.as_deref(), Some("acct_active"));
+    }
+
+    #[tokio::test]
+    async fn maybe_set_openai_account_header_uses_explicit_override_when_present() {
+        let ctx = setup().await;
+        ctx.api_keys
+            .set_setting("openai_oauth_account_id", "acct_active")
+            .await
+            .expect("set active account id");
+
+        let mut headers: HashMap<String, String> = HashMap::new();
+        ctx.api_keys
+            .maybe_set_openai_account_header("openai", Some("acct_override"), &mut headers)
+            .await
+            .expect("set override header");
+
+        assert_eq!(
+            headers.get("chatgpt-account-id"),
+            Some(&"acct_override".to_string())
+        );
     }
 }

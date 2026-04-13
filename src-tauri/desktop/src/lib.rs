@@ -4,6 +4,7 @@ pub mod dock_menu;
 pub mod file_watcher;
 pub mod keep_awake;
 pub mod scheduled_tasks;
+pub mod tray;
 pub mod window_manager;
 
 pub mod llm_commands;
@@ -60,8 +61,9 @@ use tauri::{AppHandle, Emitter, Manager, Runtime, State, WindowEvent};
 use tokio::io::BufReader;
 use tokio::sync::Mutex as TokioMutex;
 use tokio::time::Duration as TokioDuration;
+use tray::TrayState;
 use websocket::WebSocketState;
-use window_manager::{create_window, WindowRegistry, WindowState};
+use window_manager::{WindowRegistry, WindowState};
 // Global app handle for dock menu and other cross-module access
 // This is initialized once during app setup and provides safe static access to the AppHandle
 //
@@ -110,7 +112,26 @@ struct Payload {
     cwd: String,
 }
 
-// Legacy: Keep for backward compatibility with existing windows
+fn handle_single_instance_activation<R: Runtime>(app: &AppHandle<R>, payload: Payload) {
+    log::info!(
+        "Second instance launch detected, restoring existing app window. args: {:?}, cwd: {}",
+        payload.args,
+        payload.cwd
+    );
+
+    tray::show_main_window(app);
+
+    if let Err(e) = app.emit("single-instance", payload) {
+        log::error!("Failed to emit single-instance event: {}", e);
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+struct RunningTasksCloseWarningPayload {
+    count: usize,
+}
+
+// Single-window registry state used for file watching and per-window metadata.
 struct AppState {
     file_watcher: Mutex<Option<FileWatcher>>,
     window_registry: WindowRegistry,
@@ -243,122 +264,13 @@ fn search_files_fast(
 }
 
 #[tauri::command]
-fn create_project_window(
-    app_handle: AppHandle,
-    state: State<AppState>,
-    project_id: Option<String>,
-    root_path: Option<String>,
-    is_new_window: bool,
-) -> Result<String, String> {
-    log::info!("Creating project window for project_id: {:?}, root_path: {:?}, is_new_window: {}. Triggering dock menu update.", project_id, root_path, is_new_window);
-    let result = create_window(
-        &app_handle,
-        &state.window_registry,
-        project_id,
-        root_path,
-        is_new_window,
-    );
-    if result.is_ok() {
-        // Refresh dock menu to show the updated recent projects list
-        // This spawns the refresh task without blocking
-        tauri::async_runtime::spawn(async move {
-            dock_menu::refresh_dock_menu().await;
-        });
-    }
-    result
-}
-
-#[tauri::command]
 async fn refresh_dock_menu() {
     dock_menu::refresh_dock_menu().await;
 }
 
 #[tauri::command]
-fn get_all_project_windows(
-    state: State<AppState>,
-) -> Result<Vec<window_manager::WindowInfo>, String> {
-    log::info!("Getting all project windows");
-    state.window_registry.get_all_windows()
-}
-
-#[tauri::command]
 fn get_current_window_label(window: tauri::Window) -> Result<String, String> {
     Ok(window.label().to_string())
-}
-
-#[tauri::command]
-fn get_window_info(
-    window: tauri::Window,
-    state: State<AppState>,
-) -> Result<Option<(String, String)>, String> {
-    let label = window.label();
-    let windows = state.window_registry.get_all_windows()?;
-
-    let window_info = windows.iter().find(|w| w.label == label);
-
-    match window_info {
-        Some(info) => {
-            if let (Some(project_id), Some(root_path)) = (&info.project_id, &info.root_path) {
-                log::info!(
-                    "Window info found for {}: project_id={}, root_path={}",
-                    label,
-                    project_id,
-                    root_path
-                );
-                Ok(Some((project_id.clone(), root_path.clone())))
-            } else {
-                log::info!("Window {} has no associated project (New Window)", label);
-                Ok(None)
-            }
-        }
-        None => {
-            log::info!("Window {} not found in registry", label);
-            Ok(None)
-        }
-    }
-}
-
-#[tauri::command]
-fn check_project_window_exists(
-    state: State<AppState>,
-    root_path: String,
-) -> Result<Option<String>, String> {
-    log::info!("Checking if project window exists for: {}", root_path);
-    state.window_registry.find_window_by_project(&root_path)
-}
-
-#[tauri::command]
-fn focus_project_window(app_handle: AppHandle, label: String) -> Result<(), String> {
-    log::info!("Focusing window: {}", label);
-    if let Some(window) = app_handle.get_webview_window(&label) {
-        window.set_focus().map_err(|e| e.to_string())?;
-        window.show().map_err(|e| e.to_string())?;
-        #[cfg(target_os = "macos")]
-        {
-            use cocoa::appkit::NSApplication;
-            unsafe {
-                let app = cocoa::appkit::NSApp();
-                app.activateIgnoringOtherApps_(cocoa::base::YES);
-            }
-        }
-        Ok(())
-    } else {
-        Err(format!("Window not found: {}", label))
-    }
-}
-
-#[tauri::command]
-fn close_project_window(
-    app_handle: AppHandle,
-    state: State<AppState>,
-    label: String,
-) -> Result<(), String> {
-    log::info!("Closing window: {}", label);
-    state.window_registry.unregister_window(&label)?;
-    if let Some(window) = app_handle.get_webview_window(&label) {
-        window.close().map_err(|e| e.to_string())?;
-    }
-    Ok(())
 }
 
 #[tauri::command]
@@ -779,14 +691,13 @@ pub fn run() {
             window_registry: WindowRegistry::new(),
         })
         .manage(keep_awake::KeepAwakeStateWrapper::new())
+        .manage(Arc::new(TrayState::new()))
         .manage(AnalyticsState::new())
         .manage(telegram_gateway::default_state())
         .manage(feishu_gateway::default_state())
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-            if let Err(e) = app.emit("single-instance", Payload { args: argv, cwd }) {
-                log::error!("Failed to emit single-instance event: {}", e);
-            }
+            handle_single_instance_activation(app, Payload { args: argv, cwd });
         }))
         .setup(|app| {
             // Set global app handle first (used by dock menu and other modules)
@@ -954,6 +865,11 @@ pub fn run() {
                     .register_window("main".to_string(), state);
             }
 
+            // Initialize system tray (all platforms)
+            if let Err(e) = tray::setup_tray(app.handle()) {
+                log::error!("Failed to set up system tray: {}", e);
+            }
+
             // Initialize dock menu on macOS
             #[cfg(target_os = "macos")]
             {
@@ -1017,13 +933,7 @@ pub fn run() {
             directory_tree::clear_directory_cache,
             directory_tree::invalidate_directory_path,
             glob::search_files_by_glob,
-            create_project_window,
-            get_all_project_windows,
             get_current_window_label,
-            get_window_info,
-            check_project_window_exists,
-            focus_project_window,
-            close_project_window,
             update_window_project,
             refresh_dock_menu,
             start_window_file_watching,
@@ -1175,10 +1085,72 @@ pub fn run() {
             scheduled_tasks::scheduled_task_runner_status,
             scheduled_tasks::scheduled_task_runner_sync,
             scheduled_tasks::scheduled_task_runner_run_now,
+            tray::set_close_to_tray,
+            tray::get_close_to_tray,
+            tray::set_force_exit_on_close,
+            tray::set_active_task_count,
         ])
         .on_window_event(|window, event| {
-            if let WindowEvent::CloseRequested { .. } = event {
+            if let WindowEvent::CloseRequested { api, .. } = event {
                 if window.label() == "main" {
+                    let tray_state = window.app_handle().try_state::<Arc<TrayState>>();
+                    let force_exit = tray_state
+                        .as_ref()
+                        .map(|state| {
+                            let force_exit = state.should_force_exit_on_close();
+                            if force_exit {
+                                state.set_force_exit_on_close(false);
+                            }
+                            force_exit
+                        })
+                        .unwrap_or(false);
+
+                    if force_exit {
+                        log::info!("Main window close requested with force-exit enabled");
+                        if should_exit_app(window.app_handle()) {
+                            window.app_handle().exit(0);
+                        }
+                        return;
+                    }
+
+                    let active_task_count = tray_state
+                        .as_ref()
+                        .map(|state| state.active_task_count())
+                        .unwrap_or(0);
+
+                    if active_task_count > 0 {
+                        log::info!(
+                            "Main window close requested while {} task(s) are still active",
+                            active_task_count
+                        );
+                        api.prevent_close();
+                        if let Err(e) = window.emit(
+                            "show-running-tasks-exit-dialog",
+                            RunningTasksCloseWarningPayload {
+                                count: active_task_count,
+                            },
+                        ) {
+                            log::error!("Failed to emit running tasks close warning: {}", e);
+                        }
+                        return;
+                    }
+
+                    // Check if close-to-tray is enabled
+                    let should_hide = tray_state
+                        .as_ref()
+                        .map(|state| state.should_close_to_tray())
+                        .unwrap_or(false);
+
+                    if should_hide {
+                        // Minimize to tray: prevent close and hide the window
+                        log::info!("Main window close requested — hiding to system tray");
+                        api.prevent_close();
+                        if let Err(e) = window.hide() {
+                            log::error!("Failed to hide main window to tray: {}", e);
+                        }
+                        return;
+                    }
+
                     if should_exit_app(window.app_handle()) {
                         // This is the last window — exit the whole process.
                         log::info!("Main window is the last window, exiting app");
@@ -1245,8 +1217,10 @@ pub fn run() {
 
 #[cfg(test)]
 mod tests {
+    use super::handle_single_instance_activation;
     use super::init_trace_writer_state;
     use super::should_exit_app;
+    use super::Payload;
     use crate::database::Database;
     use crate::llm::tracing::writer::TraceWriter;
     use std::sync::Arc;
@@ -1307,6 +1281,34 @@ mod tests {
 
         // Exactly one window exists — should exit.
         assert!(should_exit_app(app.app_handle()));
+    }
+
+    /// Launching the executable again should restore the hidden main window.
+    #[test]
+    #[cfg(not(target_os = "windows"))]
+    fn single_instance_activation_restores_hidden_main_window() {
+        let app = tauri::test::mock_app();
+
+        let main_window = tauri::WebviewWindowBuilder::new(
+            &app,
+            "main",
+            tauri::WebviewUrl::App("index.html".into()),
+        )
+        .build()
+        .unwrap();
+
+        main_window.hide().unwrap();
+        assert!(!main_window.is_visible().unwrap());
+
+        handle_single_instance_activation(
+            app.app_handle(),
+            Payload {
+                args: vec!["talkcody.exe".to_string()],
+                cwd: ".".to_string(),
+            },
+        );
+
+        assert!(main_window.is_visible().unwrap());
     }
 
     /// This test uses Tauri test infrastructure that may not work on Windows CI

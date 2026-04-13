@@ -167,14 +167,8 @@ export class TestIPCHandler {
     if (cmd === 'get_current_window_label') {
       return 'main';
     }
-    if (cmd === 'create_project_window' || cmd === 'focus_project_window') {
+    if (cmd === 'update_window_project') {
       return null;
-    }
-    if (cmd === 'get_all_project_windows') {
-      return [];
-    }
-    if (cmd === 'check_project_window_exists') {
-      return false;
     }
 
     // Code navigation (return empty results)

@@ -55,6 +55,12 @@ export interface LocaleDefinition {
     discard: string;
   };
 
+  App: {
+    runningTasksExitTitle: string;
+    runningTasksExitDescription: (count: number) => string;
+    confirmExit: string;
+  };
+
   Chat: {
     placeholder: string;
     placeholderWithContext: string;
@@ -284,6 +290,14 @@ export interface LocaleDefinition {
     restore: string;
     close: string;
     backToExplorer: string;
+    workspaceTabs: {
+      newTab: string;
+      closeTab: string;
+      selectProject: string;
+      noProject: string;
+      maxTabsReached: string;
+      importRepository: string;
+    };
   };
 
   Settings: {
@@ -311,6 +325,7 @@ export interface LocaleDefinition {
       toolsPlayground: string;
       tracing: string;
       github: string;
+      tray: string;
     };
     hooksScopeHint: string;
     account: {
@@ -369,6 +384,16 @@ export interface LocaleDefinition {
       tooltipDescription: string;
       viewDocumentation: string;
       baseUrlPlaceholder: (url: string) => string;
+      multiAccount: {
+        title: string;
+        description: string;
+        addAccount: string;
+        accountNamePlaceholder: string;
+        oauthAccount: string;
+        apiKeyAccount: string;
+        oauthConnected: string;
+        oauthNotConnected: string;
+      };
     };
     claudeOAuth: {
       title: string;
@@ -402,6 +427,8 @@ export interface LocaleDefinition {
       title: string;
       description: string;
       signIn: string;
+      addAccount: string;
+      connectedAccounts: (count: number) => string;
       step1: string;
       step1Hint: string;
       step2: string;
@@ -778,6 +805,12 @@ export interface LocaleDefinition {
       disabledToast: string;
       blockedPrompt: string;
     };
+    tray: {
+      title: string;
+      description: string;
+      closeToTray: string;
+      closeToTrayDescription: string;
+    };
   };
 
   Agents: {
@@ -903,10 +936,6 @@ export interface LocaleDefinition {
       importRepository: string;
       emptyTitle: string;
       emptyDescription: string;
-      openInNewWindow: string;
-      noRepositoryPath: string;
-      openedInNewWindow: (name: string) => string;
-      failedToOpenInWindow: string;
       deleteProject: string;
       deleteProjectTitle: string;
       deleteProjectDescription: (name: string) => string;
