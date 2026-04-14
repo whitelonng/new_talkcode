@@ -80,6 +80,13 @@ export type {
   DbAgent,
   UpdateAgentData,
 } from './db-agent';
+export type {
+  ExternalAgentAvailability,
+  ExternalAgentBackend,
+  ExternalAgentBinding,
+  ExternalAgentProtocol,
+  ExternalAgentSessionState,
+} from './external-agent';
 // File system types
 export type {
   FileNode,
@@ -204,13 +211,6 @@ export type {
   TodoItem,
   UpdateProjectData,
 } from './task';
-export type {
-  ExternalAgentAvailability,
-  ExternalAgentBackend,
-  ExternalAgentBinding,
-  ExternalAgentProtocol,
-  ExternalAgentSessionState,
-} from './external-agent';
 // Tool types
 export type { ToolInput, ToolOutput, ToolWithUI } from './tool';
 // User question types

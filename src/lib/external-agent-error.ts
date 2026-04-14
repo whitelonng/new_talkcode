@@ -12,9 +12,7 @@ export function formatExternalAgentErrorContent(payload: ExternalAgentErrorPaylo
   return `${PREFIX} backend="${backend}"\n${message}\n${SUFFIX}`;
 }
 
-export function parseExternalAgentErrorContent(
-  content: string
-): ExternalAgentErrorPayload | null {
+export function parseExternalAgentErrorContent(content: string): ExternalAgentErrorPayload | null {
   const trimmed = content.trim();
   if (!trimmed.startsWith(PREFIX) || !trimmed.endsWith(SUFFIX)) {
     return null;

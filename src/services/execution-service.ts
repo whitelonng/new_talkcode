@@ -13,8 +13,8 @@
  * - All callbacks route through MessageService for persistence
  */
 
-import { logger } from '@/lib/logger';
 import { formatExternalAgentErrorContent } from '@/lib/external-agent-error';
+import { logger } from '@/lib/logger';
 import { autoCodeReviewHookService } from '@/services/agents/auto-code-review-hook-service';
 import { completionHookPipeline } from '@/services/agents/llm-completion-hooks';
 import { createLLMService, type LLMService } from '@/services/agents/llm-service';
@@ -120,7 +120,10 @@ class ExecutionService {
     let externalCwd: string | undefined;
     const userPrompt =
       config.userMessage ??
-      [...messages].reverse().find((message) => message.role === 'user')?.content?.toString() ??
+      [...messages]
+        .reverse()
+        .find((message) => message.role === 'user')
+        ?.content?.toString() ??
       '';
 
     try {

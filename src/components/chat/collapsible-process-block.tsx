@@ -49,7 +49,9 @@ function CollapsibleProcessBlockComponent({
       </button>
       {isExpanded && (
         <div className="px-3 pb-3 pt-1">
-          <div className="whitespace-pre-wrap break-words text-sm text-muted-foreground">{text}</div>
+          <div className="whitespace-pre-wrap break-words text-sm text-muted-foreground">
+            {text}
+          </div>
         </div>
       )}
     </div>

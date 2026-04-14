@@ -15,7 +15,9 @@ describe('openai-oauth-service', () => {
     expect(parsed.searchParams.get('response_type')).toBe('code');
     expect(parsed.searchParams.get('client_id')).toBe('app_EMoamEEZ73f0CkXaXp7hrann');
     expect(parsed.searchParams.get('redirect_uri')).toBe('http://localhost:1455/auth/callback');
-    expect(parsed.searchParams.get('scope')).toBe('openid profile email offline_access');
+    expect(parsed.searchParams.get('scope')).toBe(
+      'openid profile email offline_access api.connectors.read api.connectors.invoke'
+    );
     expect(parsed.searchParams.get('code_challenge')).toBe('challenge-123');
     expect(parsed.searchParams.get('code_challenge_method')).toBe('S256');
     expect(parsed.searchParams.get('state')).toBe('state-456');

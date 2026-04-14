@@ -28,9 +28,12 @@ export function BackendSelectorButton({ taskId }: BackendSelectorButtonProps) {
   const currentTaskId = useTaskStore((state) => state.currentTaskId);
   const selectedNewTaskBackend = useTaskStore((state) => state.selectedNewTaskBackend);
   const effectiveTaskId = taskId ?? currentTaskId;
-  const task = useTaskStore((state) => (effectiveTaskId ? state.getTask(effectiveTaskId) : undefined));
+  const task = useTaskStore((state) =>
+    effectiveTaskId ? state.getTask(effectiveTaskId) : undefined
+  );
   const isTaskLocked = Boolean(task);
-  const backend = (task?.backend as ExternalAgentBackend | undefined) ?? selectedNewTaskBackend ?? 'native';
+  const backend =
+    (task?.backend as ExternalAgentBackend | undefined) ?? selectedNewTaskBackend ?? 'native';
 
   const description = useMemo(() => {
     switch (backend) {
@@ -108,7 +111,12 @@ export function BackendSelectorButton({ taskId }: BackendSelectorButtonProps) {
       <Popover open={open} onOpenChange={setOpen}>
         <HoverCardTrigger asChild>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs" disabled={isSaving}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1 px-2 text-xs"
+              disabled={isSaving}
+            >
               <Bot className="h-3.5 w-3.5" />
               <span>{BACKEND_LABELS[backend]}</span>
               <ChevronDown className="h-3 w-3 opacity-60" />

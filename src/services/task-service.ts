@@ -51,7 +51,10 @@ class TaskService {
     const autoApprovePlanGlobal = await settingsManager.getAutoApprovePlanGlobal();
     const autoCodeReviewGlobal = await settingsManager.getAutoCodeReviewGlobal();
     const initialTaskSettings: TaskSettings | undefined =
-      autoApproveEditsGlobal || autoApprovePlanGlobal || autoCodeReviewGlobal || backend !== 'native'
+      autoApproveEditsGlobal ||
+      autoApprovePlanGlobal ||
+      autoCodeReviewGlobal ||
+      backend !== 'native'
         ? {
             ...(autoApproveEditsGlobal ? { autoApproveEdits: true } : {}),
             ...(autoApprovePlanGlobal ? { autoApprovePlan: true } : {}),

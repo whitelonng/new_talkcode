@@ -355,7 +355,10 @@ function MessageItemComponent({
               ) : (
                 <>
                   {reasoningText && (
-                    <CollapsibleReasoning text={reasoningText} isStreaming={!!message.isStreaming} />
+                    <CollapsibleReasoning
+                      text={reasoningText}
+                      isStreaming={!!message.isStreaming}
+                    />
                   )}
                   {mainText && <div className={assistantContentClass}>{assistantContent}</div>}
                 </>

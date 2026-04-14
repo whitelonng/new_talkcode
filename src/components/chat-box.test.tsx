@@ -271,7 +271,7 @@ describe('ChatBox', () => {
     fireEvent.click(screen.getByText('Send'));
 
     await waitFor(() => {
-      expect(mockCreateTask).toHaveBeenCalledWith('hello');
+      expect(mockCreateTask).toHaveBeenCalledWith('hello', { backend: undefined });
       expect(mockGetCurrentModel).toHaveBeenCalled();
       expect(mockAddUserMessage).toHaveBeenCalledWith('task-1', 'hello', {
         attachments: undefined,

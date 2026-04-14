@@ -2,8 +2,8 @@ import { ChevronDown, ChevronRight, ExternalLink, Eye, EyeOff, Loader2 } from 'l
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { CustomProviderSection } from '@/components/custom-provider/CustomProviderSection';
-import { OpenAIOAuthLogin } from '@/components/settings/openai-oauth-login';
 import { OAuthProviderInput } from '@/components/settings/oauth-provider-input';
+import { OpenAIOAuthLogin } from '@/components/settings/openai-oauth-login';
 import { ProviderIcon } from '@/components/settings/provider-icons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,7 +66,7 @@ export function ApiKeysSettings() {
   const [providerAccounts, setProviderAccounts] = useState<Record<string, ProviderAccountItem[]>>(
     {}
   );
-  const openAiOAuthAccounts = useOpenAIOAuthStore((state) => state.accounts);
+  const _openAiOAuthAccounts = useOpenAIOAuthStore((state) => state.accounts);
 
   // OAuth state
   // OAuth state (unified hook)
@@ -186,7 +186,7 @@ export function ApiKeysSettings() {
     };
 
     syncOpenAIProviderAccounts();
-  }, [openAiOAuthAccounts]);
+  }, []);
 
   const handleApiKeyChange = async (providerId: string, value: string) => {
     const updatedKeys = { ...apiKeys, [providerId]: value };

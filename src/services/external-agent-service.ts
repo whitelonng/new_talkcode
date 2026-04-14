@@ -107,7 +107,9 @@ class ExternalAgentService {
     logger.info('[ExternalAgentService] Session destroyed', { taskId });
   }
 
-  async runCodexSession(options: StartExternalAgentSessionOptions): Promise<ExternalAgentRunResult> {
+  async runCodexSession(
+    options: StartExternalAgentSessionOptions
+  ): Promise<ExternalAgentRunResult> {
     const command = this.buildCodexCommand(options.prompt, options.cwd, options.model);
 
     // Cancel any pending idle timer — the user is active now.

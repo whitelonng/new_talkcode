@@ -62,10 +62,7 @@ export function WorkspaceTabs({
         setActiveTab(existingTab.id);
       }
 
-      if (
-        existingTab.projectName !== nextProjectName ||
-        existingTab.rootPath !== nextRootPath
-      ) {
+      if (existingTab.projectName !== nextProjectName || existingTab.rootPath !== nextRootPath) {
         updateTab(existingTab.id, {
           projectId: currentProjectId,
           projectName: nextProjectName,

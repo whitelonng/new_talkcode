@@ -380,7 +380,9 @@ export class TursoDatabaseInit {
 
       if (!columnExists) {
         logger.info('Migrating conversations table to add backend field...');
-        await (db as any).execute(`ALTER TABLE conversations ADD COLUMN backend TEXT DEFAULT 'native'`);
+        await (db as any).execute(
+          `ALTER TABLE conversations ADD COLUMN backend TEXT DEFAULT 'native'`
+        );
         await (db as any).execute(
           `UPDATE conversations SET backend = 'native' WHERE backend IS NULL OR backend = ''`
         );

@@ -3,6 +3,13 @@ import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { getCurrent as getCurrentDeepLinkUrls, onOpenUrl } from '@tauri-apps/plugin-deep-link';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { CustomTitlebar } from '@/components/custom-titlebar';
+import { InitializationScreen } from '@/components/initialization-screen';
+import { LspDownloadPrompt } from '@/components/lsp-download-prompt';
+import { MainContent } from '@/components/main-content';
+import { OnboardingWizard } from '@/components/onboarding';
+import { RemoteServiceRunner } from '@/components/remote/telegram-remote-runner';
+import { ThemeProvider } from '@/components/theme-provider';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,13 +20,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { CustomTitlebar } from '@/components/custom-titlebar';
-import { InitializationScreen } from '@/components/initialization-screen';
-import { LspDownloadPrompt } from '@/components/lsp-download-prompt';
-import { MainContent } from '@/components/main-content';
-import { OnboardingWizard } from '@/components/onboarding';
-import { RemoteServiceRunner } from '@/components/remote/telegram-remote-runner';
-import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { WhatsNewDialog } from '@/components/whats-new-dialog';
 import { UiNavigationProvider, useUiNavigation } from '@/contexts/ui-navigation';
@@ -98,7 +98,7 @@ function AppContent() {
     invoke('set_active_task_count', { count: activeCloseBlockerCount }).catch((err) => {
       logger.warn('Failed to sync active task count to backend:', err);
     });
-  }, [activeCloseBlockerCount, closeToTray]);
+  }, [activeCloseBlockerCount]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -368,7 +368,7 @@ function AppContent() {
     };
 
     loadInitialProject();
-  }, [isInitializing, rootPath]);
+  }, [isInitializing]);
 
   // Handle dock menu project reveal/open inside the single main window.
   useEffect(() => {
@@ -387,10 +387,7 @@ function AppContent() {
               .projects.find((project) => project.root_path === rootPathFromDock);
 
             if (matchedProject) {
-              await repositoryDepsRef.current.openRepository(
-                rootPathFromDock,
-                matchedProject.id
-              );
+              await repositoryDepsRef.current.openRepository(rootPathFromDock, matchedProject.id);
             } else {
               logger.warn('[app.tsx] Dock requested unknown project path:', rootPathFromDock);
             }
@@ -448,7 +445,10 @@ function AppContent() {
             try {
               await getCurrentWindow().hide();
             } catch (error) {
-              logger.error('Failed to hide main window to tray from frontend close handler:', error);
+              logger.error(
+                'Failed to hide main window to tray from frontend close handler:',
+                error
+              );
             }
           }
         });
