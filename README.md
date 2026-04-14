@@ -12,9 +12,10 @@
 
 
 </div>
+
 ### 微信交流群
 
-<img src="./docs/images/群二维码.png" alt="TalkCody 微信交流群二维码" width="360" />
+<img src="./docs/images/微信交流群二维码.png" alt="TalkCody 微信交流群二维码" width="360" />
 
 ### 联系方式
 
