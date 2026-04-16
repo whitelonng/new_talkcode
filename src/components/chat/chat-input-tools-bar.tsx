@@ -18,7 +18,7 @@ interface ChatInputToolsBarProps {
 
 export function ChatInputToolsBar({ taskId, disabled, onAddCurrentFile }: ChatInputToolsBarProps) {
   return (
-    <div className="flex items-center gap-2 px-2 py-1 border-b border-border/50">
+    <div className="retroma-tools-bar flex items-center gap-2 border-b border-border/50 px-2 py-1">
       <ToolSelectorButton />
       <SkillsSelectorButton taskId={taskId} />
       <McpSelectorButton />

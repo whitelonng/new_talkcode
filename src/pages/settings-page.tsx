@@ -40,6 +40,8 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLocale } from '@/hooks/use-locale';
+import { useTheme } from '@/hooks/use-theme';
+import { cn } from '@/lib/utils';
 import { LLMTracingPage } from '@/pages/llm-tracing-page';
 import { LogsPage } from '@/pages/logs-page';
 import ToolPlayground from '@/pages/tool-playground-page';
@@ -47,6 +49,7 @@ import ToolPlayground from '@/pages/tool-playground-page';
 export function SettingsPage() {
   const [activeTab, setActiveTab] = useState('api-keys');
   const { t } = useLocale();
+  const { themeVariant } = useTheme();
 
   useEffect(() => {
     const handleOpenModelSettings = () => {
@@ -60,34 +63,72 @@ export function SettingsPage() {
   }, []);
 
   return (
-    <div className="flex h-full bg-white dark:bg-gray-950">
+    <div
+      className={cn(
+        'flex h-full',
+        themeVariant === 'retroma' ? 'retroma-settings-shell' : 'bg-white dark:bg-gray-950'
+      )}
+    >
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
         orientation="vertical"
-        className="flex h-full w-full flex-row"
+        className={cn(
+          'flex h-full w-full flex-row',
+          themeVariant === 'retroma' && 'retroma-settings-layout'
+        )}
       >
-        <aside className="w-56 shrink-0 overflow-y-auto border-r p-4">
-          <TabsList className="flex h-auto w-full flex-col gap-1 bg-transparent">
+        <aside
+          className={cn(
+            'shrink-0 overflow-y-auto p-4',
+            themeVariant === 'retroma'
+              ? 'retroma-settings-sidebar w-64 border-r border-border'
+              : 'w-56 border-r'
+          )}
+        >
+          <TabsList
+            className={cn(
+              'flex h-auto w-full flex-col gap-1 bg-transparent',
+              themeVariant === 'retroma' && 'retroma-settings-nav'
+            )}
+          >
             <TabsTrigger
               value="account"
-              className="w-full justify-start gap-2 rounded-md px-3 py-2"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
             >
               <User className="size-4" />
               {t.Settings.tabs.account}
             </TabsTrigger>
             <TabsTrigger
               value="api-keys"
-              className="w-full justify-start gap-2 rounded-md px-3 py-2"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
             >
               <Key className="size-4" />
               {t.Settings.tabs.apiKeys}
             </TabsTrigger>
-            <TabsTrigger value="models" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+            <TabsTrigger
+              value="models"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
+            >
               <Bot className="size-4" />
               {t.Settings.tabs.models}
             </TabsTrigger>
-            <TabsTrigger value="memory" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+            <TabsTrigger
+              value="memory"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
+            >
               <BookOpen className="size-4" />
               {t.Settings.tabs.memory}
             </TabsTrigger>
@@ -96,14 +137,20 @@ export function SettingsPage() {
 
             <TabsTrigger
               value="general"
-              className="w-full justify-start gap-2 rounded-md px-3 py-2"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
             >
               <Settings className="size-4" />
               {t.Settings.tabs.general || 'General'}
             </TabsTrigger>
             <TabsTrigger
               value="shortcuts"
-              className="w-full justify-start gap-2 rounded-md px-3 py-2"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
             >
               <Keyboard className="size-4" />
               {t.Settings.tabs.shortcuts}
@@ -113,42 +160,81 @@ export function SettingsPage() {
 
             <TabsTrigger
               value="terminal"
-              className="w-full justify-start gap-2 rounded-md px-3 py-2"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
             >
               <Terminal className="size-4" />
               {t.Settings.tabs.terminal || 'Terminal'}
             </TabsTrigger>
-            <TabsTrigger value="font" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+            <TabsTrigger
+              value="font"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
+            >
               <Type className="size-4" />
               {t.Settings.tabs.font || 'Font Size'}
             </TabsTrigger>
-            <TabsTrigger value="lint" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+            <TabsTrigger
+              value="lint"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
+            >
               <FileCode className="size-4" />
               {t.Settings.tabs.lint || 'Lint'}
             </TabsTrigger>
-            <TabsTrigger value="lsp" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+            <TabsTrigger
+              value="lsp"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
+            >
               <Code className="size-4" />
               {t.Settings.tabs.lsp || 'LSP'}
             </TabsTrigger>
             <TabsTrigger
               value="worktree"
-              className="w-full justify-start gap-2 rounded-md px-3 py-2"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
             >
               <GitBranch className="size-4" />
               {t.Settings.tabs.worktree || 'Worktree'}
             </TabsTrigger>
-            <TabsTrigger value="tray" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+            <TabsTrigger
+              value="tray"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
+            >
               <AppWindowMac className="size-4" />
               {t.Settings.tabs.tray || 'System Tray'}
             </TabsTrigger>
             <TabsTrigger
               value="custom-tools"
-              className="w-full justify-start gap-2 rounded-md px-3 py-2"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
             >
               <Wrench className="size-4" />
               {t.Settings.tabs.customTools}
             </TabsTrigger>
-            <TabsTrigger value="hooks" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+            <TabsTrigger
+              value="hooks"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
+            >
               <Zap className="size-4" />
               {t.Settings.tabs.hooks}
             </TabsTrigger>
@@ -157,42 +243,74 @@ export function SettingsPage() {
 
             <TabsTrigger
               value="remote-control"
-              className="w-full justify-start gap-2 rounded-md px-3 py-2"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
             >
               <Bot className="size-4" />
               {t.Settings.tabs.remoteControl || 'Remote Control'}
             </TabsTrigger>
-            <TabsTrigger value="logs" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+            <TabsTrigger
+              value="logs"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
+            >
               <FileText className="size-4" />
               {t.Settings.tabs.logs}
             </TabsTrigger>
             <TabsTrigger
               value="tools-playground"
-              className="w-full justify-start gap-2 rounded-md px-3 py-2"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
             >
               <Wrench className="size-4" />
               {t.Settings.tabs.toolsPlayground}
             </TabsTrigger>
             <TabsTrigger
               value="tracing"
-              className="w-full justify-start gap-2 rounded-md px-3 py-2"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
             >
               <Radar className="size-4" />
               {t.Settings.tabs.tracing}
             </TabsTrigger>
-            <TabsTrigger value="github" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+            <TabsTrigger
+              value="github"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
+            >
               <Github className="size-4" />
               {t.Settings.tabs.github}
             </TabsTrigger>
-            <TabsTrigger value="about" className="w-full justify-start gap-2 rounded-md px-3 py-2">
+            <TabsTrigger
+              value="about"
+              className={cn(
+                'w-full justify-start gap-2 rounded-md px-3 py-2',
+                themeVariant === 'retroma' && 'retroma-settings-nav-item'
+              )}
+            >
               <Info className="size-4" />
               {t.Settings.tabs.about}
             </TabsTrigger>
           </TabsList>
         </aside>
 
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-5xl">
+        <main
+          className={cn(
+            'flex-1 overflow-y-auto',
+            themeVariant === 'retroma' ? 'retroma-settings-main' : 'p-6'
+          )}
+        >
+          <div className={cn(themeVariant === 'retroma' ? 'mx-auto max-w-[1040px]' : 'max-w-5xl')}>
             <TabsContent value="account" className="mt-0 flex-none space-y-6">
               <AccountSettings />
             </TabsContent>

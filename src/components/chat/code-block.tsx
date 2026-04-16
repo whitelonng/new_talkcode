@@ -36,7 +36,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ className, children, ...props }) 
         {children}
       </pre>
       <Button
-        className="absolute top-4 right-4 z-10 size-[30px] cursor-pointer border border-white/25 p-1.5 text-primary-foreground hover:bg-transparent dark:text-foreground"
+        className="code-block-copy absolute top-4 right-4 z-10 size-[30px] cursor-pointer border border-white/25 p-1.5 text-primary-foreground hover:bg-transparent dark:text-foreground"
         onClick={() => handleCopyValue()}
         size="sm"
         variant="ghost"

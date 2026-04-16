@@ -96,4 +96,32 @@ describe('useTheme', () => {
       expect(document.documentElement.classList.contains('dark')).toBe(true);
     });
   });
+
+  it('keeps retroma in light mode when toggled', async () => {
+    localStorage.setItem('theme', 'retroma-light');
+
+    const { useTheme } = await import('./use-theme');
+    const wrapper = await createWrapper();
+    const { result } = renderHook(() => useTheme(), { wrapper });
+
+    act(() => {
+      result.current.toggleTheme();
+    });
+
+    expect(localStorage.getItem('theme')).toBe('retroma-light');
+  });
+
+  it('normalizes legacy retroma-dark to retroma-light on startup', async () => {
+    localStorage.setItem('theme', 'retroma-dark');
+
+    const { useTheme } = await import('./use-theme');
+    const wrapper = await createWrapper();
+    renderHook(() => useTheme(), { wrapper });
+
+    await waitFor(() => {
+      expect(document.documentElement.classList.contains('light')).toBe(true);
+      expect(document.documentElement.classList.contains('theme-retroma')).toBe(true);
+      expect(localStorage.getItem('theme')).toBe('retroma-light');
+    });
+  });
 });

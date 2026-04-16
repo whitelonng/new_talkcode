@@ -32,7 +32,7 @@ export function WorkspaceTabs({
   onImportRepository,
 }: WorkspaceTabsProps) {
   const { t } = useLocale();
-  const { isAppleTheme } = useTheme();
+  const { isAppleTheme, isRetromaTheme } = useTheme();
   const projects = useProjectStore((state) => state.projects);
   const loadProjects = useProjectStore((state) => state.loadProjects);
 
@@ -172,14 +172,18 @@ export function WorkspaceTabs({
             role="tab"
             tabIndex={0}
             className={cn(
-              'group relative flex min-w-[12ch] items-center justify-center h-7 rounded-md px-8 cursor-pointer transition-colors text-xs select-none',
+              'group relative flex h-7 min-w-[12ch] cursor-pointer select-none items-center justify-center rounded-md border border-transparent px-8 text-xs transition-colors',
               isActive
                 ? isAppleTheme
                   ? 'bg-white/15 text-white'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                  : isRetromaTheme
+                    ? 'border-border bg-background text-foreground'
+                    : 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100'
                 : isAppleTheme
                   ? 'hover:bg-white/10 text-white/70'
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
+                  : isRetromaTheme
+                    ? 'text-muted-foreground hover:bg-secondary'
+                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
             )}
             onClick={() => handleTabClick(tab.id)}
             onKeyDown={(e) => {
@@ -260,7 +264,11 @@ export function WorkspaceTabs({
               className={cn(
                 'absolute right-2 rounded p-0.5 transition-opacity',
                 isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
-                isAppleTheme ? 'hover:bg-white/20' : 'hover:bg-gray-300 dark:hover:bg-gray-600'
+                isAppleTheme
+                  ? 'hover:bg-white/20'
+                  : isRetromaTheme
+                    ? 'hover:bg-secondary'
+                    : 'hover:bg-gray-300 dark:hover:bg-gray-600'
               )}
               onClick={(e) => handleRemoveTab(e, tab.id)}
               title={t.Titlebar.workspaceTabs.closeTab}
@@ -269,7 +277,7 @@ export function WorkspaceTabs({
             </button>
 
             {/* Active tab indicator */}
-            {isActive && (
+            {isActive && !isRetromaTheme && (
               <div
                 className={cn(
                   'absolute bottom-0 left-1 right-1 h-0.5 rounded-full',
@@ -290,14 +298,22 @@ export function WorkspaceTabs({
               size="sm"
               className={cn(
                 'h-6 w-6 p-0 ml-0.5',
-                isAppleTheme ? 'hover:bg-white/10' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                isAppleTheme
+                  ? 'hover:bg-white/10'
+                  : isRetromaTheme
+                    ? 'hover:bg-secondary'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800'
               )}
               onClick={handleAddTab}
             >
               <Plus
                 className={cn(
                   'h-3.5 w-3.5',
-                  isAppleTheme ? 'text-white/60' : 'text-gray-500 dark:text-gray-400'
+                  isAppleTheme
+                    ? 'text-white/60'
+                    : isRetromaTheme
+                      ? 'text-muted-foreground'
+                      : 'text-gray-500 dark:text-gray-400'
                 )}
               />
             </Button>
@@ -315,7 +331,12 @@ export function WorkspaceTabs({
               className="h-6 w-6 p-0 ml-0.5 opacity-30 cursor-not-allowed"
               disabled
             >
-              <Plus className="h-3.5 w-3.5 text-gray-400" />
+              <Plus
+                className={cn(
+                  'h-3.5 w-3.5',
+                  isRetromaTheme ? 'text-muted-foreground' : 'text-gray-400'
+                )}
+              />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">

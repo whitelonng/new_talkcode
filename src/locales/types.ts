@@ -600,12 +600,15 @@ export interface LocaleDefinition {
       description: string;
       defaultGroupLabel: string;
       appleGroupLabel: string;
+      retromaGroupLabel: string;
       options: {
         light: string;
         dark: string;
         system: string;
         appleLight: string;
         appleDark: string;
+        retromaLight: string;
+        retromaDark: string;
       };
       descriptions: {
         light: string;
@@ -613,6 +616,8 @@ export interface LocaleDefinition {
         system: string;
         appleLight: string;
         appleDark: string;
+        retromaLight: string;
+        retromaDark: string;
       };
       currentTheme: string;
       switchTo: string;

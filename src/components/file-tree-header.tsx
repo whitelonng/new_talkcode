@@ -12,7 +12,7 @@ interface FileTreeHeaderProps {
 
 export function FileTreeHeader({ onOpenFileSearch, onOpenContentSearch }: FileTreeHeaderProps) {
   const t = useTranslation();
-  const { isAppleTheme } = useTheme();
+  const { isAppleTheme, isRetromaTheme } = useTheme();
 
   return (
     <div
@@ -20,7 +20,9 @@ export function FileTreeHeader({ onOpenFileSearch, onOpenContentSearch }: FileTr
         'flex flex-shrink-0 items-center justify-between border-b px-3',
         isAppleTheme
           ? 'h-[36px] border-white/10 bg-black/20 backdrop-blur-xl dark:bg-white/5'
-          : 'h-[32px] bg-gray-50 dark:bg-gray-900'
+          : isRetromaTheme
+            ? 'retroma-pane-header h-[38px]'
+            : 'h-[32px] bg-gray-50 dark:bg-gray-900'
       )}
     >
       <div className="flex min-w-0 items-center gap-2">
@@ -39,7 +41,9 @@ export function FileTreeHeader({ onOpenFileSearch, onOpenContentSearch }: FileTr
                   'p-0',
                   isAppleTheme
                     ? 'h-7 w-7 rounded-full hover:bg-white/10 dark:hover:bg-white/10'
-                    : 'h-6 w-6 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    : isRetromaTheme
+                      ? 'h-7 w-7 rounded-full hover:bg-accent'
+                      : 'h-6 w-6 hover:bg-gray-200 dark:hover:bg-gray-700'
                 )}
                 onClick={onOpenFileSearch}
                 size="sm"
@@ -62,7 +66,9 @@ export function FileTreeHeader({ onOpenFileSearch, onOpenContentSearch }: FileTr
                   'p-0',
                   isAppleTheme
                     ? 'h-7 w-7 rounded-full hover:bg-white/10 dark:hover:bg-white/10'
-                    : 'h-6 w-6 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    : isRetromaTheme
+                      ? 'h-7 w-7 rounded-full hover:bg-accent'
+                      : 'h-6 w-6 hover:bg-gray-200 dark:hover:bg-gray-700'
                 )}
                 onClick={onOpenContentSearch}
                 size="sm"

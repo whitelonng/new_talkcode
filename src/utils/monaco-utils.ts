@@ -1,4 +1,5 @@
 import type { editor } from 'monaco-editor';
+import type { ThemeVariant } from '@/lib/theme-context';
 import { setupVueAsHtml } from './monaco-vue-config';
 
 type Monaco = typeof import('monaco-editor');
@@ -68,7 +69,19 @@ export function setupVueLanguage(monacoInstance?: Monaco) {
 /**
  * Set up custom themes for AI suggestions
  */
+export function getMonacoThemeName(
+  themeVariant: ThemeVariant,
+  resolvedTheme: 'light' | 'dark'
+): string {
+  if (themeVariant === 'retroma') {
+    return resolvedTheme === 'light' ? 'retroma-light-ai' : 'retroma-dark-ai';
+  }
+
+  return resolvedTheme === 'light' ? 'light-ai' : 'vs-dark-ai';
+}
+
 export function setupMonacoTheme(
+  themeVariant: ThemeVariant = 'default',
   initialTheme: 'light' | 'dark' = 'dark',
   monacoInstance?: typeof import('monaco-editor')
 ) {
@@ -97,8 +110,64 @@ export function setupMonacoTheme(
     },
   });
 
+  monaco.editor.defineTheme('retroma-light-ai', {
+    base: 'vs',
+    inherit: true,
+    rules: [],
+    colors: {
+      'editor.background': '#f5f4ef',
+      'editor.foreground': '#2b231e',
+      'editor.lineHighlightBackground': '#eeede533',
+      'editor.selectionBackground': '#6e3a6622',
+      'editor.inactiveSelectionBackground': '#6e3a6614',
+      'editorCursor.foreground': '#6e3a66',
+      'editorLineNumber.foreground': '#948878',
+      'editorLineNumber.activeForeground': '#5a4a3a',
+      'editorIndentGuide.background1': '#d8d4c8',
+      'editorIndentGuide.activeBackground1': '#979d62',
+      'editorSuggestWidget.background': '#faf9f6',
+      'editorSuggestWidget.border': '#d8d4c8',
+      'editorSuggestWidget.foreground': '#2b231e',
+      'editorSuggestWidget.selectedBackground': '#f2e8f0',
+      'editorWidget.background': '#faf9f6',
+      'editorWidget.border': '#d8d4c8',
+      'editorHoverWidget.background': '#faf9f6',
+      'editorHoverWidget.border': '#d8d4c8',
+      'editorInlineSuggestion.foreground': '#8c8878',
+      'editorInlineSuggestion.background': 'transparent',
+    },
+  });
+
+  monaco.editor.defineTheme('retroma-dark-ai', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [],
+    colors: {
+      'editor.background': '#14140f',
+      'editor.foreground': '#e8e6d8',
+      'editor.lineHighlightBackground': '#ffffff08',
+      'editor.selectionBackground': '#be80bf33',
+      'editor.inactiveSelectionBackground': '#6e8ddb24',
+      'editorCursor.foreground': '#d4c6fa',
+      'editorLineNumber.foreground': '#6f6b5d',
+      'editorLineNumber.activeForeground': '#d6d3c4',
+      'editorIndentGuide.background1': '#3a3a28',
+      'editorIndentGuide.activeBackground1': '#898a54',
+      'editorSuggestWidget.background': '#1b1b14',
+      'editorSuggestWidget.border': '#3a3a28',
+      'editorSuggestWidget.foreground': '#e8e6d8',
+      'editorSuggestWidget.selectedBackground': '#2f2a38',
+      'editorWidget.background': '#1b1b14',
+      'editorWidget.border': '#3a3a28',
+      'editorHoverWidget.background': '#1b1b14',
+      'editorHoverWidget.border': '#3a3a28',
+      'editorInlineSuggestion.foreground': '#8c877c',
+      'editorInlineSuggestion.background': 'transparent',
+    },
+  });
+
   // Set initial theme
-  const theme = initialTheme === 'light' ? 'light-ai' : 'vs-dark-ai';
+  const theme = getMonacoThemeName(themeVariant, initialTheme);
   monaco.editor.setTheme(theme);
 }
 

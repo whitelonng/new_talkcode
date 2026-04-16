@@ -2,6 +2,27 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { type Theme, ThemeProviderContext, type ThemeVariant } from '@/lib/theme-context';
 
 const STORAGE_KEY = 'theme';
+const SUPPORTED_THEMES: Theme[] = [
+  'dark',
+  'light',
+  'system',
+  'apple-light',
+  'apple-dark',
+  'retroma-light',
+  'retroma-dark',
+];
+
+function normalizeTheme(theme: string | null | undefined, fallback: Theme): Theme {
+  if (theme === 'retroma-dark') {
+    return 'retroma-light';
+  }
+
+  if (theme && SUPPORTED_THEMES.includes(theme as Theme)) {
+    return theme as Theme;
+  }
+
+  return fallback;
+}
 
 function getSystemTheme(): 'light' | 'dark' {
   if (typeof window !== 'undefined') {
@@ -15,19 +36,31 @@ function resolveTheme(theme: Theme): 'light' | 'dark' {
     return getSystemTheme();
   }
 
-  if (theme === 'apple-light') {
+  if (theme === 'light' || theme === 'dark') {
+    return theme;
+  }
+
+  if (theme.endsWith('-light')) {
     return 'light';
   }
 
-  if (theme === 'apple-dark') {
+  if (theme.endsWith('-dark')) {
     return 'dark';
   }
 
-  return theme;
+  return getSystemTheme();
 }
 
 function getThemeVariant(theme: Theme): ThemeVariant {
-  return theme.startsWith('apple-') ? 'apple' : 'default';
+  if (theme.startsWith('apple-')) {
+    return 'apple';
+  }
+
+  if (theme.startsWith('retroma-')) {
+    return 'retroma';
+  }
+
+  return 'default';
 }
 
 interface ThemeProviderProps {
@@ -36,7 +69,11 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProviderProps) {
-  const getInitialTheme = () => (localStorage.getItem(STORAGE_KEY) as Theme) || defaultTheme;
+  const getInitialTheme = () => {
+    const initialTheme = normalizeTheme(localStorage.getItem(STORAGE_KEY), defaultTheme);
+    localStorage.setItem(STORAGE_KEY, initialTheme);
+    return initialTheme;
+  };
 
   // Initialize from localStorage (synchronous, prevents flash)
   const [theme, setThemeState] = useState<Theme>(getInitialTheme);
@@ -46,25 +83,38 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
 
   const themeVariant = useMemo(() => getThemeVariant(theme), [theme]);
   const isAppleTheme = themeVariant === 'apple';
+  const isRetromaTheme = themeVariant === 'retroma';
 
   // Apply theme to DOM
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove('light', 'dark', 'theme-default', 'theme-apple', 'apple-theme');
+    root.classList.remove(
+      'light',
+      'dark',
+      'theme-default',
+      'theme-apple',
+      'theme-retroma',
+      'apple-theme',
+      'retroma-theme'
+    );
     root.classList.add(resolvedTheme);
-    root.classList.add(themeVariant === 'apple' ? 'theme-apple' : 'theme-default');
+    root.classList.add(`theme-${themeVariant}`);
 
     if (themeVariant === 'apple') {
       root.classList.add('apple-theme');
     }
 
+    if (themeVariant === 'retroma') {
+      root.classList.add('retroma-theme');
+    }
+
     // Notify other components (Monaco editor, etc.)
     window.dispatchEvent(
       new CustomEvent('theme-changed', {
-        detail: { resolvedTheme, theme, themeVariant, isAppleTheme },
+        detail: { resolvedTheme, theme, themeVariant, isAppleTheme, isRetromaTheme },
       })
     );
-  }, [resolvedTheme, theme, themeVariant, isAppleTheme]);
+  }, [resolvedTheme, theme, themeVariant, isAppleTheme, isRetromaTheme]);
 
   // Listen for system theme changes
   useEffect(() => {
@@ -80,26 +130,41 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
 
-  const setTheme = useCallback((newTheme: Theme) => {
-    setThemeState(newTheme);
-    setResolvedTheme(resolveTheme(newTheme));
-    localStorage.setItem(STORAGE_KEY, newTheme);
-  }, []);
+  const setTheme = useCallback(
+    (newTheme: Theme) => {
+      const normalizedTheme = normalizeTheme(newTheme, defaultTheme);
+      setThemeState(normalizedTheme);
+      setResolvedTheme(resolveTheme(normalizedTheme));
+      localStorage.setItem(STORAGE_KEY, normalizedTheme);
+    },
+    [defaultTheme]
+  );
 
   const toggleTheme = useCallback(() => {
-    const newTheme = isAppleTheme
-      ? resolvedTheme === 'light'
-        ? 'apple-dark'
-        : 'apple-light'
-      : resolvedTheme === 'light'
-        ? 'dark'
-        : 'light';
+    const newTheme =
+      themeVariant === 'apple'
+        ? resolvedTheme === 'light'
+          ? 'apple-dark'
+          : 'apple-light'
+        : themeVariant === 'retroma'
+          ? 'retroma-light'
+          : resolvedTheme === 'light'
+            ? 'dark'
+            : 'light';
     setTheme(newTheme);
-  }, [isAppleTheme, resolvedTheme, setTheme]);
+  }, [resolvedTheme, setTheme, themeVariant]);
 
   return (
     <ThemeProviderContext.Provider
-      value={{ theme, resolvedTheme, themeVariant, isAppleTheme, setTheme, toggleTheme }}
+      value={{
+        theme,
+        resolvedTheme,
+        themeVariant,
+        isAppleTheme,
+        isRetromaTheme,
+        setTheme,
+        toggleTheme,
+      }}
     >
       {children}
     </ThemeProviderContext.Provider>

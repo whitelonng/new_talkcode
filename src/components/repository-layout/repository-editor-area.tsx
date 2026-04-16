@@ -101,7 +101,7 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
   onUtilityTabChange,
 }: RepositoryEditorAreaProps) {
   const t = useTranslation();
-  const { isAppleTheme } = useTheme();
+  const { isAppleTheme, themeVariant } = useTheme();
 
   return (
     <>
@@ -112,17 +112,36 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
           showChatPanel
             ? isAppleTheme
               ? 'bg-transparent px-2 py-2'
-              : 'border-r'
+              : themeVariant === 'retroma'
+                ? 'bg-transparent'
+                : 'border-r'
             : isAppleTheme
               ? 'bg-transparent px-2 py-2 pr-3'
-              : ''
+              : themeVariant === 'retroma'
+                ? 'bg-transparent'
+                : ''
         }
-        defaultSize={isEditorFullscreen || isTerminalFullscreen ? '100%' : '40%'}
-        minSize={'20%'}
+        defaultSize={
+          isEditorFullscreen || isTerminalFullscreen
+            ? '100%'
+            : themeVariant === 'retroma' && showChatPanel
+              ? '34%'
+              : '40%'
+        }
+        minSize={themeVariant === 'retroma' ? '18%' : '20%'}
         maxSize={'100%'}
       >
-        <div className={cn('flex h-full min-h-0 overflow-hidden', isAppleTheme && 'apple-panel')}>
-          <ResizablePanelGroup direction="vertical">
+        <div
+          className={cn(
+            'flex h-full min-h-0 overflow-hidden',
+            isAppleTheme && 'apple-panel',
+            themeVariant === 'retroma' && 'retroma-surface-workspace retroma-layout-workspace'
+          )}
+        >
+          <ResizablePanelGroup
+            className={cn(themeVariant === 'retroma' && 'retroma-vertical-group')}
+            direction="vertical"
+          >
             {hasOpenFiles && showEditor && (
               <>
                 <ResizablePanel
@@ -136,7 +155,9 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
                       className={cn(
                         'flex items-center border-b',
                         isAppleTheme &&
-                          'border-white/10 bg-black/10 px-1 backdrop-blur-xl dark:bg-white/5'
+                          'border-white/10 bg-black/10 px-1 backdrop-blur-xl dark:bg-white/5',
+                        themeVariant === 'retroma' &&
+                          'retroma-pane-header retroma-pane-header-tight px-2 py-1'
                       )}
                     >
                       <div className="flex-1 overflow-hidden">
@@ -159,7 +180,11 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className={cn('mr-1 h-7 w-7', isAppleTheme && 'h-8 w-8 rounded-full')}
+                            className={cn(
+                              'mr-1 h-7 w-7',
+                              isAppleTheme && 'h-8 w-8 rounded-full',
+                              themeVariant === 'retroma' && 'h-8 w-8 rounded-full'
+                            )}
                             onClick={onToggleEditorFullscreen}
                           >
                             {isEditorFullscreen ? (
@@ -193,12 +218,24 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
                 </ResizablePanel>
 
                 {showUtilityPanel && (
-                  <ResizableHandle withHandle className={cn(isAppleTheme && 'bg-transparent')} />
+                  <ResizableHandle
+                    withHandle
+                    className={cn(
+                      isAppleTheme && 'bg-transparent',
+                      themeVariant === 'retroma' && 'retroma-handle'
+                    )}
+                  />
                 )}
 
                 {showProblemsPanel && (
                   <>
-                    <ResizableHandle withHandle className={cn(isAppleTheme && 'bg-transparent')} />
+                    <ResizableHandle
+                      withHandle
+                      className={cn(
+                        isAppleTheme && 'bg-transparent',
+                        themeVariant === 'retroma' && 'retroma-handle'
+                      )}
+                    />
                     <DiagnosticsPanel onDiagnosticClick={onDiagnosticClick} />
                   </>
                 )}
@@ -218,13 +255,16 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
                 <div
                   className={cn(
                     'flex h-full flex-col bg-background',
-                    isAppleTheme && 'bg-transparent'
+                    isAppleTheme && 'bg-transparent',
+                    themeVariant === 'retroma' && 'bg-transparent'
                   )}
                 >
                   <div
                     className={cn(
                       'border-b px-2 py-1',
-                      isAppleTheme && 'border-white/10 backdrop-blur-xl'
+                      isAppleTheme && 'border-white/10 backdrop-blur-xl',
+                      themeVariant === 'retroma' &&
+                        'retroma-pane-header retroma-pane-header-tight px-3 py-2'
                     )}
                   >
                     <Tabs
@@ -236,21 +276,31 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
                           'grid grid-cols-2 p-0.5',
                           isAppleTheme
                             ? 'h-8 w-[190px] rounded-full bg-white/5 dark:bg-white/5'
-                            : 'h-7 w-[180px] bg-muted/50'
+                            : themeVariant === 'retroma'
+                              ? 'h-9 w-[210px] rounded-[18px] bg-transparent p-1'
+                              : 'h-7 w-[180px] bg-muted/50'
                         )}
                       >
                         <TabsTrigger
                           value="terminal"
                           className={cn(
                             'h-6 px-2.5 text-[11px] data-[state=active]:shadow-none',
-                            isAppleTheme && 'rounded-full data-[state=active]:bg-white/10'
+                            isAppleTheme && 'rounded-full data-[state=active]:bg-white/10',
+                            themeVariant === 'retroma' &&
+                              'h-7 rounded-[14px] uppercase tracking-[0.08em]'
                           )}
                         >
                           {t.RepositoryLayout.terminalTab}
                         </TabsTrigger>
                         <TabsTrigger
                           value="browser"
-                          className="h-6 rounded-full px-2.5 text-[11px] data-[state=active]:bg-white/10 data-[state=active]:shadow-none"
+                          className={cn(
+                            'h-6 px-2.5 text-[11px] data-[state=active]:shadow-none',
+                            isAppleTheme && 'rounded-full data-[state=active]:bg-white/10',
+                            themeVariant === 'retroma'
+                              ? 'h-7 rounded-[14px] uppercase tracking-[0.08em]'
+                              : 'rounded-full data-[state=active]:bg-white/10'
+                          )}
                         >
                           {t.RepositoryLayout.browserTab}
                         </TabsTrigger>
@@ -280,7 +330,13 @@ export const RepositoryEditorArea = memo(function RepositoryEditorArea({
       </ResizablePanel>
 
       {showChatPanel && (
-        <ResizableHandle withHandle className={cn(isAppleTheme && 'bg-transparent')} />
+        <ResizableHandle
+          withHandle
+          className={cn(
+            isAppleTheme && 'bg-transparent',
+            themeVariant === 'retroma' && 'retroma-handle'
+          )}
+        />
       )}
     </>
   );

@@ -82,7 +82,7 @@ export const RepositorySidebar = memo(function RepositorySidebar({
   taskSearchInputRef,
 }: RepositorySidebarProps) {
   const t = useTranslation();
-  const { isAppleTheme } = useTheme();
+  const { isAppleTheme, themeVariant } = useTheme();
   const panelId = shouldShowSidebar ? fileTreePanelId : emptyRepoPanelId;
 
   const { isMaxReached } = useExecutionStore(
@@ -157,6 +157,13 @@ export const RepositorySidebar = memo(function RepositorySidebar({
     backendItems.find((item) => item.value === currentBackend)?.label ?? 'TalkCody';
 
   const taskScrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const sidebarDefaultSize = shouldShowSidebar
+    ? themeVariant === 'retroma'
+      ? '22%'
+      : '20%'
+    : '50%';
+  const sidebarMaxSize = shouldShowSidebar ? (themeVariant === 'retroma' ? '30%' : '35%') : '70%';
+  const sidebarMinSize = shouldShowSidebar ? (themeVariant === 'retroma' ? '18%' : '15%') : '10%';
 
   return (
     <>
@@ -167,24 +174,36 @@ export const RepositorySidebar = memo(function RepositorySidebar({
           shouldShowSidebar
             ? isAppleTheme
               ? 'bg-transparent px-2 py-2'
-              : 'border-r bg-white dark:bg-gray-950'
+              : themeVariant === 'retroma'
+                ? 'bg-transparent'
+                : 'border-r bg-white dark:bg-gray-950'
             : isAppleTheme
               ? 'flex items-center justify-center bg-transparent px-2 py-2'
-              : 'flex items-center justify-center bg-white dark:bg-gray-950'
+              : themeVariant === 'retroma'
+                ? 'flex items-center justify-center bg-transparent'
+                : 'flex items-center justify-center bg-white dark:bg-gray-950'
         }
-        defaultSize={shouldShowSidebar ? '20%' : '50%'}
-        maxSize={shouldShowSidebar ? '35%' : '70%'}
-        minSize={shouldShowSidebar ? '15%' : '10%'}
+        defaultSize={sidebarDefaultSize}
+        maxSize={sidebarMaxSize}
+        minSize={sidebarMinSize}
       >
         {shouldShowSidebar ? (
           <div
             className={cn(
               'flex h-full flex-col',
-              isAppleTheme && 'apple-panel apple-scrollbar min-h-0 overflow-hidden'
+              isAppleTheme && 'apple-panel apple-scrollbar min-h-0 overflow-hidden',
+              themeVariant === 'retroma' &&
+                'retroma-surface-sidebar retroma-scrollbar retroma-layout-sidebar min-h-0 overflow-hidden'
             )}
           >
             {hasRepository && (
-              <div className={cn('border-b px-2 py-1', isAppleTheme && 'border-white/10')}>
+              <div
+                className={cn(
+                  'border-b px-2 py-1',
+                  isAppleTheme && 'border-white/10',
+                  themeVariant === 'retroma' && 'border-border/80'
+                )}
+              >
                 <Tabs
                   value={sidebarView}
                   onValueChange={(value) => {
@@ -196,7 +215,9 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                       'grid w-full grid-cols-3 p-0.5',
                       isAppleTheme
                         ? 'h-8 rounded-full bg-white/5 dark:bg-white/5'
-                        : 'h-7 bg-muted/50'
+                        : themeVariant === 'retroma'
+                          ? 'h-9 rounded-[18px] bg-transparent p-1'
+                          : 'h-7 bg-muted/50'
                     )}
                   >
                     <Tooltip>
@@ -205,7 +226,9 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                           value={SidebarView.FILES}
                           className={cn(
                             'h-6 px-2.5 data-[state=active]:shadow-none',
-                            isAppleTheme && 'rounded-full data-[state=active]:bg-white/10'
+                            isAppleTheme && 'rounded-full data-[state=active]:bg-white/10',
+                            themeVariant === 'retroma' &&
+                              'h-7 rounded-[14px] text-[11px] uppercase tracking-[0.08em]'
                           )}
                         >
                           <Folder className="h-3.5 w-3.5" />
@@ -220,7 +243,13 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                       <TooltipTrigger asChild>
                         <TabsTrigger
                           value={SidebarView.GIT}
-                          className="h-6 rounded-full px-2.5 data-[state=active]:bg-white/10 data-[state=active]:shadow-none"
+                          className={cn(
+                            'h-6 px-2.5 data-[state=active]:shadow-none',
+                            isAppleTheme && 'rounded-full data-[state=active]:bg-white/10',
+                            themeVariant === 'retroma'
+                              ? 'h-7 rounded-[14px] text-[11px] uppercase tracking-[0.08em]'
+                              : 'rounded-full data-[state=active]:bg-white/10'
+                          )}
                         >
                           <GitBranch className="h-3.5 w-3.5" />
                         </TabsTrigger>
@@ -234,7 +263,13 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                       <TooltipTrigger asChild>
                         <TabsTrigger
                           value={SidebarView.TASKS}
-                          className="h-6 rounded-full px-2.5 data-[state=active]:bg-white/10 data-[state=active]:shadow-none"
+                          className={cn(
+                            'h-6 px-2.5 data-[state=active]:shadow-none',
+                            isAppleTheme && 'rounded-full data-[state=active]:bg-white/10',
+                            themeVariant === 'retroma'
+                              ? 'h-7 rounded-[14px] text-[11px] uppercase tracking-[0.08em]'
+                              : 'rounded-full data-[state=active]:bg-white/10'
+                          )}
                         >
                           <ListTodo className="h-3.5 w-3.5" />
                         </TabsTrigger>
@@ -252,7 +287,11 @@ export const RepositorySidebar = memo(function RepositorySidebar({
               <div
                 className={
                   sidebarView === SidebarView.FILES
-                    ? cn('flex flex-1 flex-col overflow-hidden', isAppleTheme && 'apple-scrollbar')
+                    ? cn(
+                        'flex flex-1 flex-col overflow-hidden',
+                        isAppleTheme && 'apple-scrollbar',
+                        themeVariant === 'retroma' && 'retroma-scrollbar'
+                      )
                     : 'hidden'
                 }
               >
@@ -261,7 +300,13 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                   onOpenContentSearch={onOpenContentSearch}
                 />
 
-                <div className={cn('flex-1 overflow-auto', isAppleTheme && 'apple-scrollbar')}>
+                <div
+                  className={cn(
+                    'flex-1 overflow-auto',
+                    isAppleTheme && 'apple-scrollbar',
+                    themeVariant === 'retroma' && 'retroma-scrollbar px-1 pb-1'
+                  )}
+                >
                   {fileTree && rootPath && (
                     <FileTree
                       key={rootPath}
@@ -306,8 +351,19 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                   : 'hidden'
               }
             >
-              <div className="border-b p-2">
-                <div className="relative overflow-hidden rounded-xl border bg-background">
+              <div
+                className={cn(
+                  'border-b p-2',
+                  themeVariant === 'retroma' && 'retroma-sidebar-section'
+                )}
+              >
+                <div
+                  className={cn(
+                    'relative overflow-hidden rounded-xl border bg-background',
+                    themeVariant === 'retroma' &&
+                      'retroma-new-task-shell rounded-[16px] border-border/60 bg-transparent shadow-none'
+                  )}
+                >
                   <Button
                     className="h-9 w-full justify-between rounded-xl border-0 px-3 pr-10 shadow-none"
                     disabled={isMaxReached}
@@ -367,7 +423,13 @@ export const RepositorySidebar = memo(function RepositorySidebar({
                 </div>
               </div>
 
-              <div ref={taskScrollContainerRef} className="flex-1 overflow-auto">
+              <div
+                ref={taskScrollContainerRef}
+                className={cn(
+                  'flex-1 overflow-auto',
+                  themeVariant === 'retroma' && 'retroma-scrollbar retroma-sidebar-scroll px-1 pb-1'
+                )}
+              >
                 <TaskList
                   tasks={tasks}
                   currentTaskId={currentTaskId ?? undefined}
@@ -431,7 +493,7 @@ export const RepositorySidebar = memo(function RepositorySidebar({
         )}
       </ResizablePanel>
 
-      <ResizableHandle withHandle />
+      <ResizableHandle withHandle className={cn(themeVariant === 'retroma' && 'retroma-handle')} />
     </>
   );
 });

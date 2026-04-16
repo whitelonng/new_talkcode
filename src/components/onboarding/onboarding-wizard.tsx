@@ -9,6 +9,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useLocale } from '@/hooks/use-locale';
+import { useTheme } from '@/hooks/use-theme';
+import { cn } from '@/lib/utils';
 import { settingsManager } from '@/stores/settings-store';
 import { OnboardingProgress } from './onboarding-progress';
 import { LanguageStep } from './steps/language-step';
@@ -26,6 +28,7 @@ const STEPS = [
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const { t } = useLocale();
+  const { themeVariant } = useTheme();
 
   const handleNext = () => {
     if (currentStep < STEPS.length - 1) {
@@ -55,8 +58,13 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const isLastStep = currentStep === STEPS.length - 1;
 
   return (
-    <div className="flex h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+    <div
+      className={cn(
+        'flex h-screen items-center justify-center p-4',
+        themeVariant === 'retroma' ? 'bg-transparent' : 'bg-background'
+      )}
+    >
+      <Card className={cn('w-full max-w-md', themeVariant === 'retroma' && 'retroma-panel')}>
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">{t.Onboarding.title}</CardTitle>
           <CardDescription>{t.Onboarding.subtitle}</CardDescription>

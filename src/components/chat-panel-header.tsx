@@ -20,7 +20,7 @@ interface ChatPanelHeaderProps {
 
 export function ChatPanelHeader({ currentTask, messages = [] }: ChatPanelHeaderProps) {
   const t = useTranslation();
-  const { isAppleTheme } = useTheme();
+  const { isAppleTheme, isRetromaTheme } = useTheme();
   const { setActiveView } = useUiNavigation();
   const canShare = currentTask && messages.length > 0;
 
@@ -30,7 +30,9 @@ export function ChatPanelHeader({ currentTask, messages = [] }: ChatPanelHeaderP
         '@container flex flex-shrink-0 items-center justify-between gap-2 overflow-hidden border-b px-3',
         isAppleTheme
           ? 'h-[46px] border-white/10 bg-black/20 backdrop-blur-xl dark:bg-white/5'
-          : 'h-[42px] bg-gray-50 dark:bg-gray-900'
+          : isRetromaTheme
+            ? 'retroma-pane-header h-[46px]'
+            : 'h-[42px] bg-gray-50 dark:bg-gray-900'
       )}
     >
       {/* Left: Model, Cost/Tokens, Context */}
@@ -53,7 +55,9 @@ export function ChatPanelHeader({ currentTask, messages = [] }: ChatPanelHeaderP
                   'p-0',
                   isAppleTheme
                     ? 'h-7 w-7 rounded-full hover:bg-white/10 dark:hover:bg-white/10'
-                    : 'h-6 w-6 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    : isRetromaTheme
+                      ? 'h-7 w-7 rounded-full hover:bg-accent'
+                      : 'h-6 w-6 hover:bg-gray-200 dark:hover:bg-gray-700'
                 )}
                 onClick={() => {}}
               >
@@ -73,7 +77,9 @@ export function ChatPanelHeader({ currentTask, messages = [] }: ChatPanelHeaderP
                 'p-0',
                 isAppleTheme
                   ? 'h-7 w-7 rounded-full hover:bg-white/10 dark:hover:bg-white/10'
-                  : 'h-6 w-6 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  : isRetromaTheme
+                    ? 'h-7 w-7 rounded-full hover:bg-accent'
+                    : 'h-6 w-6 hover:bg-gray-200 dark:hover:bg-gray-700'
               )}
               onClick={() => setActiveView(NavigationView.SETTINGS)}
             >
