@@ -981,6 +981,7 @@ export interface LocaleDefinition {
     browserEmptyState: string;
     browserAddressPlaceholder: string;
     refreshBrowser: string;
+    openDevtools: string;
     stylePickerComingSoon: string;
     stylePickerActivate: string;
     stylePickerActive: string;
@@ -988,6 +989,7 @@ export interface LocaleDefinition {
     stylePickerActiveHint: string;
     stylePickerCopied: string;
     stylePickerCopyFailed: string;
+    openDevtoolsFailed: string;
     stylePickerUrlLimited: string;
     localhostPreviewLoading: string;
     localhostPreviewLoadFailed: string;

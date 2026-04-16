@@ -274,6 +274,12 @@ fn get_current_window_label(window: tauri::Window) -> Result<String, String> {
 }
 
 #[tauri::command]
+fn open_current_window_devtools(window: tauri::WebviewWindow) -> Result<(), String> {
+    window.open_devtools();
+    Ok(())
+}
+
+#[tauri::command]
 fn update_window_project(
     state: State<AppState>,
     label: String,
@@ -934,6 +940,7 @@ pub fn run() {
             directory_tree::invalidate_directory_path,
             glob::search_files_by_glob,
             get_current_window_label,
+            open_current_window_devtools,
             update_window_project,
             refresh_dock_menu,
             start_window_file_watching,

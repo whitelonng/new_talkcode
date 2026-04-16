@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { invoke } from '@tauri-apps/api/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BrowserPanel } from './browser-panel';
 
@@ -32,6 +33,7 @@ vi.mock('@/hooks/use-locale', () => ({
       browserAddressPlaceholder: 'Enter URL',
       openBrowser: 'Open',
       refreshBrowser: 'Refresh',
+      openDevtools: 'Developer mode',
       closeBrowser: 'Close',
       stylePickerActive: 'Style picker active',
       stylePickerIdle: 'Style picker idle',
@@ -40,6 +42,7 @@ vi.mock('@/hooks/use-locale', () => ({
       browserPanelDescription: 'Preview project pages',
       stylePickerActiveHint: 'Click an element in the preview to copy its styles.',
       stylePickerActivate: 'Activate style picker',
+      openDevtoolsFailed: 'Failed to open developer mode',
       localhostPreviewLoadFailed: 'Failed to load localhost preview',
     },
   }),
@@ -200,6 +203,28 @@ describe('BrowserPanel', () => {
     expect(mockToastInfo).toHaveBeenCalledWith(
       'Style picker currently works for local HTML/SVG previews.'
     );
+  });
+
+  it('opens devtools from the browser toolbar', async () => {
+    const mockInvoke = vi.mocked(invoke);
+    mockInvoke.mockResolvedValue(undefined);
+
+    render(
+      <BrowserPanel
+        sourceType="url"
+        currentUrl="https://example.com"
+        currentFilePath={null}
+        currentContent={null}
+        onOpenUrl={vi.fn()}
+      />
+    );
+
+    const button = screen.getByRole('button', { name: /developer mode/i });
+    await act(async () => {
+      fireEvent.click(button);
+    });
+
+    expect(mockInvoke).toHaveBeenCalledWith('open_current_window_devtools');
   });
 
   it('submits URL from address bar on Enter', () => {

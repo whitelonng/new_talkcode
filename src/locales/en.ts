@@ -1029,6 +1029,7 @@ const en: LocaleDefinition = {
     browserEmptyState: 'Enter a URL or open an HTML/SVG file in the browser.',
     browserAddressPlaceholder: 'Enter URL, e.g. localhost:3000',
     refreshBrowser: 'Refresh browser',
+    openDevtools: 'Developer mode',
     stylePickerComingSoon: 'Style picker is coming soon in the next phase.',
     stylePickerActivate: 'Activate style picker',
     stylePickerActive: 'Style picker active',
@@ -1036,6 +1037,7 @@ const en: LocaleDefinition = {
     stylePickerActiveHint: 'Click an element in the preview to copy its styles.',
     stylePickerCopied: 'Style information copied to clipboard',
     stylePickerCopyFailed: 'Failed to copy style information',
+    openDevtoolsFailed: 'Failed to open developer mode',
     stylePickerUrlLimited:
       'Style picker currently works for local HTML/SVG previews and localhost pages that can be fetched.',
     localhostPreviewLoading: 'Loading localhost page for style picking...',

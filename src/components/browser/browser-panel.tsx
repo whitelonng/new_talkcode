@@ -1,4 +1,5 @@
-import { Globe, MousePointerClick, RefreshCw } from 'lucide-react';
+import { invoke } from '@tauri-apps/api/core';
+import { CodeXml, Globe, MousePointerClick, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -460,6 +461,14 @@ export function BrowserPanel({
     }
   };
 
+  const handleOpenDevtools = async () => {
+    try {
+      await invoke('open_current_window_devtools');
+    } catch {
+      toast.error(t.RepositoryLayout.openDevtoolsFailed);
+    }
+  };
+
   const handleTogglePicker = () => {
     if (!canUsePicker) {
       toast.info(t.RepositoryLayout.stylePickerUrlLimited);
@@ -495,6 +504,23 @@ export function BrowserPanel({
           <Button size="sm" className="h-8 px-3 text-xs" onClick={handleSubmit}>
             {t.RepositoryLayout.openBrowser}
           </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleOpenDevtools}
+                aria-label={t.RepositoryLayout.openDevtools}
+                title={t.RepositoryLayout.openDevtools}
+              >
+                <CodeXml className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>{t.RepositoryLayout.openDevtools}</p>
+            </TooltipContent>
+          </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleRefresh}>
