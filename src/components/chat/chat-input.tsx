@@ -25,10 +25,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useFileUpload } from '@/hooks/use-file-upload';
 import { useLocale } from '@/hooks/use-locale';
 import { useAppSettings } from '@/hooks/use-settings';
+import { useTheme } from '@/hooks/use-theme';
 import { useVoiceInput } from '@/hooks/use-voice-input';
 import { getDocLinks } from '@/lib/doc-links';
 import { logger } from '@/lib/logger';
-import { generateId } from '@/lib/utils';
+import { cn, generateId } from '@/lib/utils';
 import { modelService, useProviderStore } from '@/providers/stores/provider-store';
 import { fileUploadService } from '@/services/file-upload-service';
 import type { ChatStatus } from '@/services/llm/ui';
@@ -96,6 +97,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
     ref
   ) => {
     const { t } = useLocale();
+    const { isRetromaTheme } = useTheme();
     const { loading: settingsLoading } = useAppSettings();
     const { isPlanModeEnabled, togglePlanMode } = usePlanModeStore();
     const { isRalphLoopEnabled, toggleRalphLoop } = useRalphLoopStore();
@@ -1061,7 +1063,12 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
 
     if (settingsLoading) {
       return (
-        <div className="flex-shrink-0 border-t bg-background p-4">
+        <div
+          className={cn(
+            'flex-shrink-0 border-t bg-background p-4',
+            isRetromaTheme && 'border-transparent bg-transparent px-4 pb-4 pt-2'
+          )}
+        >
           <div className="flex h-16 items-center justify-center">
             <span className="text-muted-foreground text-sm">{t.Common.loading}</span>
           </div>
@@ -1071,7 +1078,12 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
 
     return (
       <>
-        <div className="w-full flex-shrink-0 bg-background px-4 pb-8">
+        <div
+          className={cn(
+            'w-full flex-shrink-0 bg-background px-4 pb-8',
+            isRetromaTheme && 'retroma-chat-input-wrap bg-transparent pb-4'
+          )}
+        >
           {attachments.length > 0 && (
             <div className="mb-3 flex flex-wrap gap-2">
               {attachments.map((attachment) => (
@@ -1092,7 +1104,12 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
           >
             {isDragging && (
               <div
-                className="absolute inset-0 z-50 flex items-center justify-center rounded-lg border-2 border-dashed border-primary bg-background/80 backdrop-blur-sm"
+                className={cn(
+                  'absolute inset-0 z-50 flex items-center justify-center rounded-lg border-2 border-dashed border-primary',
+                  isRetromaTheme
+                    ? 'bg-background/95 backdrop-blur-none'
+                    : 'bg-background/80 backdrop-blur-sm'
+                )}
                 style={{ pointerEvents: 'none' }}
               >
                 <div className="flex flex-col items-center gap-2">
@@ -1120,7 +1137,12 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                       <TooltipTrigger asChild>
                         <button
                           type="button"
-                          className="flex items-center gap-1 rounded-md bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm transition-colors hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                          className={cn(
+                            'flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-50',
+                            isRetromaTheme
+                              ? 'retroma-enhance-button bg-background backdrop-blur-none'
+                              : 'bg-background/80 backdrop-blur-sm'
+                          )}
                           disabled={!input.trim() || isEnhancing || isLoading}
                           onClick={handleEnhancePrompt}
                         >
@@ -1146,7 +1168,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                   aria-label="Search"
                   className={`mb-8 w-full resize-none overflow-y-auto border-0 bg-transparent p-4 pr-36 text-sm outline-0 ring-0 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 ${
                     isRecording && partialTranscript ? 'text-muted-foreground italic' : ''
-                  }`}
+                  } ${isRetromaTheme ? 'retroma-chat-textarea mb-5 pr-32' : ''}`}
                   maxRows={10}
                   minRows={1}
                   onChange={handleInputChange}
@@ -1160,8 +1182,8 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                   readOnly={isRecording}
                 />
               </div>
-              <PromptInputToolbar>
-                <PromptInputTools>
+              <PromptInputToolbar className={isRetromaTheme ? 'retroma-input-toolbar' : ''}>
+                <PromptInputTools className={isRetromaTheme ? 'retroma-input-tools' : ''}>
                   <Tooltip>
                     <DropdownMenu>
                       <TooltipTrigger asChild>
@@ -1194,7 +1216,11 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                   <AgentSelector disabled={isLoading} />
                   <HoverCard>
                     <HoverCardTrigger asChild>
-                      <div className="flex items-center gap-1 rounded-md border-input bg-background px-2 py-1.5 @sm:gap-2 @sm:px-3">
+                      <div
+                        className={`flex items-center gap-1 rounded-md border-input bg-background px-2 py-1.5 @sm:gap-2 @sm:px-3 ${
+                          isRetromaTheme ? 'retroma-input-chip' : ''
+                        }`}
+                      >
                         <span className="hidden text-xs font-medium @md:inline">
                           {t.Chat.planMode.label}
                         </span>
@@ -1225,7 +1251,11 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                   </HoverCard>
                   <HoverCard>
                     <HoverCardTrigger asChild>
-                      <div className="flex items-center gap-1 rounded-md border-input bg-background px-2 py-1.5 @sm:gap-2 @sm:px-3">
+                      <div
+                        className={`flex items-center gap-1 rounded-md border-input bg-background px-2 py-1.5 @sm:gap-2 @sm:px-3 ${
+                          isRetromaTheme ? 'retroma-input-chip' : ''
+                        }`}
+                      >
                         <span className="hidden text-xs font-medium @md:inline">
                           {t.Chat.ralphLoop.label}
                         </span>
@@ -1256,7 +1286,11 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                   </HoverCard>
                   <HoverCard>
                     <HoverCardTrigger asChild>
-                      <div className="flex items-center gap-1 rounded-md border-input bg-background px-2 py-1.5 @sm:gap-2 @sm:px-3">
+                      <div
+                        className={`flex items-center gap-1 rounded-md border-input bg-background px-2 py-1.5 @sm:gap-2 @sm:px-3 ${
+                          isRetromaTheme ? 'retroma-input-chip' : ''
+                        }`}
+                      >
                         <span className="hidden text-xs font-medium @md:inline">
                           {t.Chat.worktree.label}
                         </span>
@@ -1286,7 +1320,9 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                     </HoverCardContent>
                   </HoverCard>
                 </PromptInputTools>
-                <div className="flex items-center gap-1">
+                <div
+                  className={`flex items-center gap-1 ${isRetromaTheme ? 'retroma-input-actions' : ''}`}
+                >
                   <VoiceInputButton
                     onStartRecording={startRecording}
                     isRecording={isRecording}
@@ -1295,7 +1331,11 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                     error={voiceError}
                     disabled={isLoading}
                   />
-                  <PromptInputSubmit disabled={!input.trim() || isLoading} status={status} />
+                  <PromptInputSubmit
+                    className={isRetromaTheme ? 'retroma-submit-button' : ''}
+                    disabled={!input.trim() || isLoading}
+                    status={status}
+                  />
                 </div>
               </PromptInputToolbar>
             </PromptInput>

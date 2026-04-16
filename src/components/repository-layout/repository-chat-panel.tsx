@@ -48,24 +48,44 @@ export const RepositoryChatPanel = memo(function RepositoryChatPanel({
   onAddFileToChat,
   checkForConflicts,
 }: RepositoryChatPanelProps) {
-  const { isAppleTheme } = useTheme();
+  const { isAppleTheme, themeVariant } = useTheme();
   const order = hasRepository ? 3 : 2;
   const defaultSize = isChatFullscreen
     ? '100%'
     : hasRepository
       ? hasOpenFiles || isTerminalVisible
-        ? '40%'
-        : '80%'
+        ? themeVariant === 'retroma'
+          ? '44%'
+          : '40%'
+        : themeVariant === 'retroma'
+          ? '72%'
+          : '80%'
       : shouldShowSidebar
-        ? '80%'
-        : '50%';
-  const minSize = hasRepository ? '20%' : '30%';
+        ? themeVariant === 'retroma'
+          ? '72%'
+          : '80%'
+        : themeVariant === 'retroma'
+          ? '62%'
+          : '50%';
+  const minSize = hasRepository
+    ? themeVariant === 'retroma'
+      ? '28%'
+      : '20%'
+    : themeVariant === 'retroma'
+      ? '36%'
+      : '30%';
 
   return (
     <ResizablePanel
       id={mainChatPanelId}
       order={order}
-      className={isAppleTheme ? 'bg-transparent px-2 py-2' : 'bg-white dark:bg-gray-950'}
+      className={
+        isAppleTheme
+          ? 'bg-transparent px-2 py-2'
+          : themeVariant === 'retroma'
+            ? 'bg-transparent'
+            : 'bg-white dark:bg-gray-950'
+      }
       defaultSize={defaultSize}
       maxSize={'100%'}
       minSize={minSize}
@@ -73,7 +93,9 @@ export const RepositoryChatPanel = memo(function RepositoryChatPanel({
       <div
         className={cn(
           'flex h-full flex-col',
-          isAppleTheme && 'apple-panel apple-scrollbar min-h-0 overflow-hidden'
+          isAppleTheme && 'apple-panel apple-scrollbar min-h-0 overflow-hidden',
+          themeVariant === 'retroma' &&
+            'retroma-surface-chat retroma-scrollbar retroma-layout-chat min-h-0 overflow-hidden'
         )}
       >
         <ChatPanelHeader currentTask={currentTask} messages={messages} />

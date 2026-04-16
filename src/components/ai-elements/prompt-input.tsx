@@ -19,14 +19,16 @@ import type { ChatStatus } from '@/services/llm/ui';
 export type PromptInputProps = HTMLAttributes<HTMLFormElement>;
 
 export const PromptInput = ({ className, ...props }: PromptInputProps) => {
-  const { isAppleTheme } = useTheme();
+  const { isAppleTheme, isRetromaTheme } = useTheme();
 
   return (
     <form
       className={cn(
         isAppleTheme
           ? 'apple-panel-light dark:apple-panel w-full overflow-hidden rounded-[24px] border shadow-[0_18px_60px_rgba(15,23,42,0.12)]'
-          : 'w-full overflow-hidden rounded-xl border bg-background shadow-sm',
+          : isRetromaTheme
+            ? 'retroma-prompt-shell w-full overflow-hidden rounded-[22px] border shadow-none'
+            : 'w-full overflow-hidden rounded-xl border bg-background shadow-sm',
         className
       )}
       {...props}
@@ -47,7 +49,7 @@ export const PromptInputTextarea = ({
   maxHeight = 164,
   ...props
 }: PromptInputTextareaProps) => {
-  const { isAppleTheme } = useTheme();
+  const { isAppleTheme, isRetromaTheme } = useTheme();
 
   const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
     if (e.key === 'Enter') {
@@ -85,7 +87,9 @@ export const PromptInputTextarea = ({
       className={cn(
         isAppleTheme
           ? 'w-full resize-none rounded-none border-none p-4 shadow-none outline-none ring-0'
-          : 'w-full resize-none rounded-none border-none p-3 shadow-none outline-none ring-0',
+          : isRetromaTheme
+            ? 'w-full resize-none rounded-none border-none p-4 shadow-none outline-none ring-0'
+            : 'w-full resize-none rounded-none border-none p-3 shadow-none outline-none ring-0',
         'field-sizing-content max-h-[10lh] bg-transparent dark:bg-transparent',
         'focus-visible:ring-0',
         className

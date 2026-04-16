@@ -5,7 +5,9 @@ import { useGlobalFileSearch } from '@/hooks/use-global-file-search';
 import { useTranslation } from '@/hooks/use-locale';
 import { useRepositoryLayout } from '@/hooks/use-repository-layout';
 import { useRepositoryWatcher } from '@/hooks/use-repository-watcher';
+import { useTheme } from '@/hooks/use-theme';
 import { logger } from '@/lib/logger';
+import { cn } from '@/lib/utils';
 import { databaseService } from '@/services/database-service';
 import type { LintDiagnostic } from '@/services/lint-service';
 import { repositoryService } from '@/services/repository-service';
@@ -31,6 +33,7 @@ import { RepositorySidebar } from './repository-layout/repository-sidebar';
 
 export const RepositoryLayout = memo(function RepositoryLayout() {
   const t = useTranslation();
+  const { themeVariant } = useTheme();
   const emptyRepoPanelId = useId();
   const fileTreePanelId = useId();
   const fileEditorPanelId = useId();
@@ -405,9 +408,19 @@ export const RepositoryLayout = memo(function RepositoryLayout() {
         showContentSearch={hasRepository}
       />
 
-      <div className="flex h-full flex-1 flex-col overflow-hidden">
-        <div className="flex-1 overflow-hidden">
-          <ResizablePanelGroup className="h-full" direction="horizontal">
+      <div
+        className={cn(
+          'flex h-full flex-1 flex-col overflow-hidden',
+          themeVariant === 'retroma' && 'retroma-layout-shell'
+        )}
+      >
+        <div
+          className={cn('flex-1 overflow-hidden', themeVariant === 'retroma' && 'pr-3 pb-3 pt-2')}
+        >
+          <ResizablePanelGroup
+            className={cn('h-full', themeVariant === 'retroma' && 'retroma-layout-body')}
+            direction="horizontal"
+          >
             {showFileTree && (
               <RepositorySidebar
                 emptyRepoPanelId={emptyRepoPanelId}

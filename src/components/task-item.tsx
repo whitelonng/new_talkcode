@@ -19,7 +19,7 @@ import {
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/hooks/use-locale';
-import { formatDate } from '@/lib/utils';
+import { cn, formatDate } from '@/lib/utils';
 import type { Task } from '@/services/database-service';
 import type { WorktreeInfo } from '@/types/worktree';
 
@@ -83,8 +83,13 @@ export const TaskItem = memo(function TaskItem({
   if (isEditing) {
     return (
       <div
-        className={`w-full cursor-pointer rounded-md border bg-background p-3 text-left hover:bg-accent/50 ${isSelected ? 'border-blue-200 bg-blue-50 dark:border-blue-600 dark:bg-blue-950' : 'border-border'}
-                `}
+        className={cn(
+          'task-item-card w-full cursor-pointer rounded-md border bg-background p-3 text-left hover:bg-accent/50',
+          isSelected
+            ? 'border-blue-200 bg-blue-50 dark:border-blue-600 dark:bg-blue-950'
+            : 'border-border'
+        )}
+        data-selected={isSelected}
         onClick={(e) => e.stopPropagation()}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -130,8 +135,13 @@ export const TaskItem = memo(function TaskItem({
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <div
-          className={`group w-full cursor-pointer rounded-md border bg-background p-3 text-left hover:bg-accent/50 ${isSelected ? 'border-blue-200 bg-blue-50 dark:border-blue-600 dark:bg-blue-950' : 'border-border'}
-            `}
+          className={cn(
+            'task-item-card group w-full cursor-pointer rounded-md border bg-background p-3 text-left hover:bg-accent/50',
+            isSelected
+              ? 'border-blue-200 bg-blue-50 dark:border-blue-600 dark:bg-blue-950'
+              : 'border-border'
+          )}
+          data-selected={isSelected}
           onClick={() => onSelect(task.id)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {

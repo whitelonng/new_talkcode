@@ -9,7 +9,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { logger } from '@/lib/logger';
 import { createTextModelService } from '@/services/monaco-text-model-service';
 import { repositoryService } from '@/services/repository-service';
-import { setupMonacoDiagnostics, setupMonacoTheme } from '@/utils/monaco-utils';
+import { getMonacoThemeName, setupMonacoDiagnostics, setupMonacoTheme } from '@/utils/monaco-utils';
 
 // Image file extensions with MIME types
 const IMAGE_EXTENSIONS: Record<string, string> = {
@@ -163,7 +163,7 @@ export function FileEditorContent({
 }: FileEditorContentProps) {
   const fileName = repositoryService.getFileNameFromPath(filePath);
   const language = repositoryService.getLanguageFromExtension(fileName);
-  const { resolvedTheme } = useTheme();
+  const { resolvedTheme, themeVariant } = useTheme();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const [forceOpenBinary, setForceOpenBinary] = useState(false);
@@ -199,7 +199,7 @@ export function FileEditorContent({
   // Handle theme changes
   useEffect(() => {
     if (monacoRef.current && editorRef.current) {
-      const theme = resolvedTheme === 'light' ? 'light-ai' : 'vs-dark-ai';
+      const theme = getMonacoThemeName(themeVariant, resolvedTheme);
       logger.info('Setting Monaco theme to:', theme);
 
       // Force update the theme using Monaco API
@@ -212,20 +212,22 @@ export function FileEditorContent({
         }
       }, 0);
     }
-  }, [resolvedTheme]);
+  }, [resolvedTheme, themeVariant]);
 
   // Listen for global theme change events to keep Monaco in sync
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail as {
         resolvedTheme?: 'light' | 'dark';
+        themeVariant?: 'default' | 'apple' | 'retroma';
       };
       const rt = detail?.resolvedTheme;
-      if (!(rt && monacoRef.current)) return;
-      const theme = rt === 'light' ? 'light-ai' : 'vs-dark-ai';
+      const variant = detail?.themeVariant;
+      if (!(rt && variant && monacoRef.current)) return;
+      const theme = getMonacoThemeName(variant, rt);
       logger.info('Monaco receiving theme-changed event ->', theme);
       // Make sure themes are defined; in case of fresh load
-      setupMonacoTheme(rt, monacoRef.current);
+      setupMonacoTheme(variant, rt, monacoRef.current);
       monacoRef.current.editor.setTheme(theme);
       editorRef.current?.layout();
     };
@@ -252,10 +254,10 @@ export function FileEditorContent({
     monacoRef.current = monaco;
 
     // Setup custom themes with AI suggestion support using the actual Monaco instance
-    setupMonacoTheme(resolvedTheme, monaco);
+    setupMonacoTheme(themeVariant, resolvedTheme, monaco);
 
     // Set initial theme immediately after mount
-    const theme = resolvedTheme === 'light' ? 'light-ai' : 'vs-dark-ai';
+    const theme = getMonacoThemeName(themeVariant, resolvedTheme);
     monaco.editor.setTheme(theme);
 
     // Setup diagnostics for the current model
@@ -298,7 +300,7 @@ export function FileEditorContent({
         beforeMount={(monaco) => {
           // Ensure themes exist before the editor is created
           monacoRef.current = monaco;
-          setupMonacoTheme(resolvedTheme, monaco);
+          setupMonacoTheme(themeVariant, resolvedTheme, monaco);
 
           // Enable TypeScript/JavaScript diagnostics globally before editor mounts
           setupMonacoDiagnostics(null, monaco);
@@ -306,7 +308,7 @@ export function FileEditorContent({
         onMount={handleEditorDidMount}
         options={EDITOR_OPTIONS}
         overrideServices={overrideServices}
-        theme={resolvedTheme === 'light' ? 'light-ai' : 'vs-dark-ai'}
+        theme={getMonacoThemeName(themeVariant, resolvedTheme)}
         value={currentContent}
       />
     </div>

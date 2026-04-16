@@ -3,6 +3,7 @@ import { type as getOsType } from '@tauri-apps/plugin-os';
 import {
   Activity,
   ArrowLeft,
+  BookOpen,
   Bot,
   Clock,
   Files,
@@ -52,7 +53,7 @@ import { WorkspaceTabs } from './workspace-tabs';
 
 export function CustomTitlebar() {
   const { t } = useLocale();
-  const { theme, resolvedTheme, isAppleTheme, setTheme } = useTheme();
+  const { theme, resolvedTheme, isAppleTheme, isRetromaTheme, setTheme } = useTheme();
   const [osType, setOsType] = useState<string>('windows');
   const [isMaximized, setIsMaximized] = useState(false);
   const { activeView, setActiveView } = useUiNavigation();
@@ -167,24 +168,50 @@ export function CustomTitlebar() {
     <div className={cn('flex h-full', isMac ? 'flex-row-reverse' : 'flex-row')}>
       <button
         type="button"
-        className="flex h-full w-12 cursor-pointer items-center justify-center hover:bg-black/10 dark:hover:bg-white/10"
+        className={cn(
+          'flex h-full w-12 cursor-pointer items-center justify-center',
+          isRetromaTheme ? 'hover:bg-secondary' : 'hover:bg-black/10 dark:hover:bg-white/10'
+        )}
         onClick={handleMinimize}
         title={t.Titlebar.minimize}
       >
-        <Minus className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+        <Minus
+          className={cn(
+            'h-4 w-4',
+            isRetromaTheme ? 'text-muted-foreground' : 'text-gray-600 dark:text-gray-400'
+          )}
+        />
       </button>
       <button
         type="button"
-        className="flex h-full w-12 cursor-pointer items-center justify-center hover:bg-black/10 dark:hover:bg-white/10"
+        className={cn(
+          'flex h-full w-12 cursor-pointer items-center justify-center',
+          isRetromaTheme ? 'hover:bg-secondary' : 'hover:bg-black/10 dark:hover:bg-white/10'
+        )}
         onClick={handleMaximize}
         title={isMaximized ? t.Titlebar.restore : t.Titlebar.maximize}
       >
         {isMaximized ? (
-          <div className="relative h-3 w-3 border-t-2 border-r-2 border-gray-600 dark:border-gray-400">
-            <div className="absolute top-1 right-1 h-3 w-3 border-2 border-gray-600 dark:border-gray-400" />
+          <div
+            className={cn(
+              'relative h-3 w-3 border-t-2 border-r-2',
+              isRetromaTheme ? 'border-muted-foreground' : 'border-gray-600 dark:border-gray-400'
+            )}
+          >
+            <div
+              className={cn(
+                'absolute top-1 right-1 h-3 w-3 border-2',
+                isRetromaTheme ? 'border-muted-foreground' : 'border-gray-600 dark:border-gray-400'
+              )}
+            />
           </div>
         ) : (
-          <Square className="h-3.5 w-3.5 text-gray-600 dark:text-gray-400" />
+          <Square
+            className={cn(
+              'h-3.5 w-3.5',
+              isRetromaTheme ? 'text-muted-foreground' : 'text-gray-600 dark:text-gray-400'
+            )}
+          />
         )}
       </button>
       <button
@@ -193,7 +220,12 @@ export function CustomTitlebar() {
         onClick={handleClose}
         title={t.Titlebar.close}
       >
-        <X className="h-4 w-4 text-gray-600 dark:text-gray-400 hover:text-white" />
+        <X
+          className={cn(
+            'h-4 w-4 hover:text-white',
+            isRetromaTheme ? 'text-muted-foreground' : 'text-gray-600 dark:text-gray-400'
+          )}
+        />
       </button>
     </div>
   );
@@ -204,14 +236,23 @@ export function CustomTitlebar() {
         'flex h-10 w-full select-none items-center justify-between border-b',
         isAppleTheme
           ? 'border-white/10 bg-black/30 backdrop-blur-2xl'
-          : 'bg-gray-50/90 backdrop-blur dark:bg-gray-900/90'
+          : isRetromaTheme
+            ? 'retroma-titlebar border-border bg-card'
+            : 'bg-gray-50/90 backdrop-blur dark:bg-gray-900/90'
       )}
     >
       <div className="flex h-full items-center pl-2">
         {isMac && <WindowControls />}
 
         <div className="flex items-center gap-2 px-3" data-tauri-drag-region>
-          <div className="flex h-6 w-6 items-center justify-center rounded-[4px] bg-white dark:bg-white/90 shadow-sm pointer-events-none">
+          <div
+            className={cn(
+              'pointer-events-none flex h-6 w-6 items-center justify-center rounded-[4px] shadow-sm',
+              isRetromaTheme
+                ? 'retroma-titlebar-badge border border-border bg-background'
+                : 'bg-white dark:bg-white/90'
+            )}
+          >
             <img src={talkCodyIcon} alt="TalkCody" className="h-4 w-4" />
           </div>
           <span className="pointer-events-none text-sm font-semibold" data-tauri-drag-region>
@@ -222,7 +263,12 @@ export function CustomTitlebar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="h-7 px-2" title={t.Titlebar.functionMenu}>
-              <LayoutGrid className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+              <LayoutGrid
+                className={cn(
+                  'h-4 w-4',
+                  isRetromaTheme ? 'text-muted-foreground' : 'text-gray-600 dark:text-gray-400'
+                )}
+              />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
@@ -253,7 +299,9 @@ export function CustomTitlebar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="ml-1 h-7 w-7 p-0">
-              {resolvedTheme === 'dark' ? (
+              {isRetromaTheme ? (
+                <BookOpen className="h-4 w-4 text-muted-foreground" />
+              ) : resolvedTheme === 'dark' ? (
                 <Sun className="h-4 w-4 text-gray-600 dark:text-gray-400" />
               ) : (
                 <Moon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
@@ -261,17 +309,31 @@ export function CustomTitlebar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-52">
-            <DropdownMenuLabel>Theme</DropdownMenuLabel>
+            <DropdownMenuLabel>{t.Settings.theme.title}</DropdownMenuLabel>
             <DropdownMenuRadioGroup
               value={theme}
               onValueChange={(value) => setTheme(value as typeof theme)}
             >
-              <DropdownMenuRadioItem value="light">Default Light</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="dark">Default Dark</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="system">Default System</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="light">
+                {t.Settings.theme.options.light}
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="dark">
+                {t.Settings.theme.options.dark}
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="system">
+                {t.Settings.theme.options.system}
+              </DropdownMenuRadioItem>
               <DropdownMenuSeparator />
-              <DropdownMenuRadioItem value="apple-light">Apple Light</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="apple-dark">Apple Dark</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="apple-light">
+                {t.Settings.theme.options.appleLight}
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="apple-dark">
+                {t.Settings.theme.options.appleDark}
+              </DropdownMenuRadioItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioItem value="retroma-light">
+                {t.Settings.theme.options.retromaLight}
+              </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -298,7 +360,11 @@ export function CustomTitlebar() {
         <div
           className={cn(
             'ml-2 h-5 w-px flex-shrink-0',
-            isAppleTheme ? 'bg-white/20' : 'bg-gray-300 dark:bg-gray-700'
+            isAppleTheme
+              ? 'bg-white/20'
+              : isRetromaTheme
+                ? 'bg-border'
+                : 'bg-gray-300 dark:bg-gray-700'
           )}
         />
         <div className="ml-2">
@@ -324,7 +390,10 @@ export function CustomTitlebar() {
                     size="sm"
                     className={cn(
                       'h-7 w-7 p-0',
-                      isTerminalVisible && 'bg-gray-200 dark:bg-gray-800'
+                      isTerminalVisible &&
+                        (isRetromaTheme
+                          ? 'bg-accent text-accent-foreground'
+                          : 'bg-gray-200 dark:bg-gray-800')
                     )}
                     onClick={toggleTerminal}
                   >
@@ -345,7 +414,10 @@ export function CustomTitlebar() {
                     size="sm"
                     className={cn(
                       'h-7 w-7 p-0',
-                      isBrowserVisible && 'bg-gray-200 dark:bg-gray-800'
+                      isBrowserVisible &&
+                        (isRetromaTheme
+                          ? 'bg-accent text-accent-foreground'
+                          : 'bg-gray-200 dark:bg-gray-800')
                     )}
                     onClick={toggleBrowser}
                   >

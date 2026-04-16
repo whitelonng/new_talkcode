@@ -25,6 +25,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { useTranslation } from '@/hooks/use-locale';
+import { useTheme } from '@/hooks/use-theme';
 import { logger } from '@/lib/logger';
 import { cn } from '@/lib/utils';
 import { fileExplorerService } from '@/services/file-explorer-service';
@@ -161,6 +162,7 @@ function FileTreeNode({
   onReferenceToChat,
 }: FileTreeNodeProps) {
   const t = useTranslation();
+  const { isRetromaTheme } = useTheme();
   // Subscribe to lastRefresh to trigger re-render when Git data changes
   useGitStore((state) => state.lastRefresh); // Triggers re-render when Git status refreshes
   const getFileStatus = useGitStore((state) => state.getFileStatus);
@@ -439,11 +441,12 @@ function FileTreeNode({
       type="button"
       ref={nodeRef}
       className={cn(
-        'flex w-full cursor-pointer items-center border-0 px-2 py-1 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800',
+        'file-tree-item flex w-full cursor-pointer items-center border-0 px-2 py-1 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800',
         isSelected && 'bg-blue-100 dark:bg-blue-900/30',
         isCut && 'opacity-50',
         isGitIgnored && 'opacity-60'
       )}
+      data-selected={isSelected}
       onClick={handleClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -480,6 +483,7 @@ function FileTreeNode({
             <File
               className={cn(
                 'mr-2 h-4 w-4 flex-shrink-0 text-gray-600',
+                isRetromaTheme && 'text-muted-foreground',
                 isGitIgnored && 'text-muted-foreground'
               )}
             />

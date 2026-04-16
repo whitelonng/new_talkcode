@@ -1,4 +1,4 @@
-import { Check, Monitor, Moon, Sun } from 'lucide-react';
+import { BookOpen, Check, Monitor, Moon, Sun } from 'lucide-react';
 import { useLocale } from '@/hooks/use-locale';
 import { type Theme, useTheme } from '@/hooks/use-theme';
 import { cn } from '@/lib/utils';
@@ -17,6 +17,7 @@ export function ThemeStep() {
     { value: 'system', icon: Monitor, label: t.Onboarding.steps.theme.system },
     { value: 'apple-light', icon: Sun, label: t.Settings.theme.options.appleLight },
     { value: 'apple-dark', icon: Moon, label: t.Settings.theme.options.appleDark },
+    { value: 'retroma-light', icon: BookOpen, label: t.Settings.theme.options.retromaLight },
   ];
 
   return (
