@@ -1,6 +1,8 @@
 import { MessageSquare } from 'lucide-react';
 import { forwardRef, useCallback, useMemo, useState } from 'react';
 import InfiniteScroll from '@/components/ui/infinite-scroll';
+import { useTheme } from '@/hooks/use-theme';
+import { cn } from '@/lib/utils';
 import type { Task } from '@/services/database-service';
 import type { WorktreeInfo } from '@/types/worktree';
 import { TaskItem } from './task-item';
@@ -59,6 +61,7 @@ export function TaskList({
   onCancelEdit,
   onTitleChange,
 }: TaskListProps) {
+  const { isRetromaTheme } = useTheme();
   const [isMultiSelectEnabled, setIsMultiSelectEnabled] = useState(false);
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(() => new Set());
 
@@ -109,7 +112,12 @@ export function TaskList({
 
   if (loading && tasks.length === 0) {
     return (
-      <div className="flex items-center justify-center py-8">
+      <div
+        className={cn(
+          'flex items-center justify-center py-8',
+          isRetromaTheme && 'retroma-task-empty'
+        )}
+      >
         <div className="text-muted-foreground text-sm">Loading...</div>
       </div>
     );
@@ -117,18 +125,39 @@ export function TaskList({
 
   if (tasks.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center px-6 py-12 text-muted-foreground">
-        <MessageSquare className="mb-3 h-12 w-12 text-muted-foreground/30" />
+      <div
+        className={cn(
+          'flex flex-col items-center justify-center px-6 py-12 text-muted-foreground',
+          isRetromaTheme && 'retroma-task-empty'
+        )}
+      >
+        <MessageSquare
+          className={cn(
+            'mb-3 h-12 w-12 text-muted-foreground/30',
+            isRetromaTheme && 'retroma-task-empty-icon'
+          )}
+        />
         <div className="text-center">
-          <p className="mb-1 font-medium text-sm">No tasks yet</p>
-          <p className="text-muted-foreground/60 text-xs">Start a new chat to begin!</p>
+          <p
+            className={cn('mb-1 font-medium text-sm', isRetromaTheme && 'retroma-task-empty-title')}
+          >
+            No tasks yet
+          </p>
+          <p
+            className={cn(
+              'text-muted-foreground/60 text-xs',
+              isRetromaTheme && 'retroma-task-empty-subtitle'
+            )}
+          >
+            Start a new chat to begin!
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-1">
+    <div className={cn('p-1', isRetromaTheme && 'retroma-task-list')}>
       {tasks.map((task) => (
         <div className="mb-1" key={task.id}>
           <TaskItem

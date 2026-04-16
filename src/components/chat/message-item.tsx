@@ -287,8 +287,8 @@ function MessageItemComponent({
       : null;
   const assistantContentClass =
     outputFormat === 'web' || outputFormat === 'ppt'
-      ? 'w-full max-w-none'
-      : 'prose prose-neutral dark:prose-invert w-full max-w-none';
+      ? 'assistant-markdown w-full max-w-none'
+      : 'assistant-markdown prose prose-neutral dark:prose-invert w-full max-w-none';
 
   // Split reasoning from content
   const { reasoningText, mainText } = useMemo(() => {
@@ -331,7 +331,7 @@ function MessageItemComponent({
       <div className={'w-full min-w-0 rounded-lg'}>
         <div className="relative w-full min-w-0 break-words">
           {message.role === 'user' && typeof message.content === 'string' && (
-            <div className="relative my-2 flex w-full items-start rounded-xl border border-border bg-muted/50 p-4 transition-colors hover:bg-muted/80">
+            <div className="message-user-bubble relative my-2 flex w-full items-start rounded-xl border border-border bg-muted/50 p-4 transition-colors hover:bg-muted/80">
               <h2
                 className={'whitespace-pre-wrap break-words font-normal text-foreground text-sm'}
                 dir="auto"

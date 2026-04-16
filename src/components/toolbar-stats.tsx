@@ -24,7 +24,7 @@ export function ToolbarStats() {
       {modelName && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex min-w-0 flex-shrink items-center gap-1 rounded-md bg-blue-100 px-2 py-1 dark:bg-blue-900/30">
+            <div className="toolbar-chip toolbar-chip-model flex min-w-0 flex-shrink items-center gap-1 rounded-md bg-blue-100 px-2 py-1 dark:bg-blue-900/30">
               <span className="hidden font-medium text-blue-700 text-xs @md:inline dark:text-blue-300">
                 {t.Chat.toolbar.model}:
               </span>
@@ -44,7 +44,7 @@ export function ToolbarStats() {
       {(cost > 0 || inputTokens > 0 || outputTokens > 0) && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="hidden flex-shrink items-center gap-1.5 overflow-hidden rounded-md bg-emerald-100 px-2 py-1 @xs:flex dark:bg-emerald-900/30">
+            <div className="toolbar-chip toolbar-chip-meta hidden flex-shrink items-center gap-1.5 overflow-hidden rounded-md bg-emerald-100 px-2 py-1 @xs:flex dark:bg-emerald-900/30">
               <span className="flex-shrink-0 font-medium text-emerald-700 text-xs dark:text-emerald-300">
                 {formatCost(cost)}
               </span>
@@ -77,7 +77,7 @@ export function ToolbarStats() {
         <Tooltip>
           <TooltipTrigger asChild>
             <div
-              className={`flex flex-shrink-0 items-center gap-1 rounded-md px-2 py-1 ${getContextUsageBgColor(contextUsage)}`}
+              className={`toolbar-chip toolbar-chip-context flex flex-shrink-0 items-center gap-1 rounded-md px-2 py-1 ${getContextUsageBgColor(contextUsage)}`}
             >
               <span
                 className={`whitespace-nowrap font-medium text-xs ${getContextUsageColor(contextUsage)}`}

@@ -89,7 +89,7 @@ function MyMarkdown({ content }: { content: string }) {
                   open(href);
                 }
               }}
-              className="text-primary hover:underline"
+              className="markdown-link text-primary underline-offset-2 hover:underline"
               {...props}
             >
               {children}
@@ -124,7 +124,10 @@ function MyMarkdown({ content }: { content: string }) {
           // Theme-aware table styling
           table: ({ node, ...props }) => (
             <div className="overflow-x-auto">
-              <table className="min-w-full border-collapse border border-border" {...props} />
+              <table
+                className="markdown-table min-w-full border-collapse border border-border"
+                {...props}
+              />
             </div>
           ),
           th: ({ node, ...props }) => (
@@ -137,7 +140,7 @@ function MyMarkdown({ content }: { content: string }) {
           // Theme-aware blockquote
           blockquote: ({ node, ...props }) => (
             <blockquote
-              className="border-muted-foreground/30 border-l-4 pl-4 text-muted-foreground italic"
+              className="markdown-blockquote border-muted-foreground/30 border-l-4 pl-4 text-muted-foreground italic"
               {...props}
             />
           ),

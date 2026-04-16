@@ -1,4 +1,4 @@
-import { Check, Moon, Settings, Sun } from 'lucide-react';
+import { BookOpen, Check, Moon, Settings, Sun } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLocale } from '@/hooks/use-locale';
 import { useTheme } from '@/hooks/use-theme';
@@ -123,6 +123,44 @@ export function GeneralSettings() {
                       >
                         <div className="flex items-center gap-3">
                           <Sun className="h-4 w-4" />
+                          <div>
+                            <div className="font-medium">{option.label}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {option.description}
+                            </div>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="h-4 w-4 text-primary" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t.Settings.theme.retromaGroupLabel}
+                </div>
+                <div className="space-y-2">
+                  {[
+                    {
+                      value: 'retroma-light' as const,
+                      icon: BookOpen,
+                      label: t.Settings.theme.options.retromaLight,
+                      description: t.Settings.theme.descriptions.retromaLight,
+                    },
+                  ].map((option) => {
+                    const isSelected = theme === option.value;
+                    const Icon = option.icon;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className="flex w-full items-center justify-between rounded-xl border p-4 text-left transition-colors hover:bg-accent"
+                        onClick={() => setTheme(option.value)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className="h-4 w-4" />
                           <div>
                             <div className="font-medium">{option.label}</div>
                             <div className="text-sm text-muted-foreground">
