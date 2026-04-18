@@ -1,11 +1,15 @@
 #![cfg_attr(target_os = "macos", allow(unexpected_cfgs))]
 
+#[cfg(target_os = "macos")]
 use crate::database::Database;
+#[cfg(target_os = "macos")]
 use serde::{Deserialize, Serialize};
+#[cfg(target_os = "macos")]
 use std::sync::Arc;
 
 /// Query recent projects from database
 /// Uses the recent_projects table which tracks actual project open times
+#[cfg(target_os = "macos")]
 async fn query_recent_projects(db: &Arc<Database>) -> Vec<serde_json::Value> {
     // Query from recent_projects table which tracks when projects were actually opened
     // This gives accurate "recent" ordering based on last open time, not update time
@@ -125,18 +129,21 @@ pub fn setup_dock_menu() {
     });
 }
 
+#[cfg(target_os = "macos")]
 #[derive(Debug, Serialize, Deserialize)]
 struct DockMenuPayload {
     id: Option<String>,
     path: String,
 }
 
+#[cfg(target_os = "macos")]
 #[derive(Debug)]
 struct DockMenuEntry {
     title: String,
     payload: String,
 }
 
+#[cfg(target_os = "macos")]
 fn decode_dock_menu_payload(payload: &str) -> (Option<String>, String) {
     match serde_json::from_str::<DockMenuPayload>(payload) {
         Ok(decoded) => (decoded.id, decoded.path),
@@ -150,6 +157,7 @@ fn decode_dock_menu_payload(payload: &str) -> (Option<String>, String) {
     }
 }
 
+#[cfg(target_os = "macos")]
 fn build_dock_menu_entries(recent_projects: &[serde_json::Value]) -> Vec<DockMenuEntry> {
     let mut entries = Vec::new();
 

@@ -18,6 +18,38 @@ import { logger } from '../logger';
 import { registerToolUIRenderers, unregisterToolUIRenderers } from '../tool-adapter';
 import { askUserQuestionsTool } from './ask-user-questions-tool';
 import { bashTool } from './bash-tool';
+import { browserBlurTool } from './browser-blur-tool';
+import { browserCheckTool } from './browser-check-tool';
+import { browserClearConsoleTool } from './browser-clear-console-tool';
+import { browserClearNetworkLogsTool } from './browser-clear-network-logs-tool';
+import { browserClickTool } from './browser-click-tool';
+import { browserControlTool } from './browser-control-tool';
+import { browserExecuteScriptTool } from './browser-execute-script-tool';
+import { browserEvaluateExpressionTool } from './browser-evaluate-expression-tool';
+import { browserFocusTool } from './browser-focus-tool';
+import { browserGetConsoleTool } from './browser-get-console-tool';
+import { browserGetConsoleErrorsTool } from './browser-get-console-errors-tool';
+import { browserGetElementInfoTool } from './browser-get-element-info-tool';
+import { browserGetNetworkLogsTool } from './browser-get-network-logs-tool';
+import { browserGetPageStateTool } from './browser-get-page-state-tool';
+import { browserGetRequestDetailTool } from './browser-get-request-detail-tool';
+import { browserGetDomTreeTool } from './browser-get-dom-tree-tool';
+import { browserHighlightElementTool } from './browser-highlight-element-tool';
+import { browserHoverTool } from './browser-hover-tool';
+import { browserListInteractiveElementsTool } from './browser-list-interactive-elements-tool';
+import { browserNavigateTool } from './browser-navigate-tool';
+import { browserFindNetworkRequestTool } from './browser-find-network-request-tool';
+import { browserPressKeyTool } from './browser-press-key-tool';
+import { browserQueryElementsTool } from './browser-query-elements-tool';
+import { browserScrollTool } from './browser-scroll-tool';
+import { browserSelectOptionTool } from './browser-select-option-tool';
+import { browserSnapshotTool } from './browser-snapshot-tool';
+import { browserTypeTool } from './browser-type-tool';
+import { browserUncheckTool } from './browser-uncheck-tool';
+import { browserWaitForNavigationTool } from './browser-wait-for-navigation-tool';
+import { browserWaitForElementStateTool } from './browser-wait-for-element-state-tool';
+import { browserWaitForTextTool } from './browser-wait-for-text-tool';
+import { browserWaitForTool } from './browser-wait-for-tool';
 
 import { callAgent } from './call-agent-tool';
 import { codeSearch } from './code-search-tool';
@@ -228,6 +260,326 @@ export const TOOL_DEFINITIONS = {
   bash: {
     tool: bashTool,
     label: 'Bash',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserControl: {
+    tool: browserControlTool,
+    label: 'Browser Control',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: true,
+      fileOperation: false,
+      renderDoingUI: false,
+    },
+  },
+  browserCheck: {
+    tool: browserCheckTool,
+    label: 'Browser Check',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserClearConsole: {
+    tool: browserClearConsoleTool,
+    label: 'Browser Clear Console',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserClearNetworkLogs: {
+    tool: browserClearNetworkLogsTool,
+    label: 'Browser Clear Network Logs',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserNavigate: {
+    tool: browserNavigateTool,
+    label: 'Browser Navigate',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserClick: {
+    tool: browserClickTool,
+    label: 'Browser Click',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserType: {
+    tool: browserTypeTool,
+    label: 'Browser Type',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserExecuteScript: {
+    tool: browserExecuteScriptTool,
+    label: 'Browser Execute Script',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserEvaluateExpression: {
+    tool: browserEvaluateExpressionTool,
+    label: 'Browser Evaluate Expression',
+    metadata: {
+      category: 'read' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserFocus: {
+    tool: browserFocusTool,
+    label: 'Browser Focus',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserBlur: {
+    tool: browserBlurTool,
+    label: 'Browser Blur',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserHover: {
+    tool: browserHoverTool,
+    label: 'Browser Hover',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserSnapshot: {
+    tool: browserSnapshotTool,
+    label: 'Browser Snapshot',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserWaitFor: {
+    tool: browserWaitForTool,
+    label: 'Browser Wait For',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserWaitForElementState: {
+    tool: browserWaitForElementStateTool,
+    label: 'Browser Wait For Element State',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserWaitForNavigation: {
+    tool: browserWaitForNavigationTool,
+    label: 'Browser Wait For Navigation',
+    metadata: {
+      category: 'read' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserWaitForText: {
+    tool: browserWaitForTextTool,
+    label: 'Browser Wait For Text',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserScroll: {
+    tool: browserScrollTool,
+    label: 'Browser Scroll',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserSelectOption: {
+    tool: browserSelectOptionTool,
+    label: 'Browser Select Option',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserGetConsole: {
+    tool: browserGetConsoleTool,
+    label: 'Browser Get Console',
+    metadata: {
+      category: 'read' as ToolCategory,
+      canConcurrent: true,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserGetConsoleErrors: {
+    tool: browserGetConsoleErrorsTool,
+    label: 'Browser Get Console Errors',
+    metadata: {
+      category: 'read' as ToolCategory,
+      canConcurrent: true,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserGetElementInfo: {
+    tool: browserGetElementInfoTool,
+    label: 'Browser Get Element Info',
+    metadata: {
+      category: 'read' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserGetNetworkLogs: {
+    tool: browserGetNetworkLogsTool,
+    label: 'Browser Get Network Logs',
+    metadata: {
+      category: 'read' as ToolCategory,
+      canConcurrent: true,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserFindNetworkRequest: {
+    tool: browserFindNetworkRequestTool,
+    label: 'Browser Find Network Request',
+    metadata: {
+      category: 'read' as ToolCategory,
+      canConcurrent: true,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserGetRequestDetail: {
+    tool: browserGetRequestDetailTool,
+    label: 'Browser Get Request Detail',
+    metadata: {
+      category: 'read' as ToolCategory,
+      canConcurrent: true,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserGetPageState: {
+    tool: browserGetPageStateTool,
+    label: 'Browser Get Page State',
+    metadata: {
+      category: 'read' as ToolCategory,
+      canConcurrent: true,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserGetDomTree: {
+    tool: browserGetDomTreeTool,
+    label: 'Browser Get DOM Tree',
+    metadata: {
+      category: 'read' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserHighlightElement: {
+    tool: browserHighlightElementTool,
+    label: 'Browser Highlight Element',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserListInteractiveElements: {
+    tool: browserListInteractiveElementsTool,
+    label: 'Browser List Interactive Elements',
+    metadata: {
+      category: 'read' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserPressKey: {
+    tool: browserPressKeyTool,
+    label: 'Browser Press Key',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserQueryElements: {
+    tool: browserQueryElementsTool,
+    label: 'Browser Query Elements',
+    metadata: {
+      category: 'read' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserUncheck: {
+    tool: browserUncheckTool,
+    label: 'Browser Uncheck',
     metadata: {
       category: 'other' as ToolCategory,
       canConcurrent: false,

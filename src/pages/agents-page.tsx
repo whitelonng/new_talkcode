@@ -21,6 +21,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import {
+  expandBrowserControlToolIds,
+} from '@/lib/tools/browser-control-tool-group';
 import { HelpTooltip } from '@/components/ui/help-tooltip';
 import { Input } from '@/components/ui/input';
 import {
@@ -245,7 +248,7 @@ export function AgentsPage() {
         const availableTools = getAvailableToolsForUISync();
         // biome-ignore lint/suspicious/noExplicitAny: Tools are dynamically built with refs of various types
         const tools: Record<string, any> = {};
-        for (const t of agentData.selectedTools) {
+        for (const t of expandBrowserControlToolIds(agentData.selectedTools)) {
           if (!isToolAllowedForAgent(agentData.id, t)) continue;
           const match = availableTools.find((x) => x.id === t);
           if (match) {

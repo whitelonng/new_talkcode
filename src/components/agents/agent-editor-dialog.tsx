@@ -6,6 +6,7 @@ import { DynamicContextPanel } from '@/components/agents/dynamic-context-panel';
 import { MCPToolsSelector } from '@/components/agents/mcp-tools-selector';
 import { ModelTypeSelector } from '@/components/selectors/model-type-selector';
 import { Button } from '@/components/ui/button';
+import { collapseBrowserControlToolIds } from '@/lib/tools/browser-control-tool-group';
 import {
   Dialog,
   DialogContent,
@@ -109,7 +110,7 @@ export function AgentEditorDialog({
       setSystemPrompt(
         typeof agent.systemPrompt === 'function' ? '' : (agent.systemPrompt as string)
       );
-      setSelectedTools(Object.keys(agent.tools ?? {}));
+      setSelectedTools(collapseBrowserControlToolIds(Object.keys(agent.tools ?? {})));
       setRules(agent.rules || '');
       setOutputFormat(agent.outputFormat || '');
       setDynamicEnabled(agent.dynamicPrompt?.enabled ?? false);

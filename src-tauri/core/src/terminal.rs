@@ -68,6 +68,7 @@ fn check_shell_available(cmd: &str, args: &[&str]) -> bool {
 }
 
 /// Get default shell based on user preference or auto-detection
+#[cfg(any(not(target_os = "windows"), test))]
 fn get_default_shell(preferred_shell: Option<&str>) -> String {
     #[cfg(target_os = "windows")]
     {

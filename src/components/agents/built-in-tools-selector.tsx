@@ -1,5 +1,11 @@
 import { CheckCircle2, Wrench } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import {
+  BROWSER_CONTROL_TOOL_ID,
+  BROWSER_CONTROL_SUBTOOLS,
+  collapseBrowserControlToolIds,
+  expandBrowserControlToolIds,
+} from '@/lib/tools/browser-control-tool-group';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { isToolAllowedForAgent } from '@/services/agents/agent-tool-access';
@@ -50,35 +56,59 @@ export function BuiltInToolsSelector({
   }, [toolsLoaded]);
 
   const handleToolToggle = (toolId: string, checked: boolean) => {
-    const newSelectedTools = new Set(selectedTools);
-    if (checked) {
-      newSelectedTools.add(toolId);
-    } else {
-      newSelectedTools.delete(toolId);
+    const expandedSelectedTools = new Set(expandBrowserControlToolIds(selectedTools));
+
+    if (toolId === BROWSER_CONTROL_TOOL_ID) {
+      for (const subtoolId of BROWSER_CONTROL_SUBTOOLS) {
+        if (checked) {
+          expandedSelectedTools.add(subtoolId);
+        } else {
+          expandedSelectedTools.delete(subtoolId);
+        }
+      }
+      onToolsChange(Array.from(expandedSelectedTools));
+      return;
     }
-    onToolsChange(Array.from(newSelectedTools));
+
+    if (checked) {
+      expandedSelectedTools.add(toolId);
+    } else {
+      expandedSelectedTools.delete(toolId);
+    }
+    onToolsChange(Array.from(expandedSelectedTools));
   };
 
   // Filter out hidden tools
   const visibleTools = useMemo(
-    () =>
-      builtInTools.filter((tool) => {
+    () => {
+      const filtered = builtInTools.filter((tool) => {
         if (!isToolAllowedForAgent(agentId, tool.id)) return false;
         const ref = tool.ref as { hidden?: boolean } | undefined;
         return !ref?.hidden;
-      }),
+      });
+
+      return collapseBrowserControlToolIds(filtered.map((tool) => tool.id))
+        .map((toolId) => {
+          if (toolId === BROWSER_CONTROL_TOOL_ID) {
+            return filtered.find((tool) => tool.id === BROWSER_CONTROL_TOOL_ID) ?? {
+              id: BROWSER_CONTROL_TOOL_ID,
+              label: 'Browser Control',
+              ref: undefined,
+            };
+          }
+          return filtered.find((tool) => tool.id === toolId);
+        })
+        .filter(
+          (tool): tool is { id: string; label: string; ref: unknown } => Boolean(tool)
+        );
+    },
     [builtInTools, agentId]
   );
 
-  const selectedCount = useMemo(
-    () =>
-      selectedTools.filter((tool) =>
-        visibleTools.some(
-          (t) => t.id === tool && !((t.ref as { hidden?: boolean } | undefined)?.hidden || false)
-        )
-      ).length,
-    [selectedTools, visibleTools]
-  );
+  const selectedCount = useMemo(() => {
+    const collapsedSelected = new Set(collapseBrowserControlToolIds(selectedTools));
+    return visibleTools.filter((tool) => collapsedSelected.has(tool.id)).length;
+  }, [selectedTools, visibleTools]);
 
   return (
     <Card className="border-dashed">
@@ -104,7 +134,7 @@ export function BuiltInToolsSelector({
             >
               <input
                 type="checkbox"
-                checked={selectedTools.includes(tool.id)}
+                checked={new Set(collapseBrowserControlToolIds(selectedTools)).has(tool.id)}
                 onChange={(e) => handleToolToggle(tool.id, e.target.checked)}
                 className="mt-0.5 flex-shrink-0"
               />

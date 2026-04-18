@@ -1,5 +1,6 @@
 // Re-export desktop app implementation from core modules.
 
+pub mod browser_control;
 pub mod dock_menu;
 pub mod file_watcher;
 pub mod keep_awake;
@@ -57,7 +58,7 @@ use talkcody_core::core::types::RuntimeEvent;
 use talkcody_core::storage::Storage;
 use talkcody_server::config::ServerConfig;
 use talkcody_server::state::ServerStateFactory;
-use tauri::{AppHandle, Emitter, Manager, Runtime, State, WindowEvent};
+use tauri::{AppHandle, Emitter, Manager, Runtime, State, WebviewWindow, WindowEvent};
 use tokio::io::BufReader;
 use tokio::sync::Mutex as TokioMutex;
 use tokio::time::Duration as TokioDuration;
@@ -274,7 +275,7 @@ fn get_current_window_label(window: tauri::Window) -> Result<String, String> {
 }
 
 #[tauri::command]
-fn open_current_window_devtools(window: tauri::WebviewWindow) -> Result<(), String> {
+fn open_current_window_devtools(window: WebviewWindow) -> Result<(), String> {
     window.open_devtools();
     Ok(())
 }
@@ -696,6 +697,7 @@ pub fn run() {
             file_watcher: Mutex::new(None),
             window_registry: WindowRegistry::new(),
         })
+        .manage(Arc::new(browser_control::BrowserNativeSessionManager::new()))
         .manage(keep_awake::KeepAwakeStateWrapper::new())
         .manage(Arc::new(TrayState::new()))
         .manage(AnalyticsState::new())
@@ -929,6 +931,10 @@ pub fn run() {
             dock_menu::handle_dock_menu_event(app, event);
         })
         .invoke_handler(tauri::generate_handler![
+            browser_control::browser_native_session_start,
+            browser_control::browser_native_navigate,
+            browser_control::browser_native_get_state,
+            browser_control::browser_native_close_session,
             start_file_watching,
             stop_file_watching,
             search_file_content,

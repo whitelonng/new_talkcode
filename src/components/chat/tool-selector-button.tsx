@@ -2,6 +2,12 @@
 
 import { Check, ExternalLink, RotateCcw, Wrench } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import {
+  BROWSER_CONTROL_SUBTOOLS,
+  collapseBrowserControlToolIds,
+  isBrowserControlToolId,
+  isBrowserControlSubToolId,
+} from '@/lib/tools/browser-control-tool-group';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
@@ -56,11 +62,13 @@ export function ToolSelectorButton() {
     try {
       const allTools = getAvailableToolsForUISync();
       // Filter out hidden tools
-      return allTools.filter((tool) => {
-        if (!isToolAllowedForAgent(currentAgent?.id, tool.id)) return false;
-        const ref = tool.ref as { hidden?: boolean };
-        return !ref.hidden;
-      });
+      return allTools
+        .filter((tool) => {
+          if (!isToolAllowedForAgent(currentAgent?.id, tool.id)) return false;
+          const ref = tool.ref as { hidden?: boolean };
+          return !ref.hidden;
+        })
+        .filter((tool) => !isBrowserControlSubToolId(tool.id));
     } catch (error) {
       logger.error('Failed to get built-in tools:', error);
       return [];
@@ -74,23 +82,30 @@ export function ToolSelectorButton() {
   const selectedToolIds = useMemo(() => {
     if (!currentAgent) return new Set<string>();
 
-    // Start with base tools from agent
     const baseTools = new Set(Object.keys(currentAgent.tools || {}));
-
-    // Apply tool overrides if they exist
     const override = currentAgent.id ? toolOverrides.get(currentAgent.id) : undefined;
     if (override) {
-      // Add overridden tools
       for (const toolId of override.addedTools) {
+        if (isBrowserControlToolId(toolId)) {
+          for (const subtoolId of BROWSER_CONTROL_SUBTOOLS) {
+            baseTools.add(subtoolId);
+          }
+          continue;
+        }
         baseTools.add(toolId);
       }
-      // Remove overridden tools
       for (const toolId of override.removedTools) {
+        if (isBrowserControlToolId(toolId)) {
+          for (const subtoolId of BROWSER_CONTROL_SUBTOOLS) {
+            baseTools.delete(subtoolId);
+          }
+          continue;
+        }
         baseTools.delete(toolId);
       }
     }
 
-    return baseTools;
+    return new Set(collapseBrowserControlToolIds(baseTools));
   }, [currentAgent, toolOverrides]);
 
   // Only show built-in tools (MCP tools are shown in MCP Servers selector)
@@ -109,6 +124,18 @@ export function ToolSelectorButton() {
     }
 
     try {
+      if (toolId === 'browserControl') {
+        const isSelected = selectedToolIds.has(toolId);
+        if (isSelected) {
+          useToolOverrideStore.getState().removeTool(currentAgent.id, toolId);
+          toast.success(t.Chat.tools.removedTemp);
+        } else {
+          useToolOverrideStore.getState().addTool(currentAgent.id, toolId);
+          toast.success(t.Chat.tools.addedTemp);
+        }
+        return;
+      }
+
       const isSelected = selectedToolIds.has(toolId);
 
       // Use tool override store for temporary modifications

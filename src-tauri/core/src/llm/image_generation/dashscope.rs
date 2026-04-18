@@ -90,17 +90,6 @@ struct QwenTaskMetric {
     _total: i32,
 }
 
-#[derive(Debug, Clone, Deserialize)]
-struct QwenImageUsage {
-    #[serde(skip_serializing_if = "Option::is_none", rename = "height")]
-    _height: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "width")]
-    _width: Option<i32>,
-    #[serde(rename = "image_count")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    _image_count: Option<i32>,
-}
-
 /// Error response from Qwen Image API
 #[derive(Debug, Clone, Deserialize)]
 struct QwenImageErrorResponse {

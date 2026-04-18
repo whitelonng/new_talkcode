@@ -5,7 +5,10 @@
 // - Sleep is prevented while any task is active
 // - Sleep is allowed when all tasks complete (refcount reaches 0)
 
-use std::process::{Child, Command, Stdio};
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+use std::process::Child;
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+use std::process::{Command, Stdio};
 use std::sync::Mutex;
 use tauri::State;
 
@@ -43,6 +46,7 @@ impl Default for KeepAwakeStateWrapper {
 pub struct KeepAwakeState {
     /// Number of active sleep prevention requests
     ref_count: Mutex<u32>,
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     process: Mutex<Option<KeepAwakeProcess>>,
     process_enabled: bool,
 }
@@ -52,6 +56,7 @@ impl KeepAwakeState {
     pub fn new() -> Self {
         Self {
             ref_count: Mutex::new(0),
+            #[cfg(any(target_os = "macos", target_os = "linux"))]
             process: Mutex::new(None),
             process_enabled: true,
         }
@@ -61,6 +66,7 @@ impl KeepAwakeState {
     pub fn new_for_tests() -> Self {
         Self {
             ref_count: Mutex::new(0),
+            #[cfg(any(target_os = "macos", target_os = "linux"))]
             process: Mutex::new(None),
             process_enabled: false,
         }
@@ -255,6 +261,7 @@ impl Default for KeepAwakeState {
     }
 }
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 enum KeepAwakeProcess {
     Child(Child),
 }
