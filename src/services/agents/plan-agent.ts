@@ -151,6 +151,13 @@ export class PlanAgent {
       hidden: true,
       isDefault: true,
       version: PlanAgent.VERSION,
+      defaultSkills: [
+        'talkcody-knowledge-base',
+        'writing-plans',
+        'brainstorming',
+        'using-git-worktrees',
+        'multi-search',
+      ],
       systemPrompt: PlanAgentPrompt,
       tools: selectedTools as AgentToolSet,
       canBeSubagent: true,

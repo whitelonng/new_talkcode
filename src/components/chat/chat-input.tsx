@@ -68,6 +68,7 @@ interface ChatInputProps {
   fileContent?: string | null;
   repositoryPath?: string | undefined;
   taskId?: string | null;
+  agentId?: string | null;
   onEnhancePrompt?: (payload: {
     originalPrompt: string;
     enableContextExtraction: boolean;
@@ -92,6 +93,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
       fileContent,
       repositoryPath,
       taskId,
+      agentId,
       onEnhancePrompt,
     },
     ref
@@ -1121,6 +1123,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
 
             <ChatInputToolsBar
               taskId={taskId}
+              agentId={agentId}
               disabled={isLoading}
               onAddCurrentFile={handleAddCurrentFile}
             />
@@ -1213,7 +1216,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                       <p>{t.Chat.files.addAttachment}</p>
                     </TooltipContent>
                   </Tooltip>
-                  <AgentSelector disabled={isLoading} />
+                  <AgentSelector disabled={isLoading} taskId={taskId} />
                   <HoverCard>
                     <HoverCardTrigger asChild>
                       <div

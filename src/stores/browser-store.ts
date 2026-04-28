@@ -127,9 +127,9 @@ export const useBrowserStore = create<BrowserState>((set) => ({
     })),
 
   setActiveUtilityTab: (tab) =>
-    set((state) => ({
+    set(() => ({
       activeUtilityTab: tab,
-      isBrowserVisible: tab === 'browser' ? true : state.isBrowserVisible,
+      isBrowserVisible: tab === 'browser',
     })),
 
   openBrowserUrl: (url) =>

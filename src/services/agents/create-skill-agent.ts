@@ -136,11 +136,12 @@ export class CreateSkillAgent {
       tools: selectedTools,
       hidden: true,
       isDefault: true,
+      defaultSkills: ['talkcody-knowledge-base', 'skill-creator', 'writing-skills'],
       canBeSubagent: false,
       role: 'write',
       dynamicPrompt: {
         enabled: true,
-        providers: ['env', 'global_memory', 'project_memory', 'agents_md'],
+        providers: ['env', 'global_memory', 'project_memory', 'agents_md', 'skills'],
         variables: {},
         providerSettings: {},
       },

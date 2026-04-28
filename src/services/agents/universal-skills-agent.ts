@@ -117,6 +117,7 @@ export class UniversalSkillsAgent {
       hidden: false,
       isDefault: true,
       version: UniversalSkillsAgent.VERSION,
+      defaultSkills: ['talkcody-knowledge-base', 'skill-creator', 'writing-skills', 'using-superpowers'],
       systemPrompt: UniversalSkillsPrompt,
       tools: selectedTools,
       role: 'write',

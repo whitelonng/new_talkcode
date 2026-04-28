@@ -56,6 +56,7 @@ function AppContent() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showRunningTasksExitDialog, setShowRunningTasksExitDialog] = useState(false);
   const [runningTasksExitDialogCount, setRunningTasksExitDialogCount] = useState(0);
+  const pendingExitSourceRef = useRef<'window' | 'tray' | null>(null);
   const allowCloseRef = useRef(false);
 
   // Register global keyboard shortcuts
@@ -113,14 +114,18 @@ function AppContent() {
 
     const setupRunningTasksExitDialogListener = async () => {
       try {
-        unlisten = await listen<{ count?: number }>('show-running-tasks-exit-dialog', (event) => {
-          if (allowCloseRef.current) {
-            return;
-          }
+        unlisten = await listen<{ count?: number; source?: 'window' | 'tray' }>(
+          'show-running-tasks-exit-dialog',
+          (event) => {
+            if (allowCloseRef.current) {
+              return;
+            }
 
-          setRunningTasksExitDialogCount(event.payload?.count ?? activeCloseBlockerCount);
-          setShowRunningTasksExitDialog(true);
-        });
+            pendingExitSourceRef.current = event.payload?.source ?? 'window';
+            setRunningTasksExitDialogCount(event.payload?.count ?? activeCloseBlockerCount);
+            setShowRunningTasksExitDialog(true);
+          }
+        );
       } catch (error) {
         logger.error('Failed to listen for running tasks exit dialog event:', error);
       }
@@ -434,6 +439,7 @@ function AppContent() {
           if (activeCloseBlockerCount > 0) {
             event.preventDefault();
             if (isMounted) {
+              pendingExitSourceRef.current = 'window';
               setRunningTasksExitDialogCount(activeCloseBlockerCount);
               setShowRunningTasksExitDialog(true);
             }
@@ -516,6 +522,8 @@ function AppContent() {
       allowCloseRef.current = true;
       await invoke('set_force_exit_on_close', { enabled: true });
       setShowRunningTasksExitDialog(false);
+      setRunningTasksExitDialogCount(0);
+      pendingExitSourceRef.current = null;
       await getCurrentWindow().close();
     } catch (error) {
       allowCloseRef.current = false;
@@ -523,10 +531,21 @@ function AppContent() {
     }
   }, []);
 
-  const handleCancelExitWithRunningTasks = useCallback(() => {
+  const handleCancelExitWithRunningTasks = useCallback(async () => {
     allowCloseRef.current = false;
     setShowRunningTasksExitDialog(false);
     setRunningTasksExitDialogCount(0);
+
+    const exitSource = pendingExitSourceRef.current;
+    pendingExitSourceRef.current = null;
+
+    if (exitSource === 'tray') {
+      try {
+        await invoke('set_force_exit_on_close', { enabled: false });
+      } catch (error) {
+        logger.warn('Failed to reset force_exit_on_close after tray exit cancellation:', error);
+      }
+    }
   }, []);
 
   // Show initialization screen while loading or if there's an error
@@ -549,7 +568,14 @@ function AppContent() {
         <MainContent activeView={activeView} />
       </div>
 
-      <AlertDialog open={showRunningTasksExitDialog} onOpenChange={setShowRunningTasksExitDialog}>
+      <AlertDialog
+        open={showRunningTasksExitDialog}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCancelExitWithRunningTasks();
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t.App.runningTasksExitTitle}</AlertDialogTitle>

@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Browser Control 测试页 / Browser Control Test Page</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f5f7fb;
+        --panel: #ffffff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --line: #d1d5db;
+        --primary: #2563eb;
+        --primary-strong: #1d4ed8;
+        --success: #15803d;
+        --warning: #b45309;
+        --danger: #b91c1c;
+        --tag: #e5eefc;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a;
+          --panel: #111827;
+          --text: #e5e7eb;
+          --muted: #9ca3af;
+          --line: #374151;
+          --primary: #60a5fa;
+          --primary-strong: #93c5fd;
+          --success: #4ade80;
+          --warning: #f59e0b;
+          --danger: #f87171;
+          --tag: #1e3a8a;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, "Segoe UI", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+      }
+
+      .container {
+        width: min(1180px, calc(100vw - 32px));
+        margin: 24px auto 64px;
+      }
+
+      .hero,
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      }
+
+      .hero {
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      .hero h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+
+      .hero p,
+      .hint,
+      .muted {
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .panel h2 {
+        margin-top: 0;
+        font-size: 20px;
+      }
+
+      .actions,
+      .inline-fields,
+      .status-row,
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button,
+      .button-link {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--text);
+        border-radius: 10px;
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: 0.2s ease;
+      }
+
+      button.primary {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      button.primary:hover,
+      .button-link:hover {
+        background: var(--primary-strong);
+        color: white;
+      }
+
+      button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--text);
+        border-radius: 10px;
+        padding: 10px 12px;
+      }
+
+      textarea {
+        min-height: 96px;
+        resize: vertical;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 12px;
+        font-weight: 600;
+      }
+
+      .field-help,
+      .badge,
+      .result,
+      code {
+        font-size: 14px;
+      }
+
+      .badge {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 4px 10px;
+        background: var(--tag);
+        color: var(--text);
+        margin: 0 8px 8px 0;
+      }
+
+      .result,
+      pre {
+        margin-top: 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px;
+        background: rgba(127, 127, 127, 0.08);
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .success {
+        color: var(--success);
+        font-weight: 700;
+      }
+
+      .warning {
+        color: var(--warning);
+        font-weight: 700;
+      }
+
+      .danger {
+        color: var(--danger);
+        font-weight: 700;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .tab-panel {
+        border-top: 1px dashed var(--line);
+        margin-top: 14px;
+        padding-top: 14px;
+      }
+
+      .interactive-box {
+        border: 2px dashed var(--line);
+        border-radius: 14px;
+        padding: 16px;
+        min-height: 90px;
+      }
+
+      .hover-box {
+        min-height: 100px;
+        display: grid;
+        place-items: center;
+      }
+
+      .scroll-box {
+        max-height: 180px;
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px;
+      }
+
+      .scroll-item {
+        padding: 10px;
+        border-radius: 8px;
+      }
+
+      .scroll-item:nth-child(odd) {
+        background: rgba(127, 127, 127, 0.08);
+      }
+
+      .footer-anchor {
+        margin-top: 40px;
+        padding: 16px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <section class="hero" id="page-top">
+        <h1 id="page-title">Browser Control 测试页 / Browser Control Test Page</h1>
+        <p id="page-description">
+          这是一个为 browser-control 功能验证准备的本地 HTML 页面。
+          This standalone page is designed for navigation, DOM read, interaction, wait,
+          console, network, and recovery verification.
+        </p>
+        <div>
+          <span class="badge" id="badge-mode">建议模式 / Suggested mode: fileControlled</span>
+          <span class="badge" id="badge-dom">DOM Read/Write Ready</span>
+          <span class="badge" id="badge-network">Console + Network Trigger Included</span>
+        </div>
+      </section>
+
+      <div class="grid">
+        <section class="panel" id="navigation-panel">
+          <h2>1. 导航与等待 / Navigation & Wait</h2>
+          <p class="hint">
+            用于测试 hash 导航、文本等待、元素状态等待与页面状态变化。
+          </p>
+          <div class="tabs" role="tablist" aria-label="Test Tabs">
+            <button id="tab-overview" class="primary" data-target="overview-panel">Overview</button>
+            <button id="tab-details" data-target="details-panel">Details</button>
+            <button id="tab-report" data-target="report-panel">Report</button>
+          </div>
+          <div class="tab-panel" id="overview-panel">
+            <p id="tab-overview-text">当前标签页：Overview / Current tab: Overview</p>
+          </div>
+          <div class="tab-panel hidden" id="details-panel">
+            <p id="tab-details-text">当前标签页：Details / Current tab: Details</p>
+          </div>
+          <div class="tab-panel hidden" id="report-panel">
+            <p id="tab-report-text">当前标签页：Report / Current tab: Report</p>
+          </div>
+          <div class="actions" style="margin-top: 12px;">
+            <button id="delayed-text-btn">触发延迟文本 / Trigger delayed text</button>
+            <button id="toggle-hidden-btn">显示隐藏块 / Show hidden block</button>
+            <button id="enable-submit-btn">3 秒后启用按钮 / Enable button in 3s</button>
+            <a id="footer-link" class="button-link" href="#footer-anchor">滚动到底部 / Scroll to footer</a>
+          </div>
+          <p id="delayed-text" class="hidden success">异步文本已出现 / Delayed text appeared</p>
+          <div id="hidden-status-block" class="hidden result">隐藏块已显示 / Hidden block is visible now.</div>
+          <button id="late-enabled-btn" disabled style="margin-top: 12px;">稍后启用的按钮 / Late enabled button</button>
+        </section>
+
+        <section class="panel" id="dom-panel">
+          <h2>2. DOM 读取与结构 / DOM Read & Structure</h2>
+          <p class="hint">该区域适合 snapshot、query、getElementInfo、getDomTree 等操作。</p>
+          <div class="interactive-box" id="dom-box" data-testid="dom-box">
+            <h3 id="dom-box-title">可查询结构 / Queryable Structure</h3>
+            <ul id="dom-list">
+              <li class="dom-item" data-role="primary-item">Alpha</li>
+              <li class="dom-item" data-role="secondary-item">Beta</li>
+              <li class="dom-item" data-role="tertiary-item">Gamma</li>
+            </ul>
+            <p id="dom-extra-text">用于测试文本查询与 DOM 树读取。</p>
+          </div>
+        </section>
+
+        <section class="panel" id="interaction-panel">
+          <h2>3. 单元素交互 / Single Element Interaction</h2>
+          <div class="inline-fields">
+            <button id="highlight-target-btn">高亮目标 / Highlight target</button>
+            <button id="primary-action-btn" class="primary">主按钮 / Primary action</button>
+            <button id="secondary-action-btn">次按钮 / Secondary action</button>
+          </div>
+          <label for="interaction-input" style="margin-top: 12px;">
+            输入框 / Input
+            <input id="interaction-input" name="interactionInput" placeholder="请输入文本 / Type here" />
+          </label>
+          <div class="inline-fields">
+            <button id="focus-input-btn">聚焦输入框 / Focus input</button>
+            <button id="blur-input-btn">失焦输入框 / Blur input</button>
+            <button id="press-enter-btn">模拟 Enter 效果 / Simulate Enter effect</button>
+          </div>
+          <div id="interaction-target" class="result" tabindex="0">
+            等待交互结果 / Waiting for interaction result
+          </div>
+        </section>
+
+        <section class="panel" id="form-panel">
+          <h2>4. 表单流程 / Form Flow</h2>
+          <form id="test-form">
+            <label for="full-name">
+              姓名 / Full name
+              <input id="full-name" name="fullName" required placeholder="张三 / Jane Doe" />
+            </label>
+            <label for="email">
+              邮箱 / Email
+              <input id="email" name="email" type="email" required placeholder="name@example.com" />
+            </label>
+            <label for="role">
+              角色 / Role
+              <select id="role" name="role">
+                <option value="agent">Agent Tester</option>
+                <option value="developer">Developer</option>
+                <option value="reviewer">Reviewer</option>
+              </select>
+            </label>
+            <label for="notes">
+              备注 / Notes
+              <textarea id="notes" name="notes" placeholder="填写你的测试观察 / Write your observation"></textarea>
+            </label>
+            <label>
+              <input id="agree" name="agree" type="checkbox" />
+              我已阅读测试步骤 / I have read the test procedure
+            </label>
+            <div class="actions">
+              <button id="submit-form-btn" class="primary" type="submit">提交表单 / Submit form</button>
+              <button id="reset-form-btn" type="reset">重置 / Reset</button>
+            </div>
+          </form>
+          <div id="form-error" class="result hidden danger">请勾选确认项后再提交 / Please check the confirmation box before submit.</div>
+          <div id="form-success" class="result hidden success"></div>
+        </section>
+
+        <section class="panel" id="hover-panel">
+          <h2>5. Hover / Select / Checkbox</h2>
+          <div id="hover-box" class="interactive-box hover-box" tabindex="0">
+            鼠标悬停这里 / Hover here
+          </div>
+          <p id="hover-result" class="result">尚未悬停 / Not hovered yet</p>
+          <label for="status-select">
+            状态选择 / Status select
+            <select id="status-select" name="statusSelect">
+              <option value="idle">Idle</option>
+              <option value="running">Running</option>
+              <option value="completed">Completed</option>
+            </select>
+          </label>
+          <label>
+            <input id="extra-check" type="checkbox" />
+            启用额外选项 / Enable extra option
+          </label>
+          <div id="selection-result" class="result">当前状态 / Current status: idle</div>
+        </section>
+
+        <section class="panel" id="console-panel">
+          <h2>6. Console 与脚本 / Console & Script</h2>
+          <p class="hint">点击按钮以产生 console log、warning、error，便于读取和清理。</p>
+          <div class="actions">
+            <button id="console-log-btn">写入 log</button>
+            <button id="console-warn-btn">写入 warn</button>
+            <button id="console-error-btn">写入 error</button>
+            <button id="script-state-btn">输出页面状态对象</button>
+          </div>
+          <pre id="script-output">等待脚本输出 / Waiting for script output</pre>
+        </section>
+
+        <section class="panel" id="network-panel">
+          <h2>7. Network 请求 / Network Requests</h2>
+          <p class="hint">
+            触发成功请求、失败请求与图片请求，用于 network logs / request detail 测试。
+          </p>
+          <div class="actions">
+            <button id="fetch-success-btn">成功请求 / Successful fetch</button>
+            <button id="fetch-fail-btn">失败请求 / Failed fetch</button>
+            <button id="image-request-btn">图片请求 / Image request</button>
+          </div>
+          <div id="network-result" class="result">尚未触发请求 / No request triggered yet</div>
+          <img id="network-image" class="hidden" alt="network trigger" />
+        </section>
+
+        <section class="panel" id="scroll-panel">
+          <h2>8. 滚动与定位 / Scroll & Positioning</h2>
+          <div class="scroll-box" id="scroll-box">
+            <div class="scroll-item">Item 01</div>
+            <div class="scroll-item">Item 02</div>
+            <div class="scroll-item">Item 03</div>
+            <div class="scroll-item">Item 04</div>
+            <div class="scroll-item">Item 05</div>
+            <div class="scroll-item">Item 06</div>
+            <div class="scroll-item">Item 07</div>
+            <div class="scroll-item">Item 08</div>
+            <div class="scroll-item">Item 09</div>
+            <div class="scroll-item">Item 10</div>
+            <div class="scroll-item">Item 11</div>
+            <div class="scroll-item" id="scroll-target">Item 12 - Scroll Target</div>
+            <div class="scroll-item">Item 13</div>
+            <div class="scroll-item">Item 14</div>
+            <div class="scroll-item">Item 15</div>
+          </div>
+          <div class="actions" style="margin-top: 12px;">
+            <button id="scroll-target-btn">滚动到目标 / Scroll to target</button>
+            <button id="scroll-top-btn">滚动到顶部 / Scroll to top</button>
+          </div>
+          <div id="scroll-result" class="result">滚动状态 / Scroll state: top</div>
+        </section>
+      </div>
+
+      <section class="panel footer-anchor" id="footer-anchor">
+        <h2>Footer Anchor</h2>
+        <p id="footer-text">如果能到这里，说明滚动与导航基本可用。 / Reaching here indicates scrolling/navigation works.</p>
+      </section>
+    </main>
+
+    <script>
+      const state = {
+        currentTab: 'overview',
+        interactionText: '',
+        hoverCount: 0,
+        selectedStatus: 'idle',
+        extraChecked: false,
+        submitted: false,
+        networkEvents: [],
+      };
+
+      const byId = (id) => document.getElementById(id);
+      const setText = (id, text) => {
+        const el = byId(id);
+        if (el) el.textContent = text;
+      };
+      const show = (id) => byId(id)?.classList.remove('hidden');
+      const hide = (id) => byId(id)?.classList.add('hidden');
+
+      function activateTab(nextTab) {
+        const tabMap = {
+          overview: 'overview-panel',
+          details: 'details-panel',
+          report: 'report-panel',
+        };
+
+        Object.entries(tabMap).forEach(([key, panelId]) => {
+          const button = byId(`tab-${key}`);
+          const panel = byId(panelId);
+          const active = key === nextTab;
+          if (button) button.classList.toggle('primary', active);
+          if (panel) panel.classList.toggle('hidden', !active);
+        });
+
+        state.currentTab = nextTab;
+        location.hash = nextTab;
+        console.log('[tab-change]', nextTab);
+      }
+
+      ['overview', 'details', 'report'].forEach((tab) => {
+        byId(`tab-${tab}`)?.addEventListener('click', () => activateTab(tab));
+      });
+
+      byId('delayed-text-btn')?.addEventListener('click', () => {
+        hide('delayed-text');
+        setTimeout(() => {
+          show('delayed-text');
+          console.log('[delayed-text] shown');
+        }, 1200);
+      });
+
+      byId('toggle-hidden-btn')?.addEventListener('click', () => {
+        show('hidden-status-block');
+        console.log('[hidden-block] visible');
+      });
+
+      byId('enable-submit-btn')?.addEventListener('click', () => {
+        const button = byId('late-enabled-btn');
+        if (!button) return;
+        button.disabled = true;
+        setText('interaction-target', '等待按钮启用 / Waiting for button enable');
+        setTimeout(() => {
+          button.disabled = false;
+          setText('interaction-target', '按钮已启用 / Button enabled');
+          console.log('[late-enabled-btn] enabled');
+        }, 3000);
+      });
+
+      byId('late-enabled-btn')?.addEventListener('click', () => {
+        setText('interaction-target', '延迟按钮已点击 / Late enabled button clicked');
+      });
+
+      byId('highlight-target-btn')?.addEventListener('click', () => {
+        const target = byId('interaction-target');
+        if (!target) return;
+        target.style.outline = '3px solid #f59e0b';
+        target.style.outlineOffset = '4px';
+        target.textContent = '目标已高亮 / Target highlighted';
+      });
+
+      byId('primary-action-btn')?.addEventListener('click', () => {
+        setText('interaction-target', '主按钮已点击 / Primary action clicked');
+        console.log('[primary-action] clicked');
+      });
+
+      byId('secondary-action-btn')?.addEventListener('click', () => {
+        setText('interaction-target', '次按钮已点击 / Secondary action clicked');
+      });
+
+      byId('focus-input-btn')?.addEventListener('click', () => {
+        byId('interaction-input')?.focus();
+      });
+
+      byId('blur-input-btn')?.addEventListener('click', () => {
+        byId('interaction-input')?.blur();
+      });
+
+      byId('interaction-input')?.addEventListener('input', (event) => {
+        state.interactionText = event.target.value;
+        setText('interaction-target', `输入中 / Typing: ${state.interactionText}`);
+      });
+
+      byId('interaction-input')?.addEventListener('focus', () => {
+        setText('interaction-target', '输入框已聚焦 / Input focused');
+      });
+
+      byId('interaction-input')?.addEventListener('blur', () => {
+        setText('interaction-target', `输入框已失焦 / Input blurred: ${state.interactionText || 'empty'}`);
+      });
+
+      byId('press-enter-btn')?.addEventListener('click', () => {
+        setText('interaction-target', `模拟 Enter 完成 / Enter simulated: ${state.interactionText || 'empty'}`);
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && document.activeElement?.id === 'interaction-input') {
+          setText('interaction-target', `检测到 Enter / Enter detected: ${state.interactionText || 'empty'}`);
+          console.log('[keyboard]', 'Enter on interaction-input');
+        }
+      });
+
+      byId('test-form')?.addEventListener('submit', (event) => {
+        event.preventDefault();
+        hide('form-error');
+        hide('form-success');
+
+        const form = event.currentTarget;
+        const data = new FormData(form);
+        const agree = Boolean(data.get('agree'));
+
+        if (!agree) {
+          show('form-error');
+          console.warn('[form-submit] blocked: agree not checked');
+          return;
+        }
+
+        const payload = {
+          fullName: data.get('fullName') || '',
+          email: data.get('email') || '',
+          role: data.get('role') || '',
+          notes: data.get('notes') || '',
+          agree,
+        };
+
+        state.submitted = true;
+        const successEl = byId('form-success');
+        if (successEl) {
+          successEl.textContent = `表单提交成功 / Form submitted successfully\n${JSON.stringify(payload, null, 2)}`;
+        }
+        show('form-success');
+        console.log('[form-submit] success', payload);
+      });
+
+      byId('test-form')?.addEventListener('reset', () => {
+        hide('form-error');
+        hide('form-success');
+        state.submitted = false;
+        console.log('[form-reset] reset');
+      });
+
+      byId('hover-box')?.addEventListener('mouseenter', () => {
+        state.hoverCount += 1;
+        setText('hover-result', `已悬停 / Hovered: ${state.hoverCount}`);
+      });
+
+      byId('status-select')?.addEventListener('change', (event) => {
+        state.selectedStatus = event.target.value;
+        setText('selection-result', `当前状态 / Current status: ${state.selectedStatus}, extra=${state.extraChecked}`);
+      });
+
+      byId('extra-check')?.addEventListener('change', (event) => {
+        state.extraChecked = event.target.checked;
+        setText('selection-result', `当前状态 / Current status: ${state.selectedStatus}, extra=${state.extraChecked}`);
+      });
+
+      byId('console-log-btn')?.addEventListener('click', () => {
+        console.log('[test-log]', new Date().toISOString(), 'log generated');
+      });
+
+      byId('console-warn-btn')?.addEventListener('click', () => {
+        console.warn('[test-warn]', 'warning generated for browserGetConsoleErrors test');
+      });
+
+      byId('console-error-btn')?.addEventListener('click', () => {
+        console.error('[test-error]', 'error generated for browserGetConsoleErrors test');
+      });
+
+      byId('script-state-btn')?.addEventListener('click', () => {
+        const output = {
+          ...state,
+          hash: location.hash,
+          title: document.title,
+          timestamp: new Date().toISOString(),
+        };
+        byId('script-output').textContent = JSON.stringify(output, null, 2);
+      });
+
+      async function trackRequest(label, promiseFactory) {
+        try {
+          const result = await promiseFactory();
+          state.networkEvents.push({ label, ok: true, at: new Date().toISOString() });
+          setText('network-result', `${label} 成功 / success: ${result}`);
+          console.log('[network-success]', label, result);
+        } catch (error) {
+          state.networkEvents.push({ label, ok: false, at: new Date().toISOString(), message: String(error) });
+          setText('network-result', `${label} 失败 / failed: ${String(error)}`);
+          console.error('[network-failure]', label, error);
+        }
+      }
+
+      byId('fetch-success-btn')?.addEventListener('click', () => {
+        trackRequest('successful-fetch', async () => {
+          const response = await fetch(`https://jsonplaceholder.typicode.com/todos/1?_ts=${Date.now()}`);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          const data = await response.json();
+          return `todo=${data.id}`;
+        });
+      });
+
+      byId('fetch-fail-btn')?.addEventListener('click', () => {
+        trackRequest('failed-fetch', async () => {
+          const response = await fetch(`https://jsonplaceholder.typicode.com/invalid-endpoint?_ts=${Date.now()}`);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          return 'unexpected-success';
+        });
+      });
+
+      byId('image-request-btn')?.addEventListener('click', () => {
+        const img = byId('network-image');
+        if (!img) return;
+        img.classList.remove('hidden');
+        img.src = `https://picsum.photos/seed/browser-control-${Date.now()}/80/40`;
+        setText('network-result', '图片请求已触发 / Image request triggered');
+        console.log('[network-image] triggered');
+      });
+
+      byId('scroll-target-btn')?.addEventListener('click', () => {
+        byId('scroll-target')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setText('scroll-result', '滚动到目标中 / Scrolling to target');
+      });
+
+      byId('scroll-top-btn')?.addEventListener('click', () => {
+        byId('scroll-box')?.scrollTo({ top: 0, behavior: 'smooth' });
+        setText('scroll-result', '已请求滚动到顶部 / Requested scroll to top');
+      });
+
+      byId('scroll-box')?.addEventListener('scroll', (event) => {
+        const top = event.target.scrollTop;
+        setText('scroll-result', `滚动位置 / Scroll top: ${top}`);
+      });
+
+      window.addEventListener('hashchange', () => {
+        const hash = location.hash.replace('#', '');
+        if (hash && ['overview', 'details', 'report'].includes(hash)) {
+          activateTab(hash);
+        }
+      });
+
+      console.log('[page-ready]', {
+        title: document.title,
+        url: location.href,
+      });
+
+      if (location.hash.replace('#', '') && ['overview', 'details', 'report'].includes(location.hash.replace('#', ''))) {
+        activateTab(location.hash.replace('#', ''));
+      }
+    </script>
+  </body>
+</html>

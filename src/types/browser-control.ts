@@ -20,6 +20,8 @@ export type BrowserControlCapabilityState = 'available' | 'unavailable' | 'parti
 export type BrowserControlErrorCode =
   | 'BROWSER_NOT_OPEN'
   | 'BRIDGE_NOT_READY'
+  | 'BRIDGE_RUNTIME_NOT_READY'
+  | 'BRIDGE_RUNTIME_ERROR'
   | 'COMMAND_ALREADY_PENDING'
   | 'CAPABILITY_UNAVAILABLE'
   | 'SCRIPT_EXECUTION_UNAVAILABLE'
@@ -72,7 +74,9 @@ export interface BrowserControlSessionMeta {
 
 export type BrowserControlCommandKind =
   | 'click'
+  | 'clickByText'
   | 'type'
+  | 'fillForm'
   | 'executeScript'
   | 'snapshot'
   | 'waitFor'
@@ -321,8 +325,7 @@ export function deriveBrowserControlBooleanCapabilities(
 }
 
 export function buildBrowserControlSessionMeta(
-  meta: Partial<BrowserControlSessionMeta> &
-    Pick<BrowserControlSessionMeta, 'mode' | 'sourceType'>
+  meta: Partial<BrowserControlSessionMeta> & Pick<BrowserControlSessionMeta, 'mode' | 'sourceType'>
 ): BrowserControlSessionMeta {
   const capabilitySet = {
     ...DEFAULT_BROWSER_CONTROL_CAPABILITY_SET,

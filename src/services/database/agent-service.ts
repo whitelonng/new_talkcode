@@ -32,6 +32,7 @@ export class AgentService {
       dynamic_providers: data.dynamic_providers ?? '[]',
       dynamic_variables: data.dynamic_variables ?? '{}',
       dynamic_provider_settings: data.dynamic_provider_settings ?? '{}',
+      default_skills: data.default_skills ?? '[]',
 
       // Marketplace fields (publish disabled)
       source_type: data.source_type || 'local',
@@ -57,6 +58,7 @@ export class AgentService {
         id, name, description, model_type, system_prompt, tools_config,
         rules, output_format, is_hidden, is_default, is_enabled,
         dynamic_enabled, dynamic_providers, dynamic_variables, dynamic_provider_settings,
+        default_skills,
         source_type, marketplace_id, marketplace_version, forked_from_id, forked_from_marketplace_id,
         is_shared, icon_url, author_name, author_id, categories, tags,
         created_at, updated_at, created_by, usage_count
@@ -64,9 +66,10 @@ export class AgentService {
         $1, $2, $3, $4, $5, $6,
         $7, $8, $9, $10, $11,
         $12, $13, $14, $15,
-        $16, $17, $18, $19, $20,
-        $21, $22, $23, $24, $25, $26,
-        $27, $28, $29, $30
+        $16,
+        $17, $18, $19, $20, $21,
+        $22, $23, $24, $25, $26, $27,
+        $28, $29, $30, $31
       )`,
       [
         agentData.id,
@@ -84,6 +87,7 @@ export class AgentService {
         agentData.dynamic_providers,
         agentData.dynamic_variables,
         agentData.dynamic_provider_settings ?? '{}',
+        agentData.default_skills,
         agentData.source_type,
         agentData.marketplace_id,
         agentData.marketplace_version,
@@ -173,6 +177,10 @@ export class AgentService {
     if (data.dynamic_provider_settings !== undefined) {
       updates.push(`dynamic_provider_settings = $${paramIndex++}`);
       values.push(data.dynamic_provider_settings);
+    }
+    if (data.default_skills !== undefined) {
+      updates.push(`default_skills = $${paramIndex++}`);
+      values.push(data.default_skills);
     }
 
     // Marketplace fields (publish disabled)

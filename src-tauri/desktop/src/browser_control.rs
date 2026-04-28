@@ -1,12 +1,8 @@
-use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
-use tauri::{
-    AppHandle, Emitter, Manager, State, WebviewUrl, WebviewWindow, WebviewWindowBuilder,
-};
+use tauri::{AppHandle, Emitter, Manager, State, WebviewWindow};
 use tauri_plugin_opener::OpenerExt;
 
 const NATIVE_BROWSER_EVENT: &str = "browser-native-state-changed";
@@ -204,137 +200,11 @@ fn build_window_label(session_id: &str) -> String {
     format!("browser-native-{}", session_id.replace([':', '/', '\\', '.'], "-"))
 }
 
-fn create_browser_window(
-    app: &AppHandle,
-    label: &str,
-    url: &str,
-) -> Result<WebviewWindow, String> {
-    if let Some(existing) = app.get_webview_window(label) {
-        return Ok(existing);
-    }
-
-    let parsed_url = url::Url::from_str(url).map_err(|e| e.to_string())?;
-    let html = format!(
-        r#"<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TalkCody Browser Control</title>
-    <style>
-      :root {{
-        color-scheme: dark;
-        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        background: #020617;
-        color: #e2e8f0;
-      }}
-      body {{
-        margin: 0;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background:
-          radial-gradient(circle at top, rgba(59,130,246,0.18), transparent 35%),
-          linear-gradient(180deg, #0f172a 0%, #020617 100%);
-      }}
-      main {{
-        width: min(640px, calc(100vw - 48px));
-        padding: 24px;
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        border-radius: 18px;
-        background: rgba(15, 23, 42, 0.92);
-        box-shadow: 0 24px 80px rgba(2, 6, 23, 0.45);
-      }}
-      h1 {{
-        margin: 0 0 8px;
-        font-size: 18px;
-        font-weight: 700;
-      }}
-      p {{
-        margin: 0 0 12px;
-        line-height: 1.6;
-        color: #cbd5e1;
-      }}
-      code, a {{
-        color: #93c5fd;
-        word-break: break-all;
-      }}
-      .actions {{
-        display: flex;
-        gap: 12px;
-        margin-top: 20px;
-        flex-wrap: wrap;
-      }}
-      .btn {{
-        appearance: none;
-        border: 1px solid rgba(96, 165, 250, 0.35);
-        background: rgba(37, 99, 235, 0.18);
-        color: #dbeafe;
-        border-radius: 999px;
-        padding: 10px 14px;
-        font-size: 13px;
-        cursor: pointer;
-      }}
-      .btn.secondary {{
-        border-color: rgba(148, 163, 184, 0.28);
-        background: rgba(15, 23, 42, 0.5);
-        color: #cbd5e1;
-      }}
-    </style>
-  </head>
-  <body>
-    <main>
-      <h1>Windows native browser mode fallback</h1>
-      <p>Embedded external loading in WebView2 is still unreliable for some sites.</p>
-      <p>Use the button below to open the requested page in your system browser.</p>
-      <p><a id="target-link" href="__TARGET_URL__">__TARGET_URL__</a></p>
-      <div class="actions">
-        <button class="btn" id="open-external" type="button">Open in system browser</button>
-        <button class="btn secondary" id="retry-load" type="button">Copy target URL</button>
-      </div>
-    </main>
-    <script>
-      const targetUrl = __TARGET_URL_JSON__;
-      const openExternal = document.getElementById('open-external');
-      const retryLoad = document.getElementById('retry-load');
-      if (openExternal) {{
-        openExternal.addEventListener('click', () => {{
-          window.__TAURI_INTERNALS__.invoke('plugin:shell|open', {{
-            path: targetUrl,
-          }}).catch(() => {{
-            window.location.href = targetUrl;
-          }});
-        }});
-      }}
-      if (retryLoad) {{
-        retryLoad.addEventListener('click', async () => {{
-          try {{
-            await navigator.clipboard.writeText(targetUrl);
-            retryLoad.textContent = 'Copied target URL';
-          }} catch (_) {{
-            retryLoad.textContent = targetUrl;
-          }}
-        }});
-      }}
-    </script>
-  </body>
-</html>"#,
-    )
-    .replace("__TARGET_URL__", parsed_url.as_str())
-    .replace(
-        "__TARGET_URL_JSON__",
-        &serde_json::to_string(parsed_url.as_str()).unwrap_or_else(|_| "\"\"".into()),
-    );
-    let data_url = format!("data:text/html;base64,{}", BASE64_STANDARD.encode(html));
-    let data_url = url::Url::from_str(&data_url).map_err(|e| e.to_string())?;
-
-    WebviewWindowBuilder::new(app, label, WebviewUrl::External(data_url))
-        .title("TalkCody Browser Control")
-        .visible(true)
-        .focused(true)
-        .build()
-        .map_err(|e| format!("Failed to build native browser window: {e}"))
+fn open_in_system_browser(app: &AppHandle, url: &str) -> Result<(), String> {
+    let opener = app.opener();
+    opener
+        .open_url(url.to_string(), None::<String>)
+        .map_err(|e| format!("Failed to open system browser: {e}"))
 }
 
 impl BrowserNativeSessionRecord {
@@ -357,6 +227,21 @@ impl BrowserNativeSessionRecord {
             last_navigated_at: None,
             closed_at: None,
         }
+    }
+
+    fn mark_closed(&mut self) {
+        self.status = BrowserControlStatus::Closed;
+        self.updated_at = now_ms();
+        self.closed_at = Some(self.updated_at);
+        self.error = None;
+        self.error_code = None;
+    }
+
+    fn mark_close_failed(&mut self, error: String) {
+        self.status = BrowserControlStatus::Failed;
+        self.updated_at = now_ms();
+        self.error = Some(error);
+        self.error_code = Some(BrowserControlErrorCode::CommandFailed);
     }
 
     fn to_session_response(&self) -> BrowserNativeSessionResponse {
@@ -458,6 +343,12 @@ impl BrowserNativeSessionManager {
         let _ = app.emit(NATIVE_BROWSER_EVENT, state.clone());
     }
 
+    fn close_native_window(window: WebviewWindow) -> Result<(), String> {
+        window
+            .destroy()
+            .map_err(|error| format!("failed to destroy browser control window: {error}"))
+    }
+
     pub fn start_session(
         &self,
         app: &AppHandle,
@@ -471,16 +362,14 @@ impl BrowserNativeSessionManager {
         record.status = BrowserControlStatus::OpeningWindow;
         record.updated_at = now_ms();
 
-        match create_browser_window(app, &record.window_label, &request.url) {
-            Ok(window) => {
-                let _ = window.show();
-                let _ = window.set_focus();
+        match open_in_system_browser(app, &request.url) {
+            Ok(()) => {
                 record.status = BrowserControlStatus::Ready;
                 record.last_navigated_at = Some(now_ms());
-                record.title = Some("TalkCody Browser Control".into());
+                record.title = Some("System browser".into());
                 record.error_code = Some(BrowserControlErrorCode::NativeNotImplemented);
                 record.error = Some(
-                    "Native browser fallback window opened. Click the button to open the target page in your system browser because embedded external loading is still unreliable."
+                    "Target page was opened directly in your system browser. The temporary TalkCody Browser Control child window is disabled on Windows because WebView2 fallback windows were rendering blank and could not be closed reliably."
                         .into(),
                 );
             }
@@ -524,28 +413,17 @@ impl BrowserNativeSessionManager {
         record.last_navigated_at = Some(timestamp);
         record.closed_at = None;
 
-        let navigate_result = app
-            .get_webview_window(&record.window_label)
-            .ok_or_else(|| "Native browser window not found for session.".to_string())
-            .and_then(|window| {
-                let opener = app.opener();
-                opener
-                    .open_url(request.url.clone(), None::<String>)
-                    .map_err(|e| format!("Failed to open system browser: {e}"))?;
-                let _ = window.set_focus();
-                Ok(window)
-            });
+        let navigate_result = open_in_system_browser(app, &request.url);
 
         match navigate_result {
-            Ok(window) => {
+            Ok(()) => {
                 record.status = BrowserControlStatus::Ready;
-                record.title = Some("TalkCody Browser Control".into());
+                record.title = Some("System browser".into());
                 record.error_code = Some(BrowserControlErrorCode::NativeNotImplemented);
                 record.error = Some(
-                    "Target page was opened in the system browser. Embedded native navigation is still using a fallback route."
+                    "Target page was opened in the system browser. The temporary TalkCody Browser Control child window is disabled on Windows because WebView2 fallback windows were rendering blank and could not be closed reliably."
                         .into(),
                 );
-                let _ = window.set_focus();
             }
             Err(error) => {
                 record.status = BrowserControlStatus::Failed;
@@ -600,10 +478,7 @@ impl BrowserNativeSessionManager {
         }
 
         let mut sessions = self.sessions.lock().expect("browser native session lock poisoned");
-        let maybe_record = sessions.remove(&request.session_id);
-        drop(sessions);
-
-        let Some(mut record) = maybe_record else {
+        let Some(mut record) = sessions.remove(&request.session_id) else {
             return BrowserNativeCloseSessionResponse {
                 session_id: request.session_id,
                 closed: true,
@@ -616,19 +491,62 @@ impl BrowserNativeSessionManager {
             };
         };
 
-        record.status = BrowserControlStatus::Closed;
-        record.updated_at = now_ms();
-        record.closed_at = Some(record.updated_at);
-        record.error = None;
-        record.error_code = None;
+        let close_result = app
+            .get_webview_window(&record.window_label)
+            .map(Self::close_native_window)
+            .transpose();
 
-        if let Some(window) = app.get_webview_window(&record.window_label) {
-            let _ = window.close();
+        match close_result {
+            Ok(_) => {
+                record.mark_closed();
+                let state = record.to_state_response();
+                drop(sessions);
+                Self::emit_state(app, &state);
+                record.to_close_response(true)
+            }
+            Err(error) => {
+                record.mark_close_failed(error);
+                let state = record.to_state_response();
+                let response = record.to_close_response(false);
+                sessions.insert(record.session_id.clone(), record);
+                drop(sessions);
+                Self::emit_state(app, &state);
+                response
+            }
         }
+    }
+}
 
-        let state = record.to_state_response();
-        Self::emit_state(app, &state);
-        record.to_close_response(true)
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn mark_closed_sets_closed_state_and_clears_error() {
+        let mut record = BrowserNativeSessionRecord::new("session-1".into(), "https://example.com".into());
+        record.error = Some("boom".into());
+        record.error_code = Some(BrowserControlErrorCode::CommandFailed);
+
+        record.mark_closed();
+
+        assert_eq!(record.status, BrowserControlStatus::Closed);
+        assert!(record.closed_at.is_some());
+        assert!(record.error.is_none());
+        assert!(record.error_code.is_none());
+    }
+
+    #[test]
+    fn mark_close_failed_sets_failed_state_and_error() {
+        let mut record = BrowserNativeSessionRecord::new("session-2".into(), "https://example.com".into());
+
+        record.mark_close_failed("close failed".into());
+
+        assert_eq!(record.status, BrowserControlStatus::Failed);
+        assert_eq!(record.error.as_deref(), Some("close failed"));
+        assert_eq!(
+            record.error_code,
+            Some(BrowserControlErrorCode::CommandFailed)
+        );
     }
 }
 

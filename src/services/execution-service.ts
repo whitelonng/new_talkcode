@@ -25,6 +25,7 @@ import { messageService } from '@/services/message-service';
 import { notificationService } from '@/services/notification-service';
 import { taskService } from '@/services/task-service';
 import { getEffectiveWorkspaceRoot } from '@/services/workspace-root-service';
+import { useConversationAgentStore } from '@/stores/conversation-agent-store';
 import { useExecutionStore } from '@/stores/execution-store';
 import { useTaskStore } from '@/stores/task-store';
 import { useWorktreeStore } from '@/stores/worktree-store';
@@ -84,6 +85,10 @@ class ExecutionService {
    */
   async startExecution(config: ExecutionConfig, callbacks?: ExecutionCallbacks): Promise<void> {
     const { taskId, messages, model, systemPrompt, tools, agentId } = config;
+
+    if (taskId && agentId) {
+      useConversationAgentStore.getState().setAgentForTask(taskId, agentId);
+    }
 
     const executionStore = useExecutionStore.getState();
     const task = useTaskStore.getState().getTask(taskId);

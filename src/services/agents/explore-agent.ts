@@ -115,6 +115,7 @@ export class ExploreAgent {
       tools: selectedTools,
       hidden: false,
       isDefault: true,
+      defaultSkills: ['talkcody-knowledge-base', 'multi-search', 'using-superpowers'],
       role: 'read',
       dynamicPrompt: {
         enabled: true,

@@ -1,9 +1,12 @@
 // src/services/prompt/providers/skills-provider.ts
 
 import { logger } from '@/lib/logger';
-import { getAgentSkillService } from '@/services/skills/agent-skill-service';
-import { useSkillsStore } from '@/stores/skills-store';
+import { agentRegistry } from '@/services/agents/agent-registry';
+import { getAgentSkillService } from '@/services/skills';
+import { useAgentStore } from '@/stores/agent-store';
+import { useConversationSkillsStore } from '@/stores/conversation-skills-store';
 import type { PromptContextProvider, ResolveContext } from '@/types/prompt';
+import type { AgentSkill } from '@/types/agent-skills-spec';
 
 export const SkillsProvider: PromptContextProvider = {
   id: 'skills',
@@ -20,31 +23,32 @@ export const SkillsProvider: PromptContextProvider = {
     return token === 'active_skills' || token === 'skills_context';
   },
 
-  async resolve(_token: string, _ctx: ResolveContext): Promise<string | undefined> {
+  async resolve(_token: string, ctx: ResolveContext): Promise<string | undefined> {
     try {
-      // Get global active skills from the skills store
-      const activeSkillIds = useSkillsStore.getState().getActiveSkills();
+      const storeAgent = ctx.agentId
+        ? useAgentStore.getState().agents.get(ctx.agentId)
+        : undefined;
+      const registryAgent =
+        ctx.agentId && !storeAgent ? await agentRegistry.getWithResolvedTools(ctx.agentId) : undefined;
+      const defaultSkillIds = storeAgent?.defaultSkills || registryAgent?.defaultSkills || [];
+      const activeSkillIds = useConversationSkillsStore
+        .getState()
+        .resolveSkillIds(ctx.taskId, ctx.agentId, defaultSkillIds);
 
-      // Get agent skill service
       const skillService = await getAgentSkillService();
-
-      // Load all skills
       const allSkills = await skillService.listSkills();
 
-      // Filter: system skills are always included + active user skills
-      const skillsToUse = allSkills.filter((skill) => {
+      const skillsToUse = allSkills.filter((skill: AgentSkill) => {
         const isSystem = skill.frontmatter.metadata?.['talkcody.source'] === 'system';
-        const isActive = activeSkillIds && activeSkillIds.includes(skill.name);
+        const isActive = activeSkillIds.includes(skill.name);
         return isSystem || isActive;
       });
 
-      if (!skillsToUse || skillsToUse.length === 0) {
+      if (skillsToUse.length === 0) {
         return undefined;
       }
 
-      // Build XML format skills information (name + description + location)
       const skillsXml: string[] = [];
-
       for (const skill of skillsToUse) {
         const location = `${skill.path}/SKILL.md`;
         const description =
@@ -57,7 +61,6 @@ export const SkillsProvider: PromptContextProvider = {
         skillsXml.push('  </skill>');
       }
 
-      // Return XML format
       return `<available_skills>\n${skillsXml.join('\n')}\n</available_skills>`;
     } catch (error) {
       logger.error('Failed to resolve skills context:', error);
@@ -67,13 +70,12 @@ export const SkillsProvider: PromptContextProvider = {
 
   injection: {
     enabledByDefault: true,
-    placement: 'append', // Append skills after agent's base prompt
+    placement: 'append',
     sectionTitle: 'Available Skills',
     sectionTemplate(values: Record<string, string>) {
       const content = values.skills_context || values.active_skills || '';
       if (!content) return '';
 
-      // Build the complete skills context with instructions
       const instructionsSection = `<skills_instructions>
 When users ask you to perform tasks, check if any of the available skills below can help complete the task more effectively.
 

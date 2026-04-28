@@ -5,14 +5,70 @@ import { ModelType } from '@/types/model-types';
 import type { PromptContextProvider } from '@/types/prompt';
 import type { ToolWithUI } from '@/types/tool';
 
-const { mockLogger } = vi.hoisted(() => ({
-  mockLogger: {
-    warn: vi.fn(),
-  },
-}));
+const hoisted = vi.hoisted(() => {
+  const getBrowserSnapshotMock = vi.fn(() => ({
+    isBrowserVisible: true,
+    sourceType: 'url',
+    currentUrl: 'http://localhost:3000/login',
+    currentFilePath: null,
+    bridgeMode: 'localhostControlled',
+    bridgeStatus: 'ready',
+    bridgeCapabilities: {
+      navigation: true,
+      domControl: true,
+      scriptExecution: true,
+      consoleCapture: true,
+      domRead: true,
+      domWrite: true,
+      scriptEval: true,
+      consoleRead: true,
+      networkObserve: true,
+      screenshot: false,
+      keyboardInput: true,
+      mouseInput: true,
+      externalControl: false,
+    },
+    bridgeSessionMeta: {
+      mode: 'localhostControlled',
+      sourceType: 'url',
+      platform: 'web',
+      url: 'http://localhost:3000/login',
+      filePath: null,
+      isExternalPage: false,
+      supportsNativeHost: false,
+      capabilitySet: {
+        navigation: 'available',
+        domRead: 'available',
+        domWrite: 'available',
+        scriptEval: 'available',
+        consoleRead: 'available',
+        networkObserve: 'partial',
+        screenshot: 'unavailable',
+        keyboardInput: 'available',
+        mouseInput: 'available',
+        externalControl: 'unavailable',
+      },
+    },
+    bridgeErrorCode: null,
+    pendingCommandId: null,
+    lastBridgeResult: null,
+    consoleEntries: [],
+    networkEntries: [],
+    bridgeError: null,
+  }));
+
+  return {
+    mockLogger: {
+      warn: vi.fn(),
+    },
+    getBrowserSnapshotMock,
+  };
+});
+
+const { mockLogger, getBrowserSnapshotMock } = hoisted;
 
 vi.mock('@/lib/logger', () => ({
-  logger: mockLogger,
+  logger: hoisted.mockLogger,
 }));
 
 vi.mock('@/services/repository-service', () => ({
@@ -24,6 +80,12 @@ vi.mock('@/services/repository-service', () => ({
 vi.mock('@/stores/settings-store', () => ({
   settingsManager: {
     getSync: vi.fn(() => 'en'),
+  },
+}));
+
+vi.mock('@/services/browser-bridge-service', () => ({
+  browserBridgeService: {
+    getSnapshot: hoisted.getBrowserSnapshotMock,
   },
 }));
 
@@ -186,6 +248,118 @@ describe('PromptComposer', () => {
     );
     expect(result.finalSystemPrompt).toContain('keep each topic focused on one stable subject');
     expect(result.finalSystemPrompt).toContain('avoid writing duplicate topic routes or duplicate memory facts');
+  });
+
+  it('injects browser control runtime guidance when browser tools are available', async () => {
+    const composer = new PromptComposer([]);
+
+    const result = await composer.compose({
+      agent: {
+        ...createAgent(),
+        tools: {
+          browserControl: createToolStub('browserControl', 'Browser control toggle'),
+          browserNavigate: createToolStub('browserNavigate', 'Navigate browser'),
+          browserSnapshot: createToolStub('browserSnapshot', 'Snapshot browser'),
+        },
+      },
+      workspaceRoot: '/repo',
+    });
+
+    expect(result.finalSystemPrompt).toContain('Browser Control Runtime Context:');
+    expect(result.finalSystemPrompt).toContain('- browserOpen: true');
+    expect(result.finalSystemPrompt).toContain('- mode: localhostControlled');
+    expect(result.finalSystemPrompt).toContain('- target: http://localhost:3000/login');
+    expect(result.finalSystemPrompt).toContain('Browser Control Operating Rules:');
+    expect(result.finalSystemPrompt).toContain('Default browser workflow: read the page before taking actions.');
+    expect(result.finalSystemPrompt).toContain('Start with browserGetPageState to confirm url, title, loading state, and high-level page status.');
+    expect(result.finalSystemPrompt).toContain('Then call browserSnapshot to capture the visible content and current DOM-derived page text.');
+    expect(result.finalSystemPrompt).toContain('Then call browserListInteractiveElements to enumerate actionable controls before choosing selectors or element ids.');
+    expect(result.finalSystemPrompt).toContain('Do not click, type, submit, scroll, or execute scripts until you have completed the read-first sequence');
+    expect(result.finalSystemPrompt).toContain('The current browser session is ready for the read-first workflow now.');
+    expect(result.finalSystemPrompt).toContain('DOM read capability is available, so rely on browserGetPageState, browserSnapshot, and browserListInteractiveElements as the primary grounding source.');
+    expect(result.finalSystemPrompt).toContain('Current page mode is suitable for the minimum controllable browser workflow.');
+  });
+
+  it('does not inject browser control runtime guidance when browser tools are unavailable', async () => {
+    const composer = new PromptComposer([]);
+
+    const result = await composer.compose({
+      agent: createAgent(),
+      workspaceRoot: '/repo',
+    });
+
+    expect(result.finalSystemPrompt).not.toContain('Browser Control Runtime Context:');
+    expect(result.finalSystemPrompt).not.toContain('Browser Control Operating Rules:');
+  });
+
+  it('warns when the browser session is not ready for the read-first workflow', async () => {
+    getBrowserSnapshotMock.mockReturnValueOnce({
+      ...getBrowserSnapshotMock(),
+      isBrowserVisible: false,
+      bridgeStatus: 'loading',
+      bridgeError: 'navigation in progress',
+    });
+
+    const composer = new PromptComposer([]);
+    const result = await composer.compose({
+      agent: {
+        ...createAgent(),
+        tools: {
+          browserNavigate: createToolStub('browserNavigate', 'Navigate browser'),
+          browserSnapshot: createToolStub('browserSnapshot', 'Snapshot browser'),
+        },
+      },
+      workspaceRoot: '/repo',
+    });
+
+    expect(result.finalSystemPrompt).toContain(
+      'The current browser session is not yet ready for the read-first workflow. Stabilize the page first, then inspect it before acting.'
+    );
+  });
+
+  it('warns about non-mvp browser modes when browser tools are available', async () => {
+    getBrowserSnapshotMock.mockReturnValueOnce({
+      ...getBrowserSnapshotMock(),
+      sourceType: 'url',
+      currentUrl: 'https://example.com',
+      bridgeMode: 'externalEmbedded',
+      bridgeStatus: 'ready',
+      bridgeSessionMeta: {
+        mode: 'externalEmbedded',
+        sourceType: 'url',
+        platform: 'web',
+        url: 'https://example.com',
+        filePath: null,
+        isExternalPage: true,
+        supportsNativeHost: false,
+        capabilitySet: {
+          navigation: 'available',
+          domRead: 'partial',
+          domWrite: 'unavailable',
+          scriptEval: 'unavailable',
+          consoleRead: 'unavailable',
+          networkObserve: 'unavailable',
+          screenshot: 'unavailable',
+          keyboardInput: 'partial',
+          mouseInput: 'partial',
+          externalControl: 'partial',
+        },
+      },
+    });
+
+    const composer = new PromptComposer([]);
+    const result = await composer.compose({
+      agent: {
+        ...createAgent(),
+        tools: {
+          browserNavigate: createToolStub('browserNavigate', 'Navigate browser'),
+          browserSnapshot: createToolStub('browserSnapshot', 'Snapshot browser'),
+        },
+      },
+      workspaceRoot: '/repo',
+    });
+
+    expect(result.finalSystemPrompt).toContain('Current page mode is not the preferred MVP controllable path.');
   });
 
   it('does not inject shared memory guidance when memory tools are unavailable', async () => {

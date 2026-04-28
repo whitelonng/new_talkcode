@@ -22,10 +22,12 @@ import { browserBlurTool } from './browser-blur-tool';
 import { browserCheckTool } from './browser-check-tool';
 import { browserClearConsoleTool } from './browser-clear-console-tool';
 import { browserClearNetworkLogsTool } from './browser-clear-network-logs-tool';
+import { browserClickByTextTool } from './browser-click-by-text-tool';
 import { browserClickTool } from './browser-click-tool';
 import { browserControlTool } from './browser-control-tool';
 import { browserExecuteScriptTool } from './browser-execute-script-tool';
 import { browserEvaluateExpressionTool } from './browser-evaluate-expression-tool';
+import { browserFillFormTool } from './browser-fill-form-tool';
 import { browserFocusTool } from './browser-focus-tool';
 import { browserGetConsoleTool } from './browser-get-console-tool';
 import { browserGetConsoleErrorsTool } from './browser-get-console-errors-tool';
@@ -327,9 +329,29 @@ export const TOOL_DEFINITIONS = {
       renderDoingUI: true,
     },
   },
+  browserClickByText: {
+    tool: browserClickByTextTool,
+    label: 'Browser Click By Text',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
   browserType: {
     tool: browserTypeTool,
     label: 'Browser Type',
+    metadata: {
+      category: 'other' as ToolCategory,
+      canConcurrent: false,
+      fileOperation: false,
+      renderDoingUI: true,
+    },
+  },
+  browserFillForm: {
+    tool: browserFillFormTool,
+    label: 'Browser Fill Form',
     metadata: {
       category: 'other' as ToolCategory,
       canConcurrent: false,

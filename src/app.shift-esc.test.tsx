@@ -1,7 +1,9 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useSettingsStore } from '@/stores/settings-store';
 import App from './app';
+
+const mockListen = vi.hoisted(() => vi.fn());
 
 const { mockClose, mockHide, mockOnCloseRequested, mockInvoke, mockExecutionState } = vi.hoisted(() => ({
   mockClose: vi.fn(() => Promise.resolve()),
@@ -41,6 +43,10 @@ vi.mock('@tauri-apps/api/window', () => ({
     isMainWindow: vi.fn(() => Promise.resolve(true)),
     label: 'main',
   })),
+}));
+
+vi.mock('@tauri-apps/api/event', () => ({
+  listen: mockListen,
 }));
 
 vi.mock('@tauri-apps/api/core', () => ({
@@ -216,6 +222,7 @@ describe('App - Shift+Esc Prevention', () => {
     mockClose.mockResolvedValue(undefined);
     mockHide.mockResolvedValue(undefined);
     mockInvoke.mockResolvedValue(undefined);
+    mockListen.mockResolvedValue(() => {});
     mockOnCloseRequested.mockImplementation((handler) => {
       (mockOnCloseRequested as unknown as { handler?: unknown }).handler = handler;
       return Promise.resolve(() => {});
@@ -367,7 +374,9 @@ describe('App - Shift+Esc Prevention', () => {
     }).handler;
     const preventDefault = vi.fn();
 
-    await handler?.({ preventDefault });
+    await act(async () => {
+      await handler?.({ preventDefault });
+    });
 
     expect(preventDefault).toHaveBeenCalled();
     expect(mockHide).toHaveBeenCalled();
@@ -390,13 +399,72 @@ describe('App - Shift+Esc Prevention', () => {
     const handler = (mockOnCloseRequested as unknown as { handler?: (event: { preventDefault: () => void }) => Promise<void> }).handler;
     const preventDefault = vi.fn();
 
-    await handler?.({ preventDefault });
+    await act(async () => {
+      await handler?.({ preventDefault });
+    });
 
     expect(preventDefault).toHaveBeenCalled();
     expect(await screen.findByText('Tasks are still running')).toBeInTheDocument();
     expect(
       screen.getByText('2 tasks still running. Are you sure you want to exit TalkCody?')
     ).toBeInTheDocument();
+  });
+
+  it('should keep app open after user cancels exit with running tasks', async () => {
+    mockExecutionState.getRunningTaskIds = () => ['task-1'];
+    mockExecutionState.executions = new Map([
+      ['task-1', { status: 'running', isStreaming: false }],
+    ]);
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(mockOnCloseRequested).toHaveBeenCalled();
+    });
+
+    const handler = (mockOnCloseRequested as unknown as {
+      handler?: (event: { preventDefault: () => void }) => Promise<void>;
+    }).handler;
+    await act(async () => {
+      await handler?.({ preventDefault: vi.fn() });
+    });
+
+    fireEvent.click(await screen.findByText('Cancel'));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Tasks are still running')).not.toBeInTheDocument();
+    });
+
+    expect(mockClose).not.toHaveBeenCalled();
+    expect(mockInvoke).not.toHaveBeenCalledWith('set_force_exit_on_close', { enabled: true });
+  });
+
+  it('should reset forced tray exit after user cancels tray quit with running tasks', async () => {
+    mockExecutionState.getRunningTaskIds = () => ['task-1'];
+    mockExecutionState.executions = new Map([
+      ['task-1', { status: 'running', isStreaming: false }],
+    ]);
+
+    mockListen.mockImplementation(async (_eventName, handler) => {
+      if (_eventName === 'show-running-tasks-exit-dialog') {
+        (handler as (event: { payload?: { count?: number; source?: 'window' | 'tray' } }) => void)({
+          payload: { count: 1, source: 'tray' },
+        });
+      }
+      return () => {};
+    });
+
+    render(<App />);
+
+    fireEvent.click(await screen.findByText('Cancel'));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Tasks are still running')).not.toBeInTheDocument();
+    });
+
+    expect(mockClose).not.toHaveBeenCalled();
+    expect(mockInvoke).toHaveBeenCalledWith('set_force_exit_on_close', { enabled: false });
+    expect(mockInvoke).not.toHaveBeenCalledWith('set_force_exit_on_close', { enabled: true });
   });
 
   it('should force close after user confirms exit with running tasks', async () => {
@@ -412,7 +480,9 @@ describe('App - Shift+Esc Prevention', () => {
     });
 
     const handler = (mockOnCloseRequested as unknown as { handler?: (event: { preventDefault: () => void }) => Promise<void> }).handler;
-    await handler?.({ preventDefault: vi.fn() });
+    await act(async () => {
+      await handler?.({ preventDefault: vi.fn() });
+    });
 
     fireEvent.click(await screen.findByText('Exit anyway'));
 

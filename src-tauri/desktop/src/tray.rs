@@ -1,9 +1,11 @@
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
+
+use serde::Serialize;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Manager,
+    AppHandle, Emitter, Manager,
 };
 
 /// Shared state to track whether the app should minimize to tray on close.
@@ -13,6 +15,12 @@ pub struct TrayState {
     pub force_exit_on_close: AtomicBool,
     pub active_task_count: AtomicUsize,
     pub tray_icon: Mutex<Option<TrayIcon>>,
+}
+
+#[derive(Clone, Serialize)]
+pub struct RunningTasksExitDialogPayload {
+    pub count: usize,
+    pub source: &'static str,
 }
 
 impl TrayState {
@@ -79,7 +87,32 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                 }
                 "quit" => {
                     log::info!("Tray menu: Quit selected");
+
                     if let Some(state) = app.try_state::<Arc<TrayState>>() {
+                        let active_task_count = state.active_task_count();
+                        if active_task_count > 0 {
+                            log::info!(
+                                "Tray menu quit intercepted while {} task(s) are still active",
+                                active_task_count
+                            );
+                            if let Some(window) = app.get_webview_window("main") {
+                                if let Err(e) = window.emit(
+                                    "show-running-tasks-exit-dialog",
+                                    RunningTasksExitDialogPayload {
+                                        count: active_task_count,
+                                        source: "tray",
+                                    },
+                                ) {
+                                    log::error!(
+                                        "Failed to emit running tasks close warning from tray quit: {}",
+                                        e
+                                    );
+                                }
+                                show_main_window(app);
+                            }
+                            return;
+                        }
+
                         state.set_force_exit_on_close(true);
                     }
 

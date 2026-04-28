@@ -3,6 +3,8 @@ import { GenericToolDoing } from '@/components/tools/generic-tool-doing';
 import { GenericToolResult } from '@/components/tools/generic-tool-result';
 import { createTool } from '@/lib/create-tool';
 import { browserBridgeService } from '@/services/browser-bridge-service';
+import { repositoryService } from '@/services/repository-service';
+import { uriToFilePath } from '@/services/lsp/lsp-protocol';
 
 export const browserNavigateTool = createTool({
   name: 'browserNavigate',
@@ -14,6 +16,18 @@ export const browserNavigateTool = createTool({
   canConcurrent: false,
   hidden: true,
   execute: async ({ url }) => {
+    if (url.startsWith('file://')) {
+      const filePath = uriToFilePath(url);
+      const content = await repositoryService.readFileWithCache(filePath);
+      browserBridgeService.openFile(filePath, content);
+      return {
+        success: true,
+        url,
+        filePath,
+        message: `Opened built-in browser file preview: ${filePath}`,
+      };
+    }
+
     browserBridgeService.openUrl(url);
     return {
       success: true,
@@ -28,3 +42,4 @@ export const browserNavigateTool = createTool({
     <GenericToolResult success={result?.success ?? false} message={result?.message} />
   ),
 });
+

@@ -4,6 +4,7 @@ import { AlertCircle, Check, CopyIcon, RefreshCcwIcon, Trash2 } from 'lucide-rea
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { CollapsibleReasoning } from '@/components/chat/collapsible-reasoning';
 import { FilePreview } from '@/components/chat/file-preview';
+import { ReviewResultCard, isAutoReviewContent } from '@/components/chat/review-result-card';
 import { ToolErrorBoundary } from '@/components/tools/tool-error-boundary';
 import { ToolErrorFallback } from '@/components/tools/tool-error-fallback';
 import { UnifiedToolResult } from '@/components/tools/unified-tool-result';
@@ -317,11 +318,16 @@ function MessageItemComponent({
     ? mainText
     : `\n\n\`\`\`mermaid\n${mainText}\n\`\`\`\n\n`;
 
+  const isReviewResult =
+    message.role === 'assistant' && typeof message.content === 'string' && isAutoReviewContent(mainText);
+
   const assistantContent =
     outputFormat === 'web' ? (
       <WebContentRenderer content={mainText} />
     ) : outputFormat === 'mermaid' ? (
       <MyMarkdown content={mermaidContent} />
+    ) : isReviewResult ? (
+      <ReviewResultCard content={mainText} />
     ) : (
       <MyMarkdown content={mainText} />
     );
@@ -404,14 +410,96 @@ function MessageItemComponent({
 }
 
 // Memoized component to prevent unnecessary re-renders during streaming
-// - Streaming messages: only re-render when content length changes
-// - Completed messages: re-render only when relevant fields change
+// - Streaming text messages: only re-render when content length changes
+// - Tool messages: re-render when tool content/nested tool state changes
+// - Completed text messages: re-render only when relevant fields change
 export const MessageItem = memo(MessageItemComponent, (prevProps, nextProps) => {
   const prevMessage = prevProps.message;
   const nextMessage = nextProps.message;
 
   if (prevMessage.id !== nextMessage.id) {
     return false;
+  }
+
+  if (prevMessage.role === 'tool' || nextMessage.role === 'tool') {
+    if (prevProps.isLastAssistantInTurn !== nextProps.isLastAssistantInTurn) {
+      return false;
+    }
+
+    if (prevMessage.role !== nextMessage.role) {
+      return false;
+    }
+
+    if (prevMessage.renderDoingUI !== nextMessage.renderDoingUI) {
+      return false;
+    }
+
+    if (prevMessage.taskId !== nextMessage.taskId) {
+      return false;
+    }
+
+    if (prevMessage.attachments?.length !== nextMessage.attachments?.length) {
+      return false;
+    }
+
+    const prevContent = Array.isArray(prevMessage.content) ? prevMessage.content : [];
+    const nextContent = Array.isArray(nextMessage.content) ? nextMessage.content : [];
+    if (prevContent.length !== nextContent.length) {
+      return false;
+    }
+
+    for (let i = 0; i < prevContent.length; i++) {
+      const prevItem = prevContent[i];
+      const nextItem = nextContent[i];
+      if (!prevItem || !nextItem) {
+        return false;
+      }
+
+      if (
+        prevItem.type !== nextItem.type ||
+        prevItem.toolCallId !== nextItem.toolCallId ||
+        prevItem.toolName !== nextItem.toolName
+      ) {
+        return false;
+      }
+
+      if (JSON.stringify(prevItem.input) !== JSON.stringify(nextItem.input)) {
+        return false;
+      }
+
+      if (JSON.stringify(prevItem.output) !== JSON.stringify(nextItem.output)) {
+        return false;
+      }
+    }
+
+    const prevNestedTools = prevMessage.nestedTools || [];
+    const nextNestedTools = nextMessage.nestedTools || [];
+    if (prevNestedTools.length !== nextNestedTools.length) {
+      return false;
+    }
+
+    for (let i = 0; i < prevNestedTools.length; i++) {
+      const prevNested = prevNestedTools[i];
+      const nextNested = nextNestedTools[i];
+      if (!prevNested || !nextNested) {
+        return false;
+      }
+
+      if (
+        prevNested.id !== nextNested.id ||
+        prevNested.role !== nextNested.role ||
+        prevNested.renderDoingUI !== nextNested.renderDoingUI ||
+        prevNested.parentToolCallId !== nextNested.parentToolCallId
+      ) {
+        return false;
+      }
+
+      if (JSON.stringify(prevNested.content) !== JSON.stringify(nextNested.content)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   if (prevMessage.isStreaming || nextMessage.isStreaming) {
@@ -450,3 +538,4 @@ export const MessageItem = memo(MessageItemComponent, (prevProps, nextProps) => 
 
   return prevLen === nextLen;
 });
+

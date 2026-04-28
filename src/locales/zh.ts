@@ -853,6 +853,9 @@ const zh: LocaleDefinition = {
       outputFormatPlaceholder: '可选的输出格式说明...',
       modelType: '模型类型',
       modelTypeHint: '选择此 Agent 的模型类型类别。在设置 → 模型中配置实际模型。',
+      defaultSkills: '默认 Skills',
+      defaultSkillsPlaceholder: '搜索 skills...',
+      defaultSkillsHint: '使用此 Agent 时自动激活的 Skills',
     },
     tabs: {
       basic: '基本信息',

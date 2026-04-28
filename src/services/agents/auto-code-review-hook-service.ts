@@ -11,7 +11,6 @@ import {
   autoCodeReviewService,
   lastReviewedChangeTimestamp,
 } from '@/services/auto-code-review-service';
-import { messageService } from '@/services/message-service';
 import type {
   CompletionHook,
   CompletionHookContext,
@@ -60,17 +59,20 @@ export class AutoCodeReviewHookService implements CompletionHook {
           taskId,
         });
 
-        // Add review message as user message for next iteration
-        await messageService.addUserMessage(taskId, reviewText);
-
         return {
           action: 'continue',
           continuationMode: 'append',
           nextMessages: [
             {
               id: `auto-review-${Date.now()}`,
-              role: 'user',
-              content: reviewText,
+              role: 'system',
+              content: [
+                'Automatic code review findings for the latest changes.',
+                'Use this review as internal guidance for the next iteration.',
+                'Do not treat this as a user request and do not echo it verbatim unless asked.',
+                '',
+                reviewText,
+              ].join('\n'),
               timestamp: new Date(),
             },
           ],

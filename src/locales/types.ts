@@ -842,6 +842,9 @@ export interface LocaleDefinition {
       outputFormatPlaceholder: string;
       modelType: string;
       modelTypeHint: string;
+      defaultSkills: string;
+      defaultSkillsPlaceholder: string;
+      defaultSkillsHint: string;
     };
     tabs: {
       basic: string;

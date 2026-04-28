@@ -80,6 +80,13 @@ export class TestWriterAgent {
       tools: selectedTools,
       hidden: false,
       isDefault: true,
+      defaultSkills: [
+        'talkcody-knowledge-base',
+        'test-driven-development',
+        'webapp-testing',
+        'systematic-debugging',
+        'verification-before-completion',
+      ],
       role: 'write',
       dynamicPrompt: {
         enabled: true,

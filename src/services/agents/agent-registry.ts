@@ -75,6 +75,7 @@ class AgentRegistry {
     const { GeneralAgent } = await import('./general-agent');
     const { ExploreAgent } = await import('./explore-agent');
     const { OrchestratorAgent } = await import('./orchestrator-agent');
+    const { BrowserControlAgent } = await import('./browser-control-agent');
     const { UniversalSkillsAgent } = await import('./universal-skills-agent');
     const { DocumentWriterAgent } = await import('./document-writer-agent');
     const { TestWriterAgent } = await import('./test-writer-agent');
@@ -84,7 +85,7 @@ class AgentRegistry {
     const { CreateAgentAgent } = await import('./create-agent-agent');
     const { CreateSkillAgent } = await import('./create-skill-agent');
     const { ImageGeneratorAgent } = await import('./image-generator-agent');
-    const { PPTGeneratorAgent } = await import('./ppt-generator-agent');
+    const { OfficeAgent } = await import('./office-agent');
 
     const plannerTools = await this.buildPlannerTools();
 
@@ -96,6 +97,7 @@ class AgentRegistry {
       GeneralAgent.getDefinition(),
       ExploreAgent.getDefinition(),
       OrchestratorAgent.getDefinition(),
+      BrowserControlAgent.getDefinition(),
       UniversalSkillsAgent.getDefinition(),
       DocumentWriterAgent.getDefinition(),
       TestWriterAgent.getDefinition(),
@@ -105,7 +107,7 @@ class AgentRegistry {
       CreateAgentAgent.getDefinition(),
       CreateSkillAgent.getDefinition(),
       ImageGeneratorAgent.getDefinition(),
-      PPTGeneratorAgent.getDefinition(),
+      OfficeAgent.getDefinition(),
     ];
 
     // Load into memory and register UI renderers

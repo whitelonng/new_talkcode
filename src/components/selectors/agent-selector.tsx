@@ -7,28 +7,31 @@ import { logger } from '@/lib/logger';
 import { agentRegistry } from '@/services/agents/agent-registry';
 import { agentService } from '@/services/database/agent-service';
 import { useAgentStore } from '@/stores/agent-store';
+import { useConversationAgentStore } from '@/stores/conversation-agent-store';
 import { NavigationView } from '@/types/navigation';
 import { BaseSelector } from './base-selector';
 
 interface AgentSelectorProps {
   disabled?: boolean;
+  taskId?: string | null;
 }
 
-export function AgentSelector({ disabled = false }: AgentSelectorProps) {
-  const { settings, setAssistantId, loading: settingsLoading } = useAppSettings();
+export function AgentSelector({ disabled = false, taskId }: AgentSelectorProps) {
+  const { settings, loading: settingsLoading } = useAppSettings();
   const { setActiveView } = useUiNavigation();
+  const scopedAgentId = useConversationAgentStore((state) =>
+    state.getAgentForTask(taskId, settings.assistantId || 'planner')
+  );
+  const setAgentForTask = useConversationAgentStore((state) => state.setAgentForTask);
 
-  // Subscribe to agent store to trigger re-renders when agents are loaded
   const agentsMap = useAgentStore((state) => state.agents);
   const isLoadingAgents = useAgentStore((state) => state.isLoading);
   const refreshToken = useAgentStore((state) => state.refreshToken);
 
-  // Track enabled state for database agents
   const [dbAgentEnabledMap, setDbAgentEnabledMap] = useState<Map<string, boolean>>(new Map());
 
-  // Load enabled state for database agents
   useEffect(() => {
-    const loadEnabledState = async (refreshKey: number) => {
+    const loadEnabledState = async () => {
       try {
         const dbAgents = await agentService.listAgents({ includeHidden: false });
         const enabledMap = new Map<string, boolean>();
@@ -40,23 +43,18 @@ export function AgentSelector({ disabled = false }: AgentSelectorProps) {
         logger.error('Failed to load agent enabled state:', error);
       }
     };
-    loadEnabledState(refreshToken);
+    loadEnabledState();
   }, [refreshToken]);
 
   const agents = useMemo(() => {
     const allAgents = Array.from(agentsMap.values());
     return allAgents.filter((a) => {
-      // Filter hidden agents
       if (a.hidden) return false;
-
-      // For system agents, check in-memory enabled state
       if (a.isDefault) {
         return agentRegistry.isSystemAgentEnabled(a.id);
       }
-
-      // For user agents, check database enabled state
       const isEnabled = dbAgentEnabledMap.get(a.id);
-      return isEnabled !== false; // Default to true if not found
+      return isEnabled !== false;
     });
   }, [agentsMap, dbAgentEnabledMap]);
 
@@ -87,7 +85,8 @@ export function AgentSelector({ disabled = false }: AgentSelectorProps) {
         setActiveView(NavigationView.AGENTS_MARKETPLACE);
         return;
       }
-      await setAssistantId(id);
+
+      setAgentForTask(taskId, id);
     } catch (error) {
       logger.error('Failed to update agent:', error);
     }
@@ -101,7 +100,7 @@ export function AgentSelector({ disabled = false }: AgentSelectorProps) {
       items={agentItems}
       onValueChange={handleChange}
       placeholder="Select agent"
-      value={settings.assistantId}
+      value={scopedAgentId}
     />
   );
 }

@@ -242,6 +242,7 @@ export function AgentsPage() {
       dynamicProviders: string[];
       dynamicVariables: Record<string, string>;
       dynamicProviderSettings?: Record<string, unknown>;
+      defaultSkills: string[];
     }) => {
       try {
         // Build tools from selected names
@@ -269,6 +270,7 @@ export function AgentsPage() {
             tools,
             rules: agentData.rules,
             outputFormat: agentData.outputFormat,
+            defaultSkills: agentData.defaultSkills,
             dynamicPrompt: {
               enabled: agentData.dynamicEnabled,
               providers: agentData.dynamicProviders,
@@ -302,6 +304,7 @@ export function AgentsPage() {
             outputFormat: agentData.outputFormat,
             hidden: false,
             isDefault: false,
+            defaultSkills: agentData.defaultSkills,
             dynamicPrompt: {
               enabled: agentData.dynamicEnabled,
               providers: agentData.dynamicProviders,

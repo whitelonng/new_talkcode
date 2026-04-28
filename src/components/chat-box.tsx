@@ -24,6 +24,7 @@ import { messageService } from '@/services/message-service';
 import { previewSystemPrompt } from '@/services/prompt/preview';
 import { getEffectiveWorkspaceRoot } from '@/services/workspace-root-service';
 import { useAuthStore } from '@/stores/auth-store';
+import { useConversationAgentStore } from '@/stores/conversation-agent-store';
 import { settingsManager, useSettingsStore } from '@/stores/settings-store';
 import { useTaskStore } from '@/stores/task-store';
 import { useWorktreeStore } from '@/stores/worktree-store';
@@ -100,6 +101,9 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
     // useMessages with taskId for per-task message caching
     const { messages, stopStreaming, deleteMessage, deleteMessagesFromIndex, findMessageIndex } =
       useMessages(currentTaskId);
+    const scopedAgentId = useConversationAgentStore((state) =>
+      state.getAgentForTask(currentTaskId, settingsManager.getAgentId() || 'planner')
+    );
 
     // Handle input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -142,8 +146,11 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
     ) => {
       if (!userMessage.trim() || isLoading) return;
 
-      // Use override agent if provided (for commands), otherwise use user's selected agent
-      const agentId = overrideAgentId || (await settingsManager.getAgentId());
+      // Use override agent if provided, otherwise use task-scoped selected agent
+      const fallbackAgentId = await settingsManager.getAgentId();
+      const agentId =
+        overrideAgentId ||
+        useConversationAgentStore.getState().getAgentForTask(taskId ?? currentTaskId, fallbackAgentId);
       // Get agent with MCP tools resolved
       let agent = await agentRegistry.getWithResolvedTools(agentId);
       if (!agent) {
@@ -164,6 +171,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
                 | undefined) ?? 'native')
             : useTaskStore.getState().selectedNewTaskBackend;
           activeTaskId = await createTask(userMessage, { backend: selectedBackend });
+          useConversationAgentStore.getState().applyPendingToTask(activeTaskId);
           isNewTask = true;
         } catch (error) {
           logger.error('Failed to create task:', error);
@@ -723,6 +731,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
 
         <ChatInput
           ref={chatInputRef}
+          agentId={scopedAgentId}
           fileContent={fileContent}
           input={input}
           isLoading={isLoading}

@@ -12,15 +12,21 @@ import { ToolSelectorButton } from './tool-selector-button';
 
 interface ChatInputToolsBarProps {
   taskId?: string | null;
+  agentId?: string | null;
   disabled?: boolean;
   onAddCurrentFile?: () => void;
 }
 
-export function ChatInputToolsBar({ taskId, disabled, onAddCurrentFile }: ChatInputToolsBarProps) {
+export function ChatInputToolsBar({
+  taskId,
+  agentId,
+  disabled,
+  onAddCurrentFile,
+}: ChatInputToolsBarProps) {
   return (
     <div className="retroma-tools-bar flex items-center gap-2 border-b border-border/50 px-2 py-1">
       <ToolSelectorButton />
-      <SkillsSelectorButton taskId={taskId} />
+      <SkillsSelectorButton taskId={taskId} agentId={agentId} />
       <McpSelectorButton />
       <ModelSelectorButton taskId={taskId} />
       {/* <OutputFormatButton /> */}

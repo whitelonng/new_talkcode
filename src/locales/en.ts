@@ -884,6 +884,9 @@ const en: LocaleDefinition = {
       modelType: 'Model Type',
       modelTypeHint:
         'Select the model type category for this agent. Configure actual models in Settings → Models.',
+      defaultSkills: 'Default Skills',
+      defaultSkillsPlaceholder: 'Search skills...',
+      defaultSkillsHint: 'Skills automatically activated when this agent is used',
     },
     tabs: {
       basic: 'Basic Info',

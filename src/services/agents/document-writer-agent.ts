@@ -88,6 +88,7 @@ export class DocumentWriterAgent {
       tools: selectedTools,
       hidden: true,
       isDefault: true,
+      defaultSkills: ['talkcody-knowledge-base', 'doc-coauthoring', 'internal-comms', 'changelog-generator'],
       role: 'write',
       dynamicPrompt: {
         enabled: true,

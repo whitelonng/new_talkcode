@@ -294,6 +294,52 @@ describe('Agent Registry - Auto-load Behavior', () => {
     );
   });
 
+  it('should auto-load office agent', async () => {
+    const agent = await agentRegistry.get('office-agent');
+
+    expect(agent).toBeDefined();
+    expect(agent?.id).toBe('office-agent');
+    expect(agent?.name).toBe('Office 总控');
+    expect(agent?.hidden).toBe(false);
+    expect(agent?.canBeSubagent).toBe(true);
+    expect(agent?.defaultSkills).toEqual([
+      'officecli',
+      'docx',
+      'xlsx',
+      'pptx',
+      'theme-factory',
+    ]);
+    expect(Object.keys(agent?.tools || {})).toEqual(
+      expect.arrayContaining([
+        'readFile',
+        'writeFile',
+        'bash',
+        'askUserQuestions',
+        'installSkill',
+        'imageGeneration',
+        'todoWrite',
+      ])
+    );
+  });
+
+  it('should auto-load browser control agent', async () => {
+    const agent = await agentRegistry.get('browser-control');
+
+    expect(agent).toBeDefined();
+    expect(agent?.id).toBe('browser-control');
+    expect(agent?.name).toBe('浏览器控制');
+    expect(agent?.hidden).toBe(false);
+    expect(agent?.canBeSubagent).toBe(true);
+    expect(Object.keys(agent?.tools || {})).toEqual(
+      expect.arrayContaining([
+        'browserNavigate',
+        'browserSnapshot',
+        'browserGetConsoleErrors',
+        'browserGetNetworkLogs',
+      ])
+    );
+  });
+
   it('should enforce orchestrator tool allowlist', async () => {
     const agent = await agentRegistry.getWithResolvedTools('orchestrator');
 

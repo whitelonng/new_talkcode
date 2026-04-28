@@ -1,10 +1,11 @@
-// Agent editor dialog for creating/editing agents
-import { useCallback, useEffect, useId, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { Check, ChevronDown, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { BuiltInToolsSelector } from '@/components/agents/built-in-tools-selector';
 import { DynamicContextPanel } from '@/components/agents/dynamic-context-panel';
 import { MCPToolsSelector } from '@/components/agents/mcp-tools-selector';
 import { ModelTypeSelector } from '@/components/selectors/model-type-selector';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { collapseBrowserControlToolIds } from '@/lib/tools/browser-control-tool-group';
 import {
@@ -17,10 +18,12 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useLocale } from '@/hooks/use-locale';
+import { useSkills } from '@/hooks/use-skills';
 import { logger } from '@/lib/logger';
 import type { AgentDefinition } from '@/types/agent';
 import { ModelType } from '@/types/model-types';
@@ -42,6 +45,7 @@ interface AgentEditorDialogProps {
     dynamicProviders: string[];
     dynamicVariables: Record<string, string>;
     dynamicProviderSettings?: Record<string, unknown>;
+    defaultSkills: string[];
   }) => Promise<void>;
   onClose: () => void;
 }
@@ -83,6 +87,30 @@ export function AgentEditorDialog({
   const [dynamicProviderSettings, setDynamicProviderSettings] = useState<Record<string, unknown>>(
     {}
   );
+  const [defaultSkills, setDefaultSkills] = useState<string[]>([]);
+  const [skillSearch, setSkillSearch] = useState('');
+  const [skillsPopoverOpen, setSkillsPopoverOpen] = useState(false);
+
+  const { skills: allSkills, loading: skillsLoading } = useSkills();
+  const selectedDefaultSkillIds = useMemo(() => new Set(defaultSkills), [defaultSkills]);
+  const filteredSkills = useMemo(() => {
+    const query = skillSearch.trim().toLowerCase();
+    if (!query) {
+      return allSkills;
+    }
+
+    return allSkills.filter(
+      (skill) =>
+        skill.name.toLowerCase().includes(query) ||
+        skill.description.toLowerCase().includes(query) ||
+        skill.category.toLowerCase().includes(query)
+    );
+  }, [allSkills, skillSearch]);
+  const toggleDefaultSkill = useCallback((skillId: string) => {
+    setDefaultSkills((prev) =>
+      prev.includes(skillId) ? prev.filter((id) => id !== skillId) : [...prev, skillId]
+    );
+  }, []);
 
   // Stable callback for DynamicContextPanel to prevent infinite re-renders
   const handleDynamicChange = useCallback(
@@ -119,6 +147,7 @@ export function AgentEditorDialog({
       );
       setDynamicVariables(agent.dynamicPrompt?.variables ?? {});
       setDynamicProviderSettings(agent.dynamicPrompt?.providerSettings ?? {});
+      setDefaultSkills(agent.defaultSkills ?? []);
     } else {
       // Reset form for new agent
       setName('');
@@ -132,6 +161,7 @@ export function AgentEditorDialog({
       setDynamicProviders(['env', 'global_memory', 'project_memory', 'agents_md']);
       setDynamicVariables({});
       setDynamicProviderSettings({});
+      setDefaultSkills([]);
     }
   }, [agent]);
 
@@ -162,6 +192,7 @@ export function AgentEditorDialog({
         dynamicProviders,
         dynamicVariables,
         dynamicProviderSettings,
+        defaultSkills,
       };
 
       await onSave(agentData);
@@ -245,6 +276,106 @@ export function AgentEditorDialog({
                   rows={3}
                   className="font-mono text-sm"
                 />
+              </div>
+
+              <div>
+                <Label>{t.Agents.form.defaultSkills}</Label>
+                <p className="text-xs text-muted-foreground mb-2">{t.Agents.form.defaultSkillsHint}</p>
+                {defaultSkills.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {defaultSkills.map((id) => {
+                      const skill = allSkills.find((s) => s.id === id);
+                      return (
+                        <Badge key={id} variant="secondary" className="gap-1">
+                          {skill?.name ?? id}
+                          <X
+                            className="h-3 w-3 cursor-pointer"
+                            onClick={() => setDefaultSkills((prev) => prev.filter((s) => s !== id))}
+                          />
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                )}
+                <Popover open={skillsPopoverOpen} onOpenChange={setSkillsPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full justify-between"
+                      disabled={skillsLoading}
+                    >
+                      <span className="truncate text-muted-foreground">
+                        {skillsLoading
+                          ? t.Skills.selector.loading
+                          : defaultSkills.length > 0
+                            ? `${defaultSkills.length} ${t.Skills.selector.active}`
+                            : t.Agents.form.defaultSkillsPlaceholder}
+                      </span>
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <div className="p-3 border-b">
+                      <Input
+                        placeholder={t.Agents.form.defaultSkillsPlaceholder}
+                        value={skillSearch}
+                        onChange={(e) => setSkillSearch(e.target.value)}
+                        className="h-8"
+                      />
+                    </div>
+                    <ScrollArea className="h-64">
+                      {skillsLoading ? (
+                        <div className="p-4 text-center text-sm text-muted-foreground">
+                          {t.Skills.selector.loading}
+                        </div>
+                      ) : filteredSkills.length === 0 ? (
+                        <div className="p-4 text-center text-sm text-muted-foreground">
+                          {skillSearch
+                            ? t.Skills.selector.noSkillsFound
+                            : t.Skills.selector.noSkillsAvailable}
+                        </div>
+                      ) : (
+                        <div className="p-2 space-y-1">
+                          {filteredSkills.map((skill) => {
+                            const isSelected = selectedDefaultSkillIds.has(skill.id);
+                            return (
+                              <div
+                                key={skill.id}
+                                role="button"
+                                tabIndex={0}
+                                className={`flex items-center gap-2 rounded-md p-2 text-sm cursor-pointer hover:bg-accent ${
+                                  isSelected ? 'bg-accent/50' : ''
+                                }`}
+                                onClick={() => toggleDefaultSkill(skill.id)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    toggleDefaultSkill(skill.id);
+                                  }
+                                }}
+                              >
+                                <div
+                                  className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
+                                    isSelected ? 'bg-primary border-primary' : 'border-input'
+                                  }`}
+                                >
+                                  {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium truncate">{skill.name}</div>
+                                  <div className="text-xs text-muted-foreground truncate">
+                                    {skill.category}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </ScrollArea>
+                  </PopoverContent>
+                </Popover>
               </div>
             </TabsContent>
 

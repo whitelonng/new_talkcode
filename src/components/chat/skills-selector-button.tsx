@@ -1,7 +1,7 @@
 // src/components/chat/skills-selector-button.tsx
 
 import { Check, ExternalLink, Plus, Puzzle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
@@ -13,34 +13,40 @@ import { useTranslation } from '@/hooks/use-locale';
 import { useSkills } from '@/hooks/use-skills';
 import { getDocLinks } from '@/lib/doc-links';
 import { logger } from '@/lib/logger';
-import { useSkillsStore } from '@/stores/skills-store';
+import { useConversationAgentStore } from '@/stores/conversation-agent-store';
+import { useConversationSkillsStore } from '@/stores/conversation-skills-store';
+import { useAgentStore } from '@/stores/agent-store';
+import { useShallow } from 'zustand/react/shallow';
 
 interface SkillsSelectorButtonProps {
   taskId?: string | null;
+  agentId?: string | null;
   onBrowseMarketplace?: () => void;
 }
 
 export function SkillsSelectorButton({
-  taskId: _taskId,
+  taskId,
+  agentId: providedAgentId,
   onBrowseMarketplace,
 }: SkillsSelectorButtonProps) {
   const t = useTranslation();
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Load all available skills
+  const scopedAgentId = useConversationAgentStore((state) => state.getAgentForTask(taskId));
+  const agentId = providedAgentId ?? scopedAgentId;
+  const toggleSkillForScope = useConversationSkillsStore((state) => state.toggleSkillForScope);
+  const agents = useAgentStore((state) => state.agents);
+
+  const currentAgent = useMemo(() => (agentId ? agents.get(agentId) : undefined), [agents, agentId]);
+  const defaultSkillIds = useMemo(() => currentAgent?.defaultSkills ?? [], [currentAgent]);
+  const activeSkillIdsArray = useConversationSkillsStore(
+    useShallow((state) => state.resolveSkillIds(taskId, agentId, defaultSkillIds))
+  );
+  const activeSkillIds = useMemo(() => new Set(activeSkillIdsArray), [activeSkillIdsArray]);
+
   const { skills: allSkills, loading } = useSkills();
 
-  // Load active skills from store on mount
-  const loadActiveSkills = useSkillsStore((state) => state.loadActiveSkills);
-  const toggleSkill = useSkillsStore((state) => state.toggleSkill);
-  const activeSkillIds = useSkillsStore((state) => state.activeSkillIds);
-
-  useEffect(() => {
-    loadActiveSkills();
-  }, [loadActiveSkills]);
-
-  // Filter skills by search query
   const filteredSkills = searchQuery
     ? allSkills.filter(
         (skill) =>
@@ -53,11 +59,14 @@ export function SkillsSelectorButton({
   const handleToggleSkill = async (skillId: string) => {
     try {
       const isSelected = activeSkillIds.has(skillId);
-
-      // Toggle skill in global active skills list
-      await toggleSkill(skillId);
+      const nextSkills = toggleSkillForScope(taskId, agentId, skillId, defaultSkillIds);
 
       toast.success(isSelected ? t.Skills.selector.skillRemoved : t.Skills.selector.skillAdded);
+      logger.info('[SkillsSelectorButton] Updated scoped skill overrides', {
+        taskId,
+        agentId,
+        count: nextSkills.length,
+      });
     } catch (error) {
       logger.error('Failed to toggle skill:', error);
       toast.error(t.Skills.selector.updateFailed);
@@ -107,7 +116,6 @@ export function SkillsSelectorButton({
             )}
           </div>
 
-          {/* Search */}
           <div className="p-3 border-b">
             <Input
               placeholder={t.Skills.selector.searchPlaceholder}
@@ -117,7 +125,6 @@ export function SkillsSelectorButton({
             />
           </div>
 
-          {/* Skills list */}
           <ScrollArea className="h-[400px]">
             {loading ? (
               <div className="p-4 text-center text-sm text-muted-foreground">
@@ -133,8 +140,8 @@ export function SkillsSelectorButton({
               <div className="p-2 space-y-1">
                 {filteredSkills.map((skill) => {
                   const isActive = activeSkillIds.has(skill.id);
+                  const isDefault = defaultSkillIds.includes(skill.id);
                   return (
-                    /* biome-ignore lint/a11y/useSemanticElements: Complex flex layout requires div, has proper keyboard handling */
                     <div
                       key={skill.id}
                       className={`flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-accent ${
@@ -174,6 +181,7 @@ export function SkillsSelectorButton({
                         <div className="font-medium text-sm truncate">{skill.name}</div>
                         <div className="text-xs text-muted-foreground truncate">
                           {skill.category}
+                          {isDefault ? ' · default' : ''}
                         </div>
                       </div>
                     </div>
@@ -183,7 +191,6 @@ export function SkillsSelectorButton({
             )}
           </ScrollArea>
 
-          {/* Footer */}
           {onBrowseMarketplace && (
             <>
               <Separator />
